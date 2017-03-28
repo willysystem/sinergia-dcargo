@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+         http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
+         version="2.1">
+	
+	<persistence-unit name="dCargoUnit"  transaction-type="JTA">
+		<provider>org.hibernate.ejb.HibernatePersistence</provider>
+		<jta-data-source>java:jboss/datasources/DCargoDS</jta-data-source>
+		<non-jta-data-source>java:jboss/datasources/DCargoDS</non-jta-data-source>
+<!-- 	<class>com.sinergia.dcargo.client.shared.Person</class> -->
+<!-- 	<class>com.sinergia.dcargo.client.shared.User</class> -->
+		<!-- to change DB dialect use for Oracle: org.hibernate.dialect.OracleDialect, for Mysql5: org.hibernate.dialect.MySQL5Dialect -->
+		<exclude-unlisted-classes>false</exclude-unlisted-classes>
+		<properties>
+			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect" />
+			<property name="hibernate.show_sql" value="false" />
+			<property name="hibernate.transaction.auto_close_session" value="true"/>
+		</properties>
+	</persistence-unit>
+	
+</persistence> 
