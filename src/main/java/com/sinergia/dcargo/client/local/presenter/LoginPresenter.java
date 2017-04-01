@@ -10,8 +10,16 @@ import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.event.LoginEvent;
 
+/**
+ * 
+ * @author willy
+ */
 public class LoginPresenter implements Presenter {
 
+	Boolean autoLogin = false;
+	String user = "900009";
+	String pass = "EPLACER";		
+	
 	public interface Display {
 		
 		HasValue<String> getUserName();

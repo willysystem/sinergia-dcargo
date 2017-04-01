@@ -128,6 +128,7 @@ buildNumber.properties
 *.symbolMap
 .errai/
 deploy/
+src/main/webapp/dcargo
 
 # idea
 

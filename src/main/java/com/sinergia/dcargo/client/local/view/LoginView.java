@@ -9,6 +9,7 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
+import com.google.gwt.user.client.ui.FormPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasValue;
 import com.google.gwt.user.client.ui.PasswordTextBox;
@@ -32,6 +33,12 @@ public class LoginView extends DialogBox implements LoginPresenter.Display {
 	@PostConstruct
 	public void init() {
 		
+		userTextBox.setName("j_username");
+		passwordTextBox.setName("j_password");
+		
+		FormPanel formPanel = new FormPanel(); 
+		formPanel.setAction("j_security_check");
+		
 	    setGlassEnabled(true);
 	    setAnimationEnabled(true);
 	    ensureDebugId("login");
@@ -54,7 +61,9 @@ public class LoginView extends DialogBox implements LoginPresenter.Display {
 	    
 	    layout.setWidget(3, 1, enterButton);
 	    
-	    setWidget(layout);
+	    formPanel.setWidget(layout);
+	    
+	    setWidget(formPanel);
 	    
 	    
 	    enterButton.addClickHandler(new ClickHandler() {

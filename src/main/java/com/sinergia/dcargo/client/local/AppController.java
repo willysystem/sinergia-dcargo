@@ -116,7 +116,7 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
     bind();
    
     if ("".equals(History.getToken())) {
-      History.newItem("login");
+      History.newItem("logined");
     } else {
       History.fireCurrentHistoryState();
     }

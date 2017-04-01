@@ -1,0 +1,16 @@
+# add module driver mysql
+module add --name=com.mysql --resources=/opt/mysql-connector-java-5.1.41/mysql-connector-java-5.1.41-bin.jar --dependencies=javax.api,javax.transaction.api
+
+# add driver mysql
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql)
+
+# add datasource 
+/subsystem=datasources/data-source=DCargoDS:add(jndi-name=java:jboss/datasources/DCargoDS, connection-url= jdbc:mysql://localhost:3306/dcargo, driver-name=mysql, user-name=root, password=Monamis_123!)
+
+# add security domain
+/subsystem=security/security-domain=security-dcargo/:add(cache-type=default)
+/subsystem=security/security-domain=security-dcargo/authentication=classic:add(login-modules=[{"code"=>"Database", "flag"=>"required", "module-options"=>[("dsJndiName"=>"java:jboss/datasources/DCargoDS"),("principalsQuery"=>"SELECT PASSWORD FROM User WHERE USER = ?"), ("rolesQuery"=>"SELECT ADMINISTRATOR, 'Roles' FROM User WHERE USER = ?"), ("hashAlgorithm"=>"MD5"), ("hashEncoding"=>"hex")]}])
+
+# remove datasource
+/subsystem=datasources/data-source=DCargoDS:remove
+
