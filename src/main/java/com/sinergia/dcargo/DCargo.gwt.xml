@@ -1,22 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.8.0//EN" "http://gwtproject.org/doctype/2.8.0/gwt-module.dtd">
 <module rename-to="dcargo">
-	<inherits name="org.jboss.errai.enterprise.All" />
+
+	<inherits name="com.google.gwt.i18n.I18N"/>
 	<inherits name='com.google.gwt.user.theme.clean.Clean'/>
 	<inherits name="com.google.gwt.resources.Resources"/>
-
-<!-- 	<source path='model' /> 	 -->
-	 
-<!-- 	<inherits name="com.google.gwt.user.theme.clean.CleanResources"/> -->
+	
+	<inherits name="org.jboss.errai.common.ErraiCommon" />
+    <inherits name="org.jboss.errai.ioc.Container" />
+    <inherits name="org.jboss.errai.enterprise.CDI" />
+    <inherits name="org.jboss.errai.bus.ErraiBus" />
+	<inherits name="org.fusesource.restygwt.RestyGWT"/>
+	
+	<inherits name='com.sencha.gxt.ui.GXT' />
+	<inherits name="com.sencha.gxt.theme.gray.Gray" />
+	<set-configuration-property name="CssResource.conversionMode"  value="strict" />
+	
+<!-- 	<inherits name='com.promis.rtti.Rtti' /> -->
+	
+<!-- <inherits name="xapi.X_ReflectNoInject"/> -->
+<!--     <inherits name="com.google.gwt.reflect.GwtReflect"/> -->
 	
 	<set-property name="gwt.logging.enabled" value="TRUE" />
+	
+	
+	
+<!-- 	<extend-property name="locale" values="es"/> -->
+<!-- 	<source path='model' /> 	 -->
+<!-- 	<inherits name="com.google.gwt.user.theme.clean.CleanResources"/> -->
+<!--  	<entry-point class="com.sinergia.dcargo.client.local.DCargo" />  -->
+	
+	
 	<!-- Uncomment the line below to enable all logging statements (default 
 		level is "INFO"). -->
-	<!-- <set-property name="gwt.logging.logLevel" value="ALL"/> -->
+<!-- 	<set-property name="gwt.logging.logLevel" value="DEBUG"/> -->
+
+<!-- 	<generate-with class="com.sinergia.dcargo.client.local.GetSetAttributeGenerator"> -->
+<!--     	<when-type-assignable class="com.sinergia.dcargo.client.local.Function" /> -->
+<!-- 	</generate-with> -->
+
 
 	<add-linker name="xsiframe" />
-<!-- 	<set-property name="compiler.useSourceMaps" value="true" /> -->
+	<set-property name="compiler.useSourceMaps" value="true" />
+	
+	<set-property name="restygwt.encodeDecode.useGwtJackson" value="true" />
+	
 <!-- 	<set-configuration-property name="includeSourceMapUrl" -->
-<!-- 		value="http://localhost:8090/sinegia-cargo/src/__HASH___sourceMap__FRAGMENT__.json" /> -->
+<!-- 		errr="http://localhost:8090/sinegia-cargo/src/__HASH___sourceMap__FRAGMENT__.json" /> -->
 
 </module>

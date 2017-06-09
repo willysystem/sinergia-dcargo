@@ -1,114 +1,109 @@
 package com.sinergia.dcargo.client.local;
+
+import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
+import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
+import org.jboss.errai.ioc.client.api.AfterInitialization;
+import org.slf4j.Logger;
+
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.HasWidgets;
-import com.sinergia.dcargo.client.local.event.LoginEvent;
-import com.sinergia.dcargo.client.local.event.LoginEventHandler;
-import com.sinergia.dcargo.client.local.event.UserMainEvent;
-import com.sinergia.dcargo.client.local.event.UserMainEventHandler;
-import com.sinergia.dcargo.client.local.presenter.LoginPresenter;
+import com.sinergia.dcargo.client.local.event.EventoHandlerCambiarContrasenia;
+import com.sinergia.dcargo.client.local.event.EventoHandlerCliente;
+import com.sinergia.dcargo.client.local.event.EventoHandlerGuia;
+import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
+import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
+import com.sinergia.dcargo.client.local.event.EventoCliente;
+import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoUsuario;
+import com.sinergia.dcargo.client.local.event.EventoHandlerUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
+import com.sinergia.dcargo.client.local.presenter.PresentadorCambioContrasenia;
+import com.sinergia.dcargo.client.local.presenter.PresentadorClientes;
+import com.sinergia.dcargo.client.local.presenter.PresentadorGuia;
 import com.sinergia.dcargo.client.local.presenter.Presenter;
-import com.sinergia.dcargo.client.local.presenter.UserMainPresenter;
+import com.sinergia.dcargo.client.local.presenter.UserPresenter;
 
 @ApplicationScoped
+//@Singleton
 public class AppController implements com.sinergia.dcargo.client.local.presenter.Presenter, ValueChangeHandler<String> {
-	
-//  @Inject
-//  private IOCBeanManager manager;
 
   @Inject
   private HandlerManager eventBus;
 
-  private HasWidgets container;
+  @Inject
+  private Logger log;
   
   @Inject
-  private LoginPresenter loginPresenter;
+  private AdminParametros adminParametros;
   
   @Inject
   private MainContentPresenter mainContentPresenter;
-  
   @Inject
-  private UserMainPresenter userMainPresenter;
+  private UserPresenter userMainPresenter;
+  @Inject
+  private PresentadorCambioContrasenia preCambioContrasenia;
+  @Inject
+  private PresentadorClientes presentadorClientes;
+  @Inject
+  private PresentadorGuia presentadorGuia;
+
+  
+  private HasWidgets container;
+
+  public AppController() {
+	  GWT.log(this.getClass().getSimpleName() + "()");
+  }
+  
+  @PostConstruct
+  public void postContruct() {
+	  log.info("@PostConstruct: " + this.getClass().getSimpleName());
+  }
+  
+  @AfterInitialization
+  public void init(){
+	  log.info("@AfterInitialization: " + this.getClass().getSimpleName());
+  }
   
   public void bind() {
 	  
     History.addValueChangeHandler(this);
 
-    eventBus.addHandler(LoginEvent.TYPE, new LoginEventHandler() {
+    eventBus.addHandler(EventoUsuario.TYPE, new EventoHandlerUsuario() {
 		@Override
-		public void onLogin(LoginEvent event) {
-		    doLogined();	
-		}
-	});
-    
-    eventBus.addHandler(UserMainEvent.TYPE, new UserMainEventHandler() {
-		@Override
-		public void onLogin(UserMainEvent event) {
+		public void onLogin(EventoUsuario event) {
 			History.newItem("users");
 		}
 	});   
+    eventBus.addHandler(EventoCambiarContrasenia.TYPE, new EventoHandlerCambiarContrasenia(){
+		@Override
+		public void onCambioContrasenia(EventoCambiarContrasenia event) {
+			History.newItem("contrasenia");
+		}
+    });
+    eventBus.addHandler(EventoCliente.TYPE, new EventoHandlerCliente() {
+		@Override
+		public void onLogin(EventoCliente event) {
+			History.newItem("clientes");
+		}
+	});
+    eventBus.addHandler(EventoGuia.TYPE, new EventoHandlerGuia() {
+		@Override
+		public void onLogin(EventoGuia event) {
+			History.newItem("guias");
+		}
+	});
     
-//
-//    eventBus.addHandler(EditContactEvent.TYPE, new EditContactEventHandler() {
-//      public void onEditContact(EditContactEvent event) {
-//        doEditContact(event.getId());
-//      }
-//    });
-//
-//    eventBus.addHandler(EditContactCancelledEvent.TYPE,
-//        new EditContactCancelledEventHandler() {
-//          public void onEditContactCancelled(EditContactCancelledEvent event) {
-//            doEditContactCancelled();
-//          }
-//        });
-//
-//    eventBus.addHandler(ContactUpdatedEvent.TYPE,
-//        new ContactUpdatedEventHandler() {
-//          public void onContactUpdated(ContactUpdatedEvent event) {
-//            doContactUpdated();
-//          }
-//        });
-  }
-
-//  private void doLogin() {
-//	 History.newItem("login");
-//  }
-  
-  private void doLogined(){
-	  History.newItem("logined");  
   }
   
-  private void doAddNewContact() {
-	  History.newItem("add");
-  }
-
-  private void doEditContact(String id) {
-	  History.newItem("edit", false);
-    
-//    IOCBeanDef<EditContactPresenter> bean = manager.lookupBean(EditContactPresenter.class);
-//    
-//    EditContactPresenter presenter = null;
-//    if (bean != null) {
-//      presenter = bean.getInstance();
-//    }
-//    
-//    if (presenter != null) {
-//      presenter.go(container, id);
-//    }
-  }
-
-  private void doEditContactCancelled() {
-    History.newItem("list");
-  }
-
-  private void doContactUpdated() {
-    History.newItem("list");
+  private void doHome(){
+	  History.newItem("home");  
   }
 
   public void go(final HasWidgets container) {
@@ -116,7 +111,7 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
     bind();
    
     if ("".equals(History.getToken())) {
-      History.newItem("logined");
+      History.newItem("home");
     } else {
       History.fireCurrentHistoryState();
     }
@@ -124,19 +119,26 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 
   public void onValueChange(ValueChangeEvent<String> event) {
     String token = event.getValue();
+    log.info("onValueChange: token: " + token);
+    
     if (token != null) {
       Presenter presenter = null;
 
-      if (token.equals("login")) {
+      if (token.equals("contrasenia")) {
+    	  presenter = preCambioContrasenia;
         //IOCBeanDef<ContactsPresenter> bean = manager.lookupBean(ContactsPresenter.class);
         //if (bean != null) {
-          presenter = loginPresenter;
+//          presenter = loginPresenter;
         //}
-      } else if (token.equals("logined")) {
+      } else if (token.equals("home")) {
     	  presenter =  mainContentPresenter;
       } else if (token.equals("users")) {
     	  presenter =  userMainPresenter;
-      }         
+      } else if (token.equals("clientes")) {
+    	  presenter =  presentadorClientes;
+      } else if (token.equals("guias")) {
+    	  presenter =  presentadorGuia;
+      } 
       
       
 //    } else if (token.equals("add") || token.equals("edit")) {
@@ -145,11 +147,21 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 //          presenter = bean.getInstance();
 //        }
 //    }
-     
       
       if (presenter != null) {
         presenter.go(container);
       }
     }
+    
   }
+  
+  @Produces
+  public ServicioItemCliente servicioItemCliente(){
+	  ServicioItemCliente servicioItem = GWT.create(ServicioItemCliente.class);
+	  return servicioItem;
+  }
+  
+  
+  
+  
 }

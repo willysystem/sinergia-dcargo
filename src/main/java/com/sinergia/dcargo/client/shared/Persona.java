@@ -1,25 +1,41 @@
 package com.sinergia.dcargo.client.shared;
 
-import java.io.Serializable;
+import javax.persistence.GenerationType;
+import javax.persistence.Inheritance;
+import javax.persistence.InheritanceType;
+import javax.persistence.Transient;
 
-import javax.persistence.Entity;
 
-import org.jboss.errai.common.client.api.annotations.Portable;
-
-@Entity
-@Portable
-public class Persona implements Serializable {
-
-	
-	private static final long serialVersionUID = -8704027295195729641L;
-	private String nombre;
-	
+/**
+ * @generated
+ */
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
+@javax.persistence.Entity
+@javax.persistence.Table(name = "persona")
+public class Persona implements java.io.Serializable {
+	/**
+	 * @generated
+	 */
+	private static final long serialVersionUID = -196851561L;
+	/**
+	 * @generated
+	 */
 	private Long id;
 
-	public Persona(){
-		
-	}
-	
+	/**
+	 * @generated
+	 */
+	private Integer nro;
+
+	/**
+	 * @generated
+	 */
+	private String apellidos;
+	/**
+	 * @generated
+	 */
+	private String nombres;
+
 	/**
 	 * @generated
 	 */
@@ -35,16 +51,61 @@ public class Persona implements Serializable {
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	public String getNombre() {
-		return nombre;
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Persona" + " id=" + id + " apellidos=" + apellidos
+				+ " nombres=" + nombres + " nro=" + nro;
 	}
 
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
+	/**
+	 * @generated
+	 */
+	@Transient
+	public Integer getNro() {
+		return this.nro;
 	}
-	
-	
-	
+
+	/**
+	 * @generated
+	 */
+	public void setNro(Integer nro) {
+		this.nro = nro;
+	}
+
+	/**
+	 * @generated
+	 */
+	public Persona() {
+	}
+
+	/**
+	 * @generated
+	 */
+	public String getApellidos() {
+		return this.apellidos;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setApellidos(String apellidos) {
+		this.apellidos = apellidos;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String getNombres() {
+		return this.nombres;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setNombres(String nombres) {
+		this.nombres = nombres;
+	}
 }
-

@@ -1,5 +1,5 @@
 <jboss-web>
-<!-- 	<context-root>dcargo</context-root> -->
+ 	<context-root>dcargo</context-root> 
     <security-domain>security-dcargo</security-domain>
     <disable-audit>true</disable-audit> 
 <!--    <valve> -->

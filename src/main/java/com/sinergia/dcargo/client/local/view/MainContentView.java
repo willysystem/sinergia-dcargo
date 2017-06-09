@@ -4,107 +4,136 @@ import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.jboss.errai.ioc.client.api.AfterInitialization;
+import org.slf4j.Logger;
+
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.logical.shared.ResizeEvent;
+import com.google.gwt.event.logical.shared.ResizeHandler;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.Command;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
+import com.google.gwt.user.client.ui.ResizeComposite;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
-import com.sinergia.dcargo.client.local.event.UserMainEvent;
+import com.google.gwt.user.client.ui.Widget;
+import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
+import com.sinergia.dcargo.client.local.event.EventoCliente;
+import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
+import com.sinergia.dcargo.client.shared.Usuario;
 
+/**
+ * 
+ * @author Willy Hurtado Vela 
+ *         willysystems@gmail.com
+ */
 @Singleton
-public class MainContentView extends DockPanel implements MainContentPresenter.Display {
+public class MainContentView extends ResizeComposite implements MainContentPresenter.Display {
 
-	private int widthNavigator  = Window.getClientWidth();
-	private int heightNavigator = Window.getClientHeight();
-	
 	@Inject
 	private HandlerManager eventBus;
 	
+	@Inject
+	private Logger log;
+	
 	private SimplePanel panelCentral;
 	
+	private DockPanel mainContainer = new DockPanel();
+	
+	private Label userLabelValue = new Label();
+	private Label placeLabelValue = new Label();
+	private Label dateLabelValue = new Label();
+	private Label fullNameLabelValue = new Label();
+	
+	public MainContentView() {
+		GWT.log(MainContentView.class.getSimpleName() + "()");
+	}
+	
 	@PostConstruct
-	public void init() {
-		setStyleName("cw-DockPanel");
-	    setSpacing(4);
-	    setHorizontalAlignment(DockPanel.ALIGN_CENTER);
-	    
+	public void postContruct() {
+		log.info("@PostConstruct: " + MainContentView.class.getSimpleName());
+	}
+	
+	@AfterInitialization
+	public void init(){
+	    log.info("@AfterInitialization: " + MainContentView.class.getSimpleName());
 	}
 
 	@Override
 	public void showMainContent(HasWidgets container) {
 		
-		add(getMainMenu(), DockPanel.NORTH);
-	    add(getContentBody() , DockPanel.CENTER);
-	    add(getStatusBar(), DockPanel.SOUTH);
-	    container.add(this);
+		mainContainer.setWidth("100%");
+		mainContainer.setHeight("100%");
+		mainContainer.setSpacing(2);
+		
+		mainContainer.setHorizontalAlignment(DockPanel.ALIGN_CENTER);
+		mainContainer.add(getMainMenu(), DockPanel.NORTH);
+		mainContainer.add(getContentBody() , DockPanel.CENTER);
+		mainContainer.add(getStatusBar(), DockPanel.SOUTH);
+//		initWidget(mainContainer);
+//		setWidth("100px");
+//		setHeight("100px");
+	    container.add(mainContainer);
+	   
 	    
 	}
 	
 	private MenuBar getMainMenu() {
 		
 	    Command menuCommand = new Command() {
-		      private int curPhrase = 0;
 		      public void execute() {
-		    	  eventBus.fireEvent(new UserMainEvent());
+		    	  
 		      }
 		};
 		 
 		MenuBar menu = new MenuBar();
 	    menu.setAutoOpen(true);
-	    //menu.setWidth("" + (widthNavigator - 30) + "px");
 	    menu.setAnimationEnabled(true);
 
-	    // Guías
+	   
 	    MenuBar guiasMenuBar = new MenuBar(true);
 	    guiasMenuBar.setAnimationEnabled(true);
-	    
-	    MenuItem menuGuia = new MenuItem("Guías", guiasMenuBar);
+	   
+	    // Guías
+	    MenuItem menuGuia = new MenuItem("Guías", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoGuia());
+			}
+		});
 	    menu.addItem(menuGuia);
-	    
-	    MenuItem nuevaGuiaMenuItem     = new MenuItem("Nuevo", menuCommand);
-	    MenuItem consultarGuiaMenuItem = new MenuItem("Consultar", menuCommand);
-	    MenuItem modificarGuiaMenuItem = new MenuItem("Modificar", menuCommand);
-	    MenuItem anularGuiaMenuItem    = new MenuItem("Anular", menuCommand);
-	    MenuItem reporteGuiaMenuItem   = new MenuItem("Reporte", menuCommand);
-	    MenuItem entregaGuiaMenuItem   = new MenuItem("Entrega", menuCommand);
-	    MenuItem guiaNuevaMenuItem     = new MenuItem("Guía* (Nueva Opción)", menuCommand);
-	    
-	    guiasMenuBar.addItem(nuevaGuiaMenuItem);
-	    guiasMenuBar.addItem(consultarGuiaMenuItem);
-	    guiasMenuBar.addItem(modificarGuiaMenuItem);
-	    guiasMenuBar.addItem(anularGuiaMenuItem);
-	    guiasMenuBar.addItem(reporteGuiaMenuItem);
-	    guiasMenuBar.addItem(entregaGuiaMenuItem);
-	    guiasMenuBar.addItem(guiaNuevaMenuItem);
-	    
 	    
 	    // Conocimiento
 	    MenuBar conocimientoMenuBar = new MenuBar(true);
 	    conocimientoMenuBar.setAnimationEnabled(true);
 	    
-	    MenuItem registroConocimientoMenuItem = new MenuItem("Registro", menuCommand);
-	    MenuItem consultarConocimientoMenuItem = new MenuItem("Consultar", menuCommand);
-	    MenuItem modificarConocimientoMenuItem = new MenuItem("Modificar", menuCommand);
-	    MenuItem anularConocimientoMenuItem = new MenuItem("Anular", menuCommand);
-	    MenuItem reporteConocimientoMenuItem = new MenuItem("Reporte", menuCommand);
-	    MenuItem actualizarDatosConocimientoMenuItem = new MenuItem("Actualizar datos complementarios", menuCommand);
-	    MenuItem nuevoConocimientoMenuItem = new MenuItem("Conocimiento* (Nuevo)", menuCommand);
+//	    MenuItem registroConocimientoMenuItem = new MenuItem("Registro", menuCommand);
+//	    MenuItem consultarConocimientoMenuItem = new MenuItem("Consultar", menuCommand);
+//	    MenuItem modificarConocimientoMenuItem = new MenuItem("Modificar", menuCommand);
+//	    MenuItem anularConocimientoMenuItem = new MenuItem("Anular", menuCommand);
+//	    MenuItem reporteConocimientoMenuItem = new MenuItem("Reporte", menuCommand);
+//	    MenuItem actualizarDatosConocimientoMenuItem = new MenuItem("Actualizar datos complementarios", menuCommand);
+//	    MenuItem nuevoConocimientoMenuItem = new MenuItem("Conocimiento* (Nuevo)", menuCommand);
 	    
 	    
-	    conocimientoMenuBar.addItem(registroConocimientoMenuItem);
-	    conocimientoMenuBar.addItem(consultarConocimientoMenuItem);
-	    conocimientoMenuBar.addItem(modificarConocimientoMenuItem);
-	    conocimientoMenuBar.addItem(anularConocimientoMenuItem);
-	    conocimientoMenuBar.addItem(reporteConocimientoMenuItem);
-	    conocimientoMenuBar.addItem(actualizarDatosConocimientoMenuItem);
-	    conocimientoMenuBar.addItem(nuevoConocimientoMenuItem);
+//	    conocimientoMenuBar.addItem(registroConocimientoMenuItem);
+//	    conocimientoMenuBar.addItem(consultarConocimientoMenuItem);
+//	    conocimientoMenuBar.addItem(modificarConocimientoMenuItem);
+//	    conocimientoMenuBar.addItem(anularConocimientoMenuItem);
+//	    conocimientoMenuBar.addItem(reporteConocimientoMenuItem);
+//	    conocimientoMenuBar.addItem(actualizarDatosConocimientoMenuItem);
+//	    conocimientoMenuBar.addItem(nuevoConocimientoMenuItem);
 	    menu.addItem(new MenuItem("Conocimiento", conocimientoMenuBar));
 	    
 	    // Liquidaciones
@@ -133,7 +162,12 @@ public class MainContentView extends DockPanel implements MainContentPresenter.D
 	    
 	    // Registro de Datos
 	    MenuBar registroDatosMenuBar = new MenuBar(true);
-	    MenuItem clientesRegistroDatos = new MenuItem("Clientes", menuCommand);
+	    MenuItem clientesRegistroDatos = new MenuItem("Clientes", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoCliente());
+			}
+		});
 	    MenuItem transportistasRegistroDatos = new MenuItem("Transportistas", menuCommand);
 	    MenuItem cuentasIngresoRegistroDatos = new MenuItem("Cuentas de ingreso", menuCommand);
 	    MenuItem cuentasEgresoRegistroDatos = new MenuItem("Cuentas de egreso", menuCommand);
@@ -151,49 +185,143 @@ public class MainContentView extends DockPanel implements MainContentPresenter.D
 	    MenuItem usuariosAdministracion = new MenuItem("Usuarios", new Command() {
 			@Override
 			public void execute() {
-				eventBus.fireEvent(new UserMainEvent());
+				eventBus.fireEvent(new EventoUsuario());
 			}
 		});
-	    MenuItem fechaAdministracion = new MenuItem("Actualizar fecha del sistema", menuCommand);
-	    MenuItem contrasenaAdministracion = new MenuItem("Cambio de contraseña", menuCommand);
-	    
+	    //MenuItem fechaAdministracion = new MenuItem("Actualizar fecha del sistema", menuCommand);
+	    MenuItem contrasenaAdministracion = new MenuItem("Cambio de contraseña", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoCambiarContrasenia());
+			}
+		});
+	    MenuItem salirAdministracion = new MenuItem("Salir", new Command() {
+		      													  public void execute() {
+		      														 Window.open("logout", "_self", null);
+		      													  }
+															  });
 	    admMenuBar.setAnimationEnabled(true);
 	    admMenuBar.addItem(usuariosAdministracion);
-	    admMenuBar.addItem(fechaAdministracion);
+	    //admMenuBar.addItem(fechaAdministracion);
 	    admMenuBar.addItem(contrasenaAdministracion);
+	    admMenuBar.addItem(salirAdministracion);
 	    menu.addItem(new MenuItem("Administración", admMenuBar));
 	    
 	    return menu;
 	}
 
 	public SimplePanel getCentralPanel(){
+		if(panelCentral != null) {
+			panelCentral.clear();
+		}
+		
 		return panelCentral;
 	}
 	
-	private DecoratorPanel getContentBody() {
+	private Widget getContentBody() {
 		
-		panelCentral = new SimplePanel();
-		panelCentral.setWidth("" + (widthNavigator - 60) + "px");
-		panelCentral.setHeight("" + (heightNavigator - 105) + "px");
+		final int minusCentralPanel = 100;
 		
-		DecoratorPanel bodyDecoratorPanel = new DecoratorPanel();
-	    bodyDecoratorPanel.add(panelCentral);
+		Window.addResizeHandler(new ResizeHandler() {
+			@Override
+			public void onResize(ResizeEvent event) {
+				int height = Window.getClientHeight()-minusCentralPanel;
+				panelCentral.setHeight(height + "px");
+			}
+		});
 		
-		return bodyDecoratorPanel;
+		int height = Window.getClientHeight()-minusCentralPanel;
+		
+		// Panel central
+		panelCentral = new ScrollPanel();
+		//panelCentral.setStyleName("cw-DockPanel");
+		panelCentral.setHeight(height + "px");
+		
+		// Scroll
+		//ScrollPanel scroller = new ScrollPanel(panelCentral);
+		
+		
+		Image logoDCargo = new Image();
+		GWT.log("GWT.getHostPageBaseURL(): " + GWT.getHostPageBaseURL());
+		logoDCargo.setUrl(GWT.getHostPageBaseURL() + "images/dcargo_logo.png");
+		
+		panelCentral.add(logoDCargo);
+		
+		return panelCentral;
 		
 	}
 	
 	private HorizontalPanel getStatusBar() {
 		
-		Label userLabel      = new Label("Usuario: ");
-		Label userLabelValue = new Label();
-		
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
-		horizontalPanel.setWidth("" + (widthNavigator - 30) + "px");
-		horizontalPanel.add(userLabel);
-		horizontalPanel.add(userLabelValue);
+		
+		// user 
+		HorizontalPanel  userHorizontalPanel = new HorizontalPanel();
+		userHorizontalPanel.setWidth("150px");
+		//userHorizontalPanel.setBorderWidth(1);
+		Label userLabel = new Label("Usuario: ");
+		userLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		userLabel.setStyleName("labelStatus");
+		userLabelValue.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		userHorizontalPanel.add(userLabel);
+		userHorizontalPanel.add(new HTML("&nbsp;"));
+		userHorizontalPanel.add(userLabelValue);
+		horizontalPanel.add(userHorizontalPanel);
+		
+		// Full name
+		HorizontalPanel  fullNameHorizontalPanel = new HorizontalPanel();
+		fullNameHorizontalPanel.setWidth("300px");
+		//fullNameHorizontalPanel.setBorderWidth(1);
+		Label fullNameLabel = new Label("Nombre: ");
+		fullNameLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		fullNameLabel.setStyleName("labelStatus");
+		fullNameLabelValue.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		fullNameHorizontalPanel.add(fullNameLabel);
+		fullNameHorizontalPanel.add(new HTML("&nbsp;"));
+		fullNameHorizontalPanel.add(fullNameLabelValue);
+		horizontalPanel.add(fullNameHorizontalPanel);
+		
+		// Place
+		HorizontalPanel placeHorizontalPanel =  new HorizontalPanel();
+		placeHorizontalPanel.setWidth("230px");
+		//placeHorizontalPanel.setBorderWidth(1);
+		Label placeLabel = new Label("Lugar de trabajo: ");
+		placeLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		placeLabel.setStyleName("labelStatus");
+		placeLabelValue.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		placeHorizontalPanel.add(placeLabel);
+		placeHorizontalPanel.add(new HTML("&nbsp;"));
+		placeHorizontalPanel.add(placeLabelValue);
+		horizontalPanel.add(placeHorizontalPanel);
+		
+		// Date
+		HorizontalPanel dateHorizontalPanel =  new HorizontalPanel();
+		dateHorizontalPanel.setWidth("180px");
+		//dateHorizontalPanel.setBorderWidth(1);
+		Label dateLabel = new Label("Fecha: ");
+		dateLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
+		dateLabel.setStyleName("labelStatus");
+		dateLabelValue.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
+		dateHorizontalPanel.add(dateLabel);
+		dateHorizontalPanel.add(new HTML("&nbsp;"));
+		dateHorizontalPanel.add(dateLabelValue);
+		horizontalPanel.add(dateHorizontalPanel);
 		
 		return horizontalPanel;
+		
+	}
+
+	@Override
+	public void setCurrentUser(Usuario user) {
+		userLabelValue.setText(user.getNombreUsuario());
+		fullNameLabelValue.setText(user.getNombres() + " " + user.getApellidos());
+		//log.info("user.getOffice(): " + user.getOffice());
+		placeLabelValue.setText(user.getOffice().getNombre());
+	}
+
+	@Override
+	public void setCurrentDate(String date) {
+		dateLabelValue.setText(date);
 		
 	}
 	

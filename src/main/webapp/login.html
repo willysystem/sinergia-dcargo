@@ -1,25 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>D'Cargo</title>
+<meta charset="UTF-8" />
+<link rel='stylesheet prefetch'
+	href='http://netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css'>
+<link rel="stylesheet" href="login/style.css">
 </head>
 <body>
-	<h2>Hello, please log in:</h2>
-	<br>
-	<br>
-	<form action="j_security_check" method=post>
-		<p>
-			<strong>Please Enter Your User Name: </strong> <input type="text"
-				name="j_username" size="25">
-		<p>
-		<p>
-			<strong>Please Enter Your Password: </strong> <input type="password"
-				size="15" name="j_password">
-		<p>
-		<p>
-			<input type="submit" value="Submit"> <input type="reset"
-				value="Reset">
-	</form>
+	<center><img alt="dcargo" src="images/dcargo_logo.png" width="200" height="200"></center> <br /> 
+	<div class="wrapper">
+		<form class="form-signin" action="j_security_check" method=post>
+			<center>
+				<h3 class="form-signin-heading">Ingreso</h3>
+			</center>
+			<input type="text" class="form-control" name="j_username"
+				placeholder="Usuario" required="" autofocus="" /> <input
+				type="password" class="form-control" name="j_password"
+				placeholder="Contraseña" required="" /> <label class="checkbox">
+				<input type="checkbox" value="remember-me" id="rememberMe" name="rememberMe"> Recordame credenciales </label>
+			<button class="btn btn-lg btn-primary btn-block" type="submit">Login</button>
+		</form>
+	</div>
+
 </body>
 </html>
