@@ -1,7 +1,5 @@
 package com.sinergia.dcargo.client.shared;
 
-import javax.persistence.GenerationType;
-
 
 /**
  * @generated
@@ -16,10 +14,13 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Column(unique = true)
 	private String nombre;
 
 	/**
@@ -33,6 +34,7 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Column(unique = true)
 	private String nit;
 	/**
 	 * @generated
@@ -47,16 +49,29 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Transient
 	private Integer nro;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "remitente")
 	private java.util.Set<Guia> guiasRemitente = new java.util.HashSet<Guia>();
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "consignatario")
 	private java.util.Set<Guia> guiasConsignatario = new java.util.HashSet<Guia>();
+
+	/**
+	 * @generated
+	 */
+	private Character estado;
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private String estadoDescripcion;
 
 	/**
 	 * @generated
@@ -83,6 +98,7 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Column(unique = true)
 	public String getNombre() {
 		return this.nombre;
 	}
@@ -100,7 +116,8 @@ public class Cliente implements java.io.Serializable {
 	public String toString() {
 		return "Cliente" + " id=" + id + " nombre=" + nombre + " direccion="
 				+ direccion + " telefono=" + telefono + " nit=" + nit + " ci="
-				+ ci + " codigo=" + codigo + " nro=" + nro;
+				+ ci + " codigo=" + codigo + " nro=" + nro + " estado="
+				+ estado + " estadoDescripcion=" + estadoDescripcion;
 	}
 
 	/**
@@ -134,6 +151,7 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Column(unique = true)
 	public String getNit() {
 		return this.nit;
 	}
@@ -248,5 +266,34 @@ public class Cliente implements java.io.Serializable {
 	public void removeGuiasConsignatario(Guia guiasConsignatario) {
 		getGuiasConsignatario().remove(guiasConsignatario);
 		guiasConsignatario.setConsignatario(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public Character getEstado() {
+		return this.estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstado(Character estado) {
+		this.estado = estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	public String getEstadoDescripcion() {
+		return this.estadoDescripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstadoDescripcion(String estadoDescripcion) {
+		this.estadoDescripcion = estadoDescripcion;
 	}
 }

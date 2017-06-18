@@ -202,15 +202,19 @@
 			<artifactId>modelmapper</artifactId>
 			<version>0.7.5</version>
 		</dependency>
-		
-		
+
+		<dependency>
+			<groupId>de.hashcode</groupId>
+			<artifactId>jsr303-validators</artifactId>
+			<version>1.1</version>
+		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.sencha.gxt/gxt -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>com.sencha.gxt</groupId> -->
-<!-- 			<artifactId>gxt</artifactId> -->
-<!-- 			<version>3.1.1</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.sencha.gxt</groupId> -->
+		<!-- <artifactId>gxt</artifactId> -->
+		<!-- <version>3.1.1</version> -->
+		<!-- </dependency> -->
 
 
 		<!-- GWT Reflect -->

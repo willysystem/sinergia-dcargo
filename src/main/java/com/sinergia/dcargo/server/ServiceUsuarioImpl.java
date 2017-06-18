@@ -51,10 +51,12 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		List<Usuario> results = query.getResultList();
 		List<Usuario> users = new ArrayList<Usuario>();
 		for (Usuario user : results) {
+			if(user.getEstado()=='E') continue;
+			
 			Usuario u = new Usuario();
 			u.setId(user.getId());
 			u.setAdministrador(user.getAdministrador());
-			u.setActivo(user.getActivo());
+			u.setActivo(user.getEstado()=='A'?true:false);
 			u.setFechaExpiracion(user.getFechaExpiracion());
 			u.setNombres(user.getNombres());
 			u.setNro(user.getNro());
@@ -74,9 +76,10 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 	}
 	
 	@Override
-	public Response delete(Long id) {
-		
-		return null;
+	public void delete(Long id) {
+		Usuario usuarioP = buscarPorId(id);
+		usuarioP.setEstado('E');
+		em.merge(usuarioP);
 	}
 
 	@Override
@@ -84,6 +87,7 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		for (Usuario user : users) {
 			Usuario userP = em.find(Usuario.class, user.getId());
 			user.setContrasenia(userP.getContrasenia());
+			user.setEstado(user.getActivo()?'A':'I');
 			em.merge(user);
 		}
 	}
@@ -158,5 +162,11 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		} 
 	}
 	
-
+	private String getDescripcionEstado(Character estado) {
+		if(estado == 'A') return "Activo";
+		if(estado == 'I') return "Inactivo";
+		if(estado == 'E') return "Eliminado";
+		
+		return "";
+	}	
 }

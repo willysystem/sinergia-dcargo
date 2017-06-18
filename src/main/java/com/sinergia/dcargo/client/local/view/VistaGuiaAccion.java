@@ -1,6 +1,5 @@
 package com.sinergia.dcargo.client.local.view;
 
-import java.util.HashSet;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -28,22 +27,22 @@ import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
+import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
+import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
 import com.sinergia.dcargo.client.shared.Cliente;
 import com.sinergia.dcargo.client.shared.Guia;
+import com.sinergia.dcargo.client.shared.Item;
 import com.sinergia.dcargo.client.shared.Oficina;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HTML;
 
 @Singleton
-public class VistaGuiaAccion extends DialogBox {
+public class VistaGuiaAccion extends DialogBox implements Carga {
 
 	private GuiaAccion guiaAccion;
 	private Guia guiaSeleccionada = null;
-	
-//	@Inject
-//	private GridItem1 gridItem;
 	
 	@Inject
 	private GridItem2 gridItem2;
@@ -56,6 +55,21 @@ public class VistaGuiaAccion extends DialogBox {
 	 
 	@Inject 
 	private Cargador cargador;
+	
+	@Inject
+	private MensajeExito mensajeExito;
+	
+	@Inject
+	private MensajeAviso mensajeAviso;
+	
+	@Inject
+	private MensajeError mensajeError;
+	
+	@Inject
+	private ImprimirPDF imprimirPDF;
+	
+	@Inject
+	private VistaClienteAccion vistaClienteAccion;
 	
 	//private ServicioItemCliente servicioItem = GWT.create(ServicioItemCliente.class);
 	private ServicioGuiaCliente servicioGuia = GWT.create(ServicioGuiaCliente.class);
@@ -74,11 +88,11 @@ public class VistaGuiaAccion extends DialogBox {
 	private HTML fechaLabel = new HTML("<b>Fecha:</b>");
 	private Label fechaValorLabel = new Label("9999/99/99");
 
-	private HTML remiteLabel = new HTML("<b>Remitemte:</b>");
+	private HTML remiteLabel = new HTML("<b>Remitemte*:</b>");
 	private SuggestBox remiteSuggestBox = new SuggestBox(clienteOracle);
 	private Label remiteLabelValue = new Label("");
 
-	private HTML consigantarioLabel = new HTML("<b>Consignatario:</b>");
+	private HTML consigantarioLabel = new HTML("<b>Consignatario*:</b>");
 	private SuggestBox consignatarioSuggestBox = new SuggestBox(clienteOracle);
 	private Label consignatarioLabelValue = new Label("");
 
@@ -88,11 +102,11 @@ public class VistaGuiaAccion extends DialogBox {
 	private HTML telefonoConsignaLabel = new HTML("<b>Telefono:</b>");
 	private Label telefonoConsignaValorLabel = new Label();
 
-	private HTML origenLabel = new HTML("<b>Origen:</b>");
+	private HTML origenLabel = new HTML("<b>Origen*:</b>");
 	private SuggestBox origenSuggestBox = new SuggestBox(oficinaOracle);
 	private Label origenLabelValue = new Label("");
 
-	private HTML destinoLabel = new HTML("<b>Destino:</b>");
+	private HTML destinoLabel = new HTML("<b>Destino*:</b>");
 	private SuggestBox destinoSuggestBox = new SuggestBox(oficinaOracle);
 	private Label destinoLabelValue = new Label("");
 
@@ -113,18 +127,19 @@ public class VistaGuiaAccion extends DialogBox {
 	private TextBox nroEntregaTextBox = new TextBox();
 	private Label nroEntregaLabelValue = new Label();
 	
-	private HTML pagoOrigenLabel = new HTML("<b>Pago Origen:</b>");
+	private HTML pagoOrigenLabel = new HTML("<b>Pago Origen*:</b>");
 	private DoubleBox pagoOrigenTextBox = new DoubleBox();
 	private Label pagoOrigenLabelValue = new Label();
 	
-	private HTML pagoDestinoLabel = new HTML("<b>Pago Destino:</b>");
+	private HTML pagoDestinoLabel = new HTML("<b>Pago Destino*:</b>");
 	private DoubleBox pagoDestinoTextBox = new DoubleBox();
 	private Label pagoDestinoLabelValue = new Label();
 	
-	private Button aceptarBtn = new Button("Aceptar");
-	private Button cancelarBtn = new Button("Cancelar");
-	//private Button salirBtn = new Button("Salir");
-	
+	private Button remitirBtn = new Button("Remitir");
+	private Button imprimirBtn = new Button("Imprimir");
+	//private Button pendienteBtn = new Button("Fijar en pendiente");
+	private Button salirBtn = new Button("Salir");
+	private HTML estadoHTML  = new HTML();
 
 	public VistaGuiaAccion() {
 		super();
@@ -235,6 +250,8 @@ public class VistaGuiaAccion extends DialogBox {
 		
 		// 3.1. 
 		VerticalPanel surPanel = new VerticalPanel();
+		surPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		surPanel.setWidth("100%");
 		
 		FlexTable layout2 = new FlexTable();
 		layout2.setCellSpacing(6);
@@ -282,11 +299,20 @@ public class VistaGuiaAccion extends DialogBox {
 
 		HorizontalPanel horizontalPanelButton = new HorizontalPanel();
 		horizontalPanelButton.setSpacing(5);
-		horizontalPanelButton.add(aceptarBtn);
-		horizontalPanelButton.add(cancelarBtn);
-		//horizontalPanelButton.add(salirBtn);
+		
+		if(guiaAccion == GuiaAccion.NUEVO) {
+			horizontalPanelButton.add(remitirBtn);
+			horizontalPanelButton.add(imprimirBtn);
+			horizontalPanelButton.add(salirBtn);
+		} 
+		if(guiaAccion == GuiaAccion.MODIFICAR || guiaAccion == GuiaAccion.CONSULTAR) {
+			horizontalPanelButton.add(salirBtn);
+		}
+		
 		horizontalPanel.add(horizontalPanelButton);
+		//horizontalPanel.add(estadoHTML);
 		surPanel.add(horizontalPanel);
+		surPanel.add(estadoHTML);
 		
 		DockPanel dock = new DockPanel();
 		dock.setWidth("100%");
@@ -300,6 +326,8 @@ public class VistaGuiaAccion extends DialogBox {
 		cargarOracles();
 		agregarEscuchadores();
 		center();
+		
+		gridItem2.setVistaGuiaAccion(this);
 	}
 
 	public void mostrar(GuiaAccion guiaAccion, final Guia guia) {
@@ -308,6 +336,7 @@ public class VistaGuiaAccion extends DialogBox {
 		if(guiaAccion == GuiaAccion.NUEVO || guiaAccion == GuiaAccion.CONSULTAR || guiaAccion == GuiaAccion.MODIFICAR) {
 			if(guiaAccion == GuiaAccion.NUEVO) {
 				cargador.center();
+				fijarEstadoGuia("Creando guia ... ", "green");
 				servicioGuia.nuevaGuia(new MethodCallback<Guia>() {
 					@Override
 					public void onSuccess(Method method, Guia response) {
@@ -316,16 +345,16 @@ public class VistaGuiaAccion extends DialogBox {
 						log.info("guia: " + guiaSeleccionada);
 						construirGUI();
 						cargador.hide();
+						fijarEstadoGuia("Nro de Guia generado", "green");
 					}
 					@Override
 					public void onFailure(Method method, Throwable exception) {
 						log.info("Error al generar nroGuia: " + exception.getMessage());
-						new MensajeError("Error al generar nroGuia", exception).show();
+						mensajeError.mostrar("Error al generar nroGuia", exception);
 						cargador.hide();
 					}
 				});
 			} else if(guiaAccion == GuiaAccion.CONSULTAR || guiaAccion == GuiaAccion.MODIFICAR) {
-				//GWT.log("consultar guia: " + guia.toString());
 				cargador.center();
 				servicioGuia.consultarGuia(guia.getId(), new LlamadaRemota<Guia>("No se pude hallar información de la Guia", true) {
 					@Override
@@ -338,7 +367,7 @@ public class VistaGuiaAccion extends DialogBox {
 					@Override
 					public void onFailure(Method method, Throwable exception) {
 						GWT.log(mensajeError + ": " + exception.getMessage());
-						new MensajeError(mensajeError, exception).show();
+						mensajeErrorVentana.mostrar(mensajeError, exception);
 						VistaGuiaAccion.this.cargador.hide();
 					}
 				});
@@ -347,37 +376,22 @@ public class VistaGuiaAccion extends DialogBox {
 		
 	}
 	
-//	private void guardar() {
-//		guiaSeleccionada.setItems(new HashSet<Item>(gridItem2.getItems()));
-//		log.info("guardar guia.items: " + gridItem.getItems());
-//		log.info("guardar guia: " + guiaSeleccionada);
-//		log.info("guardar guia.remitente: " + guiaSeleccionada.getRemitente());
-//		log.info("guardar guia.consignatario: " + guiaSeleccionada.getConsignatario());
-//		log.info("guardar guia.oficinaOrigen: " + guiaSeleccionada.getOficinaOrigen());
-//		log.info("guardar guia.oficinaDestino: " + guiaSeleccionada.getOficinaDestino());
-//		for (Item i :gridItem2.getItems()) {
-//			log.info("   item: " + i);
-//		}
-//		cargador.center();
-//		servicioGuia.guardar(guiaSeleccionada, new MethodCallback<Void>() {
-//			@Override
-//			public void onSuccess(Method method, Void response) {
-//				new MensajeExito("Guia guardada exitosamente ...").show();
-//				cargador.hide();
-//			}
-//			@Override
-//			public void onFailure(Method method, Throwable exception) {
-//				log.info("Error al guardar Guia: " + exception.getMessage());
-//				new MensajeError("Error al guardar Guia", exception).show();
-//				cargador.hide();
-//			}
-//
-//		});
-//	}
+	public void fijarEstadoGuiaEspera(){
+		fijarEstadoGuia("Actualizado ...", "red");
+	}
 	
-	void cargarOracles() {
+	public void fijarEstadoGuiaCargado(){
+		fijarEstadoGuia("Actualizado", "green");
+	}
+	
+	private void fijarEstadoGuia(String mensaje, String color) {
+		estadoHTML.setHTML("<h5 style='color:" + color + "'>" + mensaje + "</h5>");
+	}
+	
+	public void cargarOracles() {
 		for (Cliente cliente: adminParametros.getClientes()) {
-			clienteOracle.add(cliente.getNombre());
+			if(cliente.getNombre() != null)
+				clienteOracle.add(cliente.getNombre());
 		}
 		for (Oficina oficina: adminParametros.getOficinas()) {
 			oficinaOracle.add(oficina.getNombre());
@@ -392,12 +406,17 @@ public class VistaGuiaAccion extends DialogBox {
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setNroFactura(nroFactura);
+			
+			fijarEstadoGuiaEspera();
 			servicioGuia.guardarNroFactura(guiaTemp, new LlamadaRemota<Void>("", false) {
 				@Override
-				public void onSuccess(Method method, Void response) { }
+				public void onSuccess(Method method, Void response) { 
+					fijarEstadoGuiaCargado();
+				}
 			});
 		 }
 		);
+		
 		remiteSuggestBox.addSelectionHandler(e->{
 			String remitenteName = e.getSelectedItem().getReplacementString();
 			Cliente cliente = adminParametros.buscarClientePorNombre(remitenteName);
@@ -410,7 +429,15 @@ public class VistaGuiaAccion extends DialogBox {
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setRemitente(clienteTemp);
-			servicioGuia.guardarRemitente(guiaTemp, new LlamadaRemotaVacia<>("No se puede guardar Remitente", false));
+			
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarRemitente(guiaTemp, new LlamadaRemota<Void>("No se puede guardar Remitente", false){
+				@Override
+				public void onSuccess(Method method, Void response) {
+					fijarEstadoGuiaCargado();
+				}
+				
+			});
 			
 		});
 		consignatarioSuggestBox.addSelectionHandler(e->{
@@ -425,7 +452,15 @@ public class VistaGuiaAccion extends DialogBox {
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setConsignatario(clienteTemp);
-			servicioGuia.guardarConsignatario(guiaTemp, new LlamadaRemotaVacia<>("No se puede guardar Consignatario", false));
+			
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarConsignatario(guiaTemp, new LlamadaRemota<Void>("No se puede guardar Consignatario", false){
+				@Override
+				public void onSuccess(Method method, Void response) {
+					fijarEstadoGuiaCargado();
+				}
+				
+			});
 			
 		});
 		origenSuggestBox.addSelectionHandler(e->{
@@ -450,53 +485,227 @@ public class VistaGuiaAccion extends DialogBox {
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setOficinaDestino(oficinaTemp);
-			servicioGuia.guardarDestino(guiaTemp, new LlamadaRemotaVacia<>("No se puede guardar Destino", false));
+			
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarDestino(guiaTemp, new LlamadaRemota<Void>("No se puede guardar Destino", false){
+				@Override
+				public void onSuccess(Method method, Void response) {
+					fijarEstadoGuiaCargado();
+				}
+			});
 		});
 		adjuntoTextBox.addValueChangeHandler(e->{
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setAdjunto(adjuntoTextBox.getValue());
-			servicioGuia.guardarAdjunto(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
+			
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarAdjunto(guiaTemp, new LlamadaRemota<Void>("", false){
+				@Override
+				public void onSuccess(Method method, Void response) {
+					fijarEstadoGuiaCargado();
+				}
+			});
 		});
 		resumenTextBox.addValueChangeHandler(e->{
-			Guia guiaTemp = new Guia();
-			guiaTemp.setId(guiaSeleccionada.getId());
-			guiaTemp.setResumenContenido(resumenTextBox.getValue());
-			servicioGuia.guardarResumen(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
+			guardarResumen();
 		});
 		nroEntregaTextBox.addValueChangeHandler(e->{
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setNotaEntrega(nroEntregaTextBox.getValue());
-			servicioGuia.guardarNroEntrega(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
+			
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarNroEntrega(guiaTemp, new LlamadaRemota<Void>("", false){
+				@Override
+				public void onSuccess(Method method, Void response) {
+					fijarEstadoGuiaCargado();
+				}});
 		});
 		pagoOrigenTextBox.addValueChangeHandler(e->{
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setPagoOrigen(pagoOrigenTextBox.getValue());
-			servicioGuia.guardarPagoOrigen(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarPagoOrigen(guiaTemp, new LlamadaRemota<Void>("", false){
+				@Override
+				public void onSuccess(Method method, Void response) {
+					guiaSeleccionada.setPagoOrigen(pagoOrigenTextBox.getValue());
+					
+					Double total       = guiaSeleccionada.getTotalGuia(); 
+					Double pagoOrigen  = pagoOrigenTextBox.getValue();
+					GWT.log("total: " + total);
+					GWT.log("pagoOrigen: " + pagoOrigen);
+					Double pagoDestino = total - pagoOrigen;
+					pagoDestinoTextBox.setValue(pagoDestino);
+					
+					Guia guiaTemp = new Guia();
+					guiaTemp.setId(guiaSeleccionada.getId());
+					guiaTemp.setSaldoDestino(pagoDestino);
+					servicioGuia.guardarPagoDestino(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
+					guiaSeleccionada.setSaldoDestino(pagoDestino);
+					
+					fijarEstadoGuiaCargado();
+				}
+			});
 		});
 		pagoDestinoTextBox.addValueChangeHandler(e->{
 			Guia guiaTemp = new Guia();
 			guiaTemp.setId(guiaSeleccionada.getId());
 			guiaTemp.setSaldoDestino(pagoDestinoTextBox.getValue());
-			servicioGuia.guardarPagoDestino(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
-		});
-		
-		aceptarBtn.addClickHandler(e -> {
-			cargador.center();
-			servicioGuia.cambiarEstado(guiaSeleccionada.getId(), true, new LlamadaRemota<Void>("No se pudo aceptar la Guia", true) {
+			
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarPagoDestino(guiaTemp, new LlamadaRemota<Void>("", false){
 				@Override
 				public void onSuccess(Method method, Void response) {
-					new MensajeExito("Guia guardada existosamente con nro: " + guiaSeleccionada.getNroGuia()).show();
-					VistaGuiaAccion.this.cargador.hide();
-					VistaGuiaAccion.this.hide();
+					guiaSeleccionada.setSaldoDestino(pagoDestinoTextBox.getValue());
+					
+					Double total       = guiaSeleccionada.getTotalGuia(); 
+					Double pagoDestino = pagoDestinoTextBox.getValue();
+					GWT.log("total: " + total);
+					GWT.log("pagoDestino: " + pagoDestino);
+					Double pagoOrigen = total - pagoDestino;
+					pagoOrigenTextBox.setValue(pagoOrigen);
+					
+					Guia guiaTemp = new Guia();
+					guiaTemp.setId(guiaSeleccionada.getId());
+					guiaTemp.setPagoOrigen(pagoOrigen);
+					servicioGuia.guardarPagoOrigen(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
+					guiaSeleccionada.setPagoOrigen(pagoOrigen);
+					
+					fijarEstadoGuiaCargado();
 				}
 			});
+			
+			
 		});
-		cancelarBtn.addClickHandler(e -> hide());
-		//salirBtn.addClickHandler(e -> hide());
 		
+		remitirBtn.addClickHandler(e -> {
+			if(validarParaRemitir()){
+				cargador.center();
+				servicioGuia.cambiarEstado(guiaSeleccionada.getId(), "Remitido", new LlamadaRemota<Void>("No se pudo aceptar la Guia", true) {
+					@Override
+					public void onSuccess(Method method, Void response) {
+						mensajeExito.mostrar("Guia remitida existosamente con nro: " + guiaSeleccionada.getNroGuia());
+						mensajeExito.center();
+						VistaGuiaAccion.this.cargador.hide();
+					}
+				});
+			} else {
+				VistaGuiaAccion.this.mensajeAviso.mostrar("Requiere llenar los campos obligatorios");
+			}
+		});
+		
+		imprimirBtn.addClickHandler(e->{
+			GWT.log("guiaSeleccionada.getItems(): " + guiaSeleccionada.getItems().size());
+			String items[][] = new String[7][guiaSeleccionada.getItems().size()];
+			int k = 0;
+			int bultos = 0;
+			Double peso = 0D;
+			Double total = 0D;
+			
+			for (Item i: guiaSeleccionada.getItems()) {
+				items[k][0] = Integer.toString(k+1);
+				items[k][1] = i.getCantidad()+"";
+				items[k][2] = i.getContenido();
+				items[k][3] = i.getPeso()+"";
+				items[k][4] = i.getUnidad().getAbreviatura()+"";
+				items[k][5] = i.getPrecio().getDescripcion();
+				items[k][6] = i.getTotal()+"";
+				k++;
+				
+				bultos = bultos + i.getCantidad();
+				peso = peso + i.getPeso();
+				total = total = i.getTotal();
+				
+			}
+			
+			String ciRemitente = "";
+			if(guiaSeleccionada.getRemitente() == null) ciRemitente = "";
+			else ciRemitente = guiaSeleccionada.getRemitente().getCi();
+			
+			imprimirPDF.generarPDFGuia(fechaValorLabel.getText(),          nroGuiaValorLabel.getText(),
+					                   remiteSuggestBox.getValue(),        telefonoRemiteValorLabel.getText(),  origenSuggestBox.getText(),
+					                   consignatarioSuggestBox.getValue(), telefonoConsignaValorLabel.getText(),destinoSuggestBox.getValue(), 
+					                   items, bultos+"", peso+"", total+"",  
+					                   resumenTextBox.getValue(), pagoOrigenTextBox.getValue()+"", pagoDestinoTextBox.getValue()+"", 
+					                   ciRemitente
+		     );
+		});
+		
+		salirBtn.addClickHandler(e -> {
+			hide();
+		});
+		
+		nuevoClienteButton.addClickHandler(e -> {
+			vistaClienteAccion.setVistaGuiaAccion(this);
+			vistaClienteAccion.mostrar(ClienteAccion.NUEVO_DESDE_GUIA, null);
+		});
+		
+	}
+	
+	public void setResumen(String resumen){
+		resumenTextBox.setValue(resumen);
+		guardarResumen();
+	}
+	
+	public void guardarResumen(){
+		Guia guiaTemp = new Guia();
+		guiaTemp.setId(guiaSeleccionada.getId());
+		guiaTemp.setResumenContenido(resumenTextBox.getValue());
+		servicioGuia.guardarResumen(guiaTemp, new LlamadaRemotaVacia<Void>("", false));
+	}
+	
+	private boolean validarParaRemitir() {
+		
+		// remite
+		GWT.log("-->remiteSuggestBox.getValue(): " + remiteSuggestBox.getValue());
+		String remite = remiteSuggestBox.getValue();
+		boolean remiteValido = false;
+		for (Cliente c: adminParametros.getClientes()) {
+			if(c.getNombre().equals(remite)) {remiteValido = true; break;} 
+		}
+		
+		// consignatario
+		GWT.log("-->consignatarioSuggestBox.getValue(): " + consignatarioSuggestBox.getValue());
+		String consignatario = consignatarioSuggestBox.getValue();
+		boolean consignatarioValido = false;
+		for (Cliente c: adminParametros.getClientes()) {
+			if(c.getNombre().equals(consignatario)) {consignatarioValido = true; break;} 
+		}
+		
+		// origen
+		GWT.log("-->origenSuggestBox.getValue(): " + origenSuggestBox.getValue());
+		String origen = origenSuggestBox.getValue();
+		boolean origenValido = false;
+		for (Oficina o : adminParametros.getOficinas()) {
+			if(o.getNombre().equals(origen)) {origenValido = true; break;}
+		}
+		
+		// destino
+		GWT.log("-->destinoSuggestBox.getValue(): " + destinoSuggestBox.getValue());
+		String destino = destinoSuggestBox.getValue();
+		boolean destinoValido = false;
+		for (Oficina o : adminParametros.getOficinas()) {
+			if(o.getNombre().equals(destino)) {destinoValido = true; break;}
+		}
+		
+		// pago origen
+		GWT.log("-->pagoOrigenTextBox.getValue(): " + pagoOrigenTextBox.getValue());
+		Double pagoOrigen = pagoOrigenTextBox.getValue();
+		
+		// pago destino
+		GWT.log("-->pagoDestinoTextBox.getValue(): " + pagoDestinoTextBox.getValue());
+		Double pagoDestino = pagoDestinoTextBox.getValue();
+		
+		if(!remiteValido) 		 return false;
+		if(!consignatarioValido) return false;
+		if(!origenValido)        return false;
+		if(!destinoValido)       return false;
+		if(pagoOrigen == null)  return false;
+		if(pagoDestino == null)  return false;
+		
+		return true;
 	}
 
 }

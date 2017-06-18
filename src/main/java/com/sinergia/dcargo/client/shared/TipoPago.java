@@ -16,6 +16,8 @@ public class TipoPago implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 
 	/**
@@ -26,6 +28,7 @@ public class TipoPago implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "tipoPago")
 	private java.util.Set<Guia> guias = new java.util.HashSet<Guia>();
 
 	/**

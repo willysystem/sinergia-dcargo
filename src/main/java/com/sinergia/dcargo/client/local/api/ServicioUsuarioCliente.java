@@ -3,6 +3,7 @@ package com.sinergia.dcargo.client.local.api;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -49,4 +50,7 @@ public interface ServicioUsuarioCliente extends RestService {
 	@Path("/cambiarContrasenia/{idUser}/{ultimaContrasenia}/{nuevaContrasenia}")
 	void cambiarContrasenia(@PathParam("idUser") Long idUser, @PathParam("ultimaContrasenia") String ultimaContrasenia, @PathParam("nuevaContrasenia") String newContrasenia, MethodCallback<Usuario> callback);
 	
+	@DELETE
+	@Path("/{id:[0-9]+}")
+	void delete(@PathParam("id") Long id, MethodCallback<Void> callback);
 }

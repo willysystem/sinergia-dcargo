@@ -14,6 +14,8 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 	/**
 	 * @generated
@@ -42,34 +44,41 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Guia guia;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Unidad unidad;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Transient
 	private Integer nro;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Precio precio;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Transient
 	private Boolean valido;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Transient
 	private String unidadTitulo;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Transient
 	private String precioMonto;
 
 	/**

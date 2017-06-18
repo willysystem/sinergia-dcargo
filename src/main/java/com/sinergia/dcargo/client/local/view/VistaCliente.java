@@ -2,26 +2,50 @@ package com.sinergia.dcargo.client.local.view;
 
 import java.util.List;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.fusesource.restygwt.client.Method;
+
 import com.google.gwt.user.client.ui.HTML;
 
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
+import com.google.gwt.view.client.SingleSelectionModel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.sinergia.dcargo.client.local.api.LlamadaRemota;
+import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
+import com.sinergia.dcargo.client.local.message.MensageConfirmacion;
+import com.sinergia.dcargo.client.local.message.MensajeAviso;
+import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.presenter.PresentadorClientes;
 import com.sinergia.dcargo.client.shared.Cliente;
 
 @Singleton
 public class VistaCliente extends View<Cliente> implements PresentadorClientes.Display {
+	
+	@Inject
+	VistaClienteAccion vistaClienteAccion; 
+	
+	@Inject
+	MensageConfirmacion mensageConfirmacion;
+	
+	@Inject 
+	ServicioClienteCliente servicioCliente;
+	
+	@Inject 
+	MensajeExito mensajeExito;
 	
 	public VistaCliente() {
 		super(10);
@@ -39,6 +63,11 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 	private IntegerBox codigoIntegerBox = new IntegerBox();
 	
 	private Button buscarBtn = new Button("Buscar");
+	
+	private Button consultarBtn = new Button("Consultar");
+	private Button nuevoBtn = new Button("Nuevo");
+	private Button modificarBtn = new Button("Modificar");
+	private Button eliminarBtn = new Button("Eliminar");
 	
 	@Override
 	public void viewIU() {
@@ -73,9 +102,9 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 	    layout.setWidget(2, 1, nitTextField);
 	    layout.setHTML(2, 2, "CI:");
 	    layout.setWidget(2, 3, ciTextField);
-	    layout.setHTML(2, 4, "Código:");
-	    layout.setWidget(2, 5, codigoIntegerBox);
-	    layout.setWidget(2, 6, buscarBtn);
+	    //layout.setHTML(2, 4, "Código:");
+	    //layout.setWidget(2, 5, codigoIntegerBox);
+	    layout.setWidget(2, 4, buscarBtn);
 	    vpNorte.add(layout);
 	    
 	    // Wrap the content in a DecoratorPanel
@@ -159,13 +188,78 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 		horizontalPanelPager.add(simplePager);
 		vpGrid.add(horizontalPanelPager);
 		
+		
+		/// ACCIONES
+		HorizontalPanel horizontalPanel = new HorizontalPanel();
+		horizontalPanel.setWidth("100%");
+		horizontalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		
+		HorizontalPanel horizontalPanelButton = new HorizontalPanel();
+		horizontalPanelButton.setSpacing(5);
+		horizontalPanelButton.add(consultarBtn);
+		horizontalPanelButton.add(nuevoBtn);
+		horizontalPanelButton.add(modificarBtn);
+		horizontalPanelButton.add(eliminarBtn);
+//		horizontalPanelButton.add(salirBtn);
+		
+		horizontalPanel.add(horizontalPanelButton);
+		
+		
 		DockPanel dock = new DockPanel();
 		dock.add(vpNorte, DockPanel.NORTH);
 		dock.add(vpGrid, DockPanel.CENTER);
-		
+		dock.add(horizontalPanel, DockPanel.SOUTH);
 		mainContentView.getCentralPanel().add(dock);
+		
+		
+		buscarBtn.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				((SingleSelectionModel<Cliente>)grid.getSelectionModel()).clear();				// TODO Auto-generated method stub
+			}
+		});
+		
+		consultarBtn.addClickHandler(e -> {
+			Cliente cliente = ((SingleSelectionModel<Cliente>)grid.getSelectionModel()).getSelectedObject();
+			log.info("cliente: " + cliente);
+			if(cliente == null){
+				new MensajeAviso("Seleccione un cliente").show();
+			} else {
+				vistaClienteAccion.mostrar(ClienteAccion.CONSULTAR, cliente);
+			}
+		});
+		nuevoBtn.addClickHandler(e->vistaClienteAccion.mostrar(ClienteAccion.NUEVO, null));
+		modificarBtn.addClickHandler(e->{
+			Cliente cliente = ((SingleSelectionModel<Cliente>)grid.getSelectionModel()).getSelectedObject();
+			log.info("cliente: " + cliente);
+			if(cliente == null){
+				new MensajeAviso("Seleccione un cliente").show();
+			} else {
+				vistaClienteAccion.mostrar(ClienteAccion.MODIFICAR, cliente);
+			}
+		});
+		eliminarBtn.addClickHandler(e->{
+			final Cliente cliente = ((SingleSelectionModel<Cliente>)grid.getSelectionModel()).getSelectedObject();
+			log.info("cliente: " + cliente);
+			if(cliente == null){
+				new MensajeAviso("Seleccione un cliente").show();
+			} else {
+				mensageConfirmacion.mostrar("Decea eliminar al cliente: " + cliente.getNombre(), new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) {
+						servicioCliente.cambiarEstado(cliente.getId(), "E", new LlamadaRemota<Void>("No se pude eliminar cliente", true) {
+							@Override
+							public void onSuccess(Method method, Void response) {
+								mensajeExito.mostrar("Eliminado exitosamente");
+							}
+						});
+					}
+				});
+			}
+		});
+		
 	}
-	
+
 	@Override
 	protected Object getKeyItem(Cliente item) {
 		return item.getId();

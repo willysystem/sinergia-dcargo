@@ -7,7 +7,7 @@
 	<version>1.0</version>
 
 	<properties>
-		<errai.version>4.0.0.CR3</errai.version>
+		<errai.version>4.0.0.Final</errai.version>
 		<gwt.version>2.8.0</gwt.version>
 		<slf4j.version>1.5.11</slf4j.version>
 
@@ -196,13 +196,34 @@
 			<version>2.2.0</version>
 		</dependency>
 
+		<!-- ModelMapper -->
+		<dependency>
+			<groupId>org.modelmapper</groupId>
+			<artifactId>modelmapper</artifactId>
+			<version>0.7.5</version>
+		</dependency>
+
+		<dependency>
+			<groupId>de.hashcode</groupId>
+			<artifactId>jsr303-validators</artifactId>
+			<version>1.1</version>
+		</dependency>
+
+		<!-- https://mvnrepository.com/artifact/com.sencha.gxt/gxt -->
+		<!-- <dependency> -->
+		<!-- <groupId>com.sencha.gxt</groupId> -->
+		<!-- <artifactId>gxt</artifactId> -->
+		<!-- <version>3.1.1</version> -->
+		<!-- </dependency> -->
+
+
 		<!-- GWT Reflect -->
 		<!-- https://mvnrepository.com/artifact/net.wetheinter/xapi-gwt-reflect -->
-<!-- 		<dependency> -->
-<!-- 			<groupId>net.wetheinter</groupId> -->
-<!-- 			<artifactId>xapi-gwt-reflect</artifactId> -->
-<!-- 			<version>0.5</version> -->
-<!-- 		</dependency> -->
+		<!-- <dependency> -->
+		<!-- <groupId>net.wetheinter</groupId> -->
+		<!-- <artifactId>xapi-gwt-reflect</artifactId> -->
+		<!-- <version>0.5</version> -->
+		<!-- </dependency> -->
 
 	</dependencies>
 

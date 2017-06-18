@@ -52,6 +52,7 @@ import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
+import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.shared.Guia;
@@ -66,14 +67,21 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 	@Inject
 	private AdminParametros adminParametros;
 	
-//	@Inject
-//	private Cargador cargador;
-
 	@Inject
 	protected Logger log;
 	
 	@Inject
 	private ServicioItemCliente servicioItem;
+	
+	@Inject
+	private ServicioGuiaCliente servicioGuia;
+	
+	
+	
+//	@Inject
+//	private Cargador cargador;
+
+	private VistaGuiaAccion vistaGuiaAccion;
 
 	Item itemSeleccionado;
 	Guia guiaSeleccionada;
@@ -145,7 +153,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		if (panel == null) {
 			RowNumberer<Item> numberedColumn = new RowNumberer<>();
 			ColumnConfig<Item, Integer> bultosColumn = new ColumnConfig<>(properties.cantidad(), 50, "Bultos");
-			ColumnConfig<Item, String> contenidoColumn = new ColumnConfig<>(properties.contenido(), 150, "Contenido");
+			ColumnConfig<Item, String> contenidoColumn = new ColumnConfig<>(properties.contenido(), 350, "Contenido");
 			ColumnConfig<Item, Double> pesoColumn = new ColumnConfig<>(properties.peso(), 50, "Peso");
 			ColumnConfig<Item, String> unidadColumn = new ColumnConfig<>(properties.unidadTitulo(), 65, "Unidad");
 			ColumnConfig<Item, String> precioColumn = new ColumnConfig<>(properties.precioMonto(), 75, "Precio");
@@ -174,7 +182,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			
 			GWT.log("guiaSeleccionada.getItems(): " + guiaSeleccionada.getItems());
 			grid = new Grid<>(store, columns);
-			grid.getView().setAutoExpandColumn(contenidoColumn);
+			//grid.getView().setAutoExpandColumn(contenidoColumn);
 			numberedColumn.initPlugin(grid);
 			
 			// Sumatoria
@@ -305,7 +313,8 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			
 			editing.addEditor(totalColumn, totalField);
 			editing.addCancelEditHandler(e -> store.rejectChanges());
-			editing.addCompleteEditHandler( e -> { 
+			editing.addCompleteEditHandler( e -> {
+				
 				store.commitChanges();
 				Item itemSelected = grid.getSelectionModel().getSelectedItem();
 				GWT.log("item: " + itemSelected);
@@ -328,7 +337,34 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 				itemTemp.setPrecio(precioTemp);
 				itemTemp.setTotal(itemSelected.getTotal());
 				
-				servicioItem.guardar(itemTemp, new LlamadaRemotaVacia<Void>("No se guardo Item", false));
+				
+				// Resumen y total
+				String resumen = "";
+				Double total = 0.0D;
+				for (Item i: store.getAll()) {
+					resumen = resumen + i.getContenido() + ",";
+					total = total + i.getTotal();
+				}
+				resumen = resumen.substring(0, resumen.length()-1);
+				vistaGuiaAccion.setResumen(resumen);
+				
+				final Double totalTemp = total;
+				final String resumenTemp = resumen;
+				
+				vistaGuiaAccion.fijarEstadoGuiaEspera();
+				servicioItem.guardar(itemTemp, new LlamadaRemota<Void>("No se guardo Item", false){
+					@Override
+					public void onSuccess(Method method, Void response) {
+						servicioGuia.guardarTotal(guiaSeleccionada.getId(), totalTemp, new LlamadaRemota<Void>("No se pudo guardar Total", false){
+							@Override
+							public void onSuccess(Method method, Void response) {
+								guiaSeleccionada.setResumenContenido(resumenTemp);
+								guiaSeleccionada.setTotalGuia(totalTemp);
+								vistaGuiaAccion.fijarEstadoGuiaCargado();
+							}
+						});
+					}
+				});
 				
 			});
 			
@@ -338,7 +374,8 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			//customizeGrid(grid);
 
 			TextButton addButton = new TextButton("Nuevo Item");
-			addButton.addSelectHandler(e -> 
+			addButton.addSelectHandler(e -> {
+				vistaGuiaAccion.fijarEstadoGuiaEspera();
 				servicioItem.nuevoItem(guiaSeleccionada.getId(), new LlamadaRemota<Item>("Error la crear Item", true) {
 					@Override
 					public void onSuccess(Method method, Item response) {
@@ -346,25 +383,37 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 						itemSeleccionado = response;
 						itemSeleccionado.setUnidadTitulo("");
 						itemSeleccionado.setPrecioMonto("");
+						
 						editing.cancelEditing();
-						store.add(0, itemSeleccionado);
+						store.add(store.size(), itemSeleccionado);
 
 						int row = store.indexOf(itemSeleccionado);
 						editing.startEditing(new GridCell(row, 0));
+						
+						vistaGuiaAccion.fijarEstadoGuiaCargado();
+						
+						guiaSeleccionada.getItems().add(itemSeleccionado);
 					}
-				})
+				});
+			 }
 			);
 			
 			TextButton borrarButton = new TextButton("Borrar Item");
-			borrarButton.addSelectHandler(e->
+			borrarButton.addSelectHandler(e-> {
+			 vistaGuiaAccion.fijarEstadoGuiaEspera(); 	
 			 servicioItem.borrar(itemSeleccionado.getId(), new LlamadaRemota<Void>("No se puede borrar item", true) {
 				@Override
 				public void onSuccess(Method method, Void response) {
 					store.remove(itemSeleccionado);
 					new MensajeExito("Item borrado exitosamente").show();
-					cargador.hide();
+					//cargador.hide();
+					vistaGuiaAccion.fijarEstadoGuiaCargado();
+					
+					guiaSeleccionada.getItems().remove(itemSeleccionado);
 				}
-			}));
+			  });
+			}
+			);
 
 
 			ToolBar toolBar = new ToolBar();
@@ -380,19 +429,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			panel.add(verticalLayoutContainer);
 
 			panel.setButtonAlign(BoxLayoutPack.CENTER);
-//			panel.addButton(new TextButton("Reset", new SelectHandler() {
-//				@Override
-//				public void onSelect(SelectEvent event) {
-//					store.rejectChanges();
-//				}
-//			}));
-//
-//			panel.addButton(new TextButton("Save", new SelectHandler() {
-//				@Override
-//				public void onSelect(SelectEvent event) {
-//					store.commitChanges();
-//				}
-//			}));
+
 		}
 		customize();
 		return panel;
@@ -401,7 +438,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 	protected void customize() {
 		panel.setHeading("Row Editable Grid");
 		panel.setHeaderVisible(false);
-		grid.setHeight(200);
+		grid.setHeight(150);
 		// grid.setWidth("100%");
 	}
 	
@@ -429,6 +466,11 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		this.store.clear();
 		this.store.addAll(this.guiaSeleccionada.getItems());
 	}
+
+	public void setVistaGuiaAccion(VistaGuiaAccion vistaGuiaAccion) {
+		this.vistaGuiaAccion = vistaGuiaAccion;
+	}
+	
 	
 	
 }

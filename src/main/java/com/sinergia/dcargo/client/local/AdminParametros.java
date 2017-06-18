@@ -17,7 +17,9 @@ import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioPrecioCliente;
 import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
+import com.sinergia.dcargo.client.local.view.Carga;
 import com.sinergia.dcargo.client.local.view.Cargador;
+import com.sinergia.dcargo.client.local.view.VistaGuiaAccion;
 import com.sinergia.dcargo.client.shared.Cliente;
 import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.Oficina;
@@ -32,6 +34,9 @@ public class AdminParametros {
 	
 	@Inject
 	protected Logger log;
+	
+	//@Inject
+	//private VistaGuiaAccion vistaGuiaAccion;
 	
 	private ServicioClienteCliente servicioCliente = GWT.create(ServicioClienteCliente.class);
 	private ServicioOficinaCliente servicioOficina = GWT.create(ServicioOficinaCliente.class);;
@@ -52,7 +57,7 @@ public class AdminParametros {
 	@PostConstruct
 	public void init(){
 		log.info("@PostConstruct: " + this.getClass().getSimpleName());
-		poblarParametros();
+		poblarParametros(null);
 	}
 	
 	@AfterInitialization
@@ -60,7 +65,7 @@ public class AdminParametros {
 		log.info("@AfterInitialization: " + this.getClass().getSimpleName());
 	}
 	
-	private void poblarParametros() {
+	public void poblarParametros(final Carga carga) {
 		
 		cargador.center();
 		servicioCliente.buscarClientes(new Cliente(), new MethodCallback<List<Cliente>>() {
@@ -84,6 +89,9 @@ public class AdminParametros {
 										precios = response;
 										log.info("precios.size" + precios.size() );
 										cargador.hide();
+										if(carga != null){
+											carga.cargarOracles();
+										}
 									}
 									@Override
 									public void onFailure(Method method, Throwable exception) {

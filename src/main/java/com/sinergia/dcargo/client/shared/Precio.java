@@ -14,6 +14,8 @@ public class Precio implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 
 	/**
@@ -28,6 +30,7 @@ public class Precio implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "precio")
 	private java.util.Set<Item> items = new java.util.HashSet<Item>();
 
 	/**

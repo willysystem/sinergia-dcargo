@@ -17,6 +17,8 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 	/**
 	 * @generated
@@ -61,10 +63,12 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Conocimiento conocimiento;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private TipoPago tipoPago;
 
 	/**
@@ -97,50 +101,64 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	private Boolean activo;
-
-	/**
-	 * @generated
-	 */
 	private String notaEntrega;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Transient
 	private Integer nro;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Cliente remitente;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Cliente consignatario;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Usuario usuarioRegistro;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Usuario usuarioEntrega;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Oficina oficinaOrigen;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Oficina oficinaDestino;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "guia")
 	private java.util.Set<Item> items = new java.util.HashSet<Item>();
+
+	/**
+	 * @generated
+	 */
+	private Character estado;
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private String estadoDescripcion;
 
 	/**
 	 * @generated
@@ -154,14 +172,15 @@ public class Guia implements java.io.Serializable {
 	public String toString() {
 		return "Guia" + " id=" + id + " nroGuia=" + nroGuia + " totalPeso="
 				+ totalPeso + " totalCantidad=" + totalCantidad + " adjunto="
-				+ adjunto + " activo=" + activo + " nroFactura=" + nroFactura
-				+ " fechaRegistro=" + fechaRegistro + " totalMinimo="
-				+ totalMinimo + " fechaEntrega=" + fechaEntrega + " ciEntrega="
-				+ ciEntrega + " novedadEntrega=" + novedadEntrega
-				+ " resumenContenido=" + resumenContenido + " saldoDestino="
-				+ saldoDestino + " pagoOrigen=" + pagoOrigen + " fecha="
-				+ fecha + " totalGuia=" + totalGuia + " notaEntrega="
-				+ notaEntrega + " nro=" + nro;
+				+ adjunto + " nroFactura=" + nroFactura + " fechaRegistro="
+				+ fechaRegistro + " totalMinimo=" + totalMinimo
+				+ " fechaEntrega=" + fechaEntrega + " ciEntrega=" + ciEntrega
+				+ " novedadEntrega=" + novedadEntrega + " resumenContenido="
+				+ resumenContenido + " saldoDestino=" + saldoDestino
+				+ " pagoOrigen=" + pagoOrigen + " fecha=" + fecha
+				+ " totalGuia=" + totalGuia + " notaEntrega=" + notaEntrega
+				+ " nro=" + nro + " estado=" + estado + " estadoDescripcion="
+				+ estadoDescripcion;
 	}
 
 	/**
@@ -423,20 +442,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public Boolean getActivo() {
-		return this.activo;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setActivo(Boolean activo) {
-		this.activo = activo;
-	}
-
-	/**
-	 * @generated
-	 */
 	public String getNotaEntrega() {
 		return this.notaEntrega;
 	}
@@ -582,5 +587,34 @@ public class Guia implements java.io.Serializable {
 	public void removeItems(Item items) {
 		getItems().remove(items);
 		items.setGuia(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public Character getEstado() {
+		return this.estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstado(Character estado) {
+		this.estado = estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	public String getEstadoDescripcion() {
+		return this.estadoDescripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstadoDescripcion(String estadoDescripcion) {
+		this.estadoDescripcion = estadoDescripcion;
 	}
 }

@@ -3,7 +3,6 @@ package com.sinergia.dcargo.client.local.presenter;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -18,8 +17,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
-import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
-import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.shared.Cliente;
 

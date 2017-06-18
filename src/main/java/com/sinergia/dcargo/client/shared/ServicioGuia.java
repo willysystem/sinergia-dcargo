@@ -38,6 +38,11 @@ public interface ServicioGuia {
   @Produces("application/json")
   Guia consultarGuia(@QueryParam("idGuia") Long idGuia);
   
+  @GET 
+  @Path("/getEstados")
+  @Produces("application/json")
+  public List<EstadoGuia> getEstados() throws Exception;
+  
   @PUT
   @Path("/buscarGuias")
   @Produces("application/json")
@@ -104,8 +109,13 @@ public interface ServicioGuia {
   
   @PUT
   @Consumes("application/json")
-  @Path("/cambiarEstado/{idGuia}/{estado}")
-  void cambiarEstado(@QueryParam("idGuia") Long idGuia, @QueryParam("estado")Boolean estado) throws Exception;
+  @Path("/cambiarEstado/{idGuia}/{estadoDescripcion}")
+  void cambiarEstado(@QueryParam("idGuia") Long idGuia, @QueryParam("estadoDescripcion")String estadoDescripcion) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarTotal/{idGuia}/{total}")
+  void guardarTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total")Double total) throws Exception;
   
   @DELETE
   @Path("/{id:[0-9]+}")

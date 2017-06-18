@@ -20,6 +20,8 @@ public class Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue
 	private Long id;
 
 	/**

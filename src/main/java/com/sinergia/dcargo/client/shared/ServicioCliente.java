@@ -25,13 +25,14 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 /**
  * @author willy
  */
 @Path("/cliente")
 public interface ServicioCliente {
-
+	
   @GET
   @Produces("application/json")
   List<Cliente> getTodos();
@@ -40,6 +41,51 @@ public interface ServicioCliente {
   @Path("/buscarClientes")
   @Produces("application/json")
   List<Cliente> buscarClientes(Cliente cliente);
+  
+  @PUT
+  @Path("/nuevoCliente")
+  @Produces("application/json")
+  Cliente nuevoCliente();
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/guardarNombres/{idCliente}/{nombres}/{nit}")
+  void guardarNombres(@QueryParam("idCliente") Long idCliente, @QueryParam("nombres") String nombres) throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/guardarDireccion/{idCliente}/{direccion}")
+  void guardarDireccion(@QueryParam("idCliente") Long idCliente, @QueryParam("direccion") String direccion) throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/guardarTelefono/{idCliente}/{telefono}")
+  void guardarTelefono(@QueryParam("idCliente") Long idCliente, @QueryParam("telefono") String telefono) throws Exception;
+ 
+  @PUT
+  @Produces("application/json")
+  @Path("/guardarNit/{idCliente}/{nit}/{nombres}")
+  void guardarNit(@QueryParam("idCliente") Long idCliente, @QueryParam("nit") String nit) throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/guardarNit/{idCliente}/{ci}")
+  void guardarCi(@QueryParam("idCliente") Long idCliente, @QueryParam("ci") String ci) throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/cambiarEstado/{idCliente}/{estado}")
+  void cambiarEstado(@QueryParam("idCliente") Long idCliente, @QueryParam("estado") String estado) throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/esUnicoNombreCon/{nombre}")
+  public Resultado esUnicoNombreCon(@QueryParam("nombre") String nombre) throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/esUnicoNitCon/{nit}")
+  public Resultado esUnicoNitCon(@QueryParam("nit") String nit) throws Exception;
   
   @PUT
   @Consumes("application/json")

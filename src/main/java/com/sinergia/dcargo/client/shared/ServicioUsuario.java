@@ -58,8 +58,6 @@ public interface ServicioUsuario {
    */
   @DELETE
   @Path("/{id:[0-9]+}")
-  Response delete(@PathParam("id") Long id);
-  
-  
+  void delete(@PathParam("id") Long id);
 
 }

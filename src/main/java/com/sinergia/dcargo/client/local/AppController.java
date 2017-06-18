@@ -17,6 +17,8 @@ import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.event.EventoHandlerCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoHandlerCliente;
 import com.sinergia.dcargo.client.local.event.EventoHandlerGuia;
+import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
+import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
@@ -161,7 +163,17 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 	  return servicioItem;
   }
   
+  @Produces
+  public ServicioGuiaCliente servicioGuiaCliente(){
+	  ServicioGuiaCliente servicioItem = GWT.create(ServicioGuiaCliente.class);
+	  return servicioItem;
+  }
   
+  @Produces
+  public ServicioClienteCliente servicioClienteCliente(){
+	  ServicioClienteCliente servicio = GWT.create(ServicioClienteCliente.class);
+	  return servicio;
+  }
   
   
 }

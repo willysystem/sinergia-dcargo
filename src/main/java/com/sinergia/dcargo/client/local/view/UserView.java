@@ -33,7 +33,9 @@ public class UserView extends EditableCellView<Usuario> implements UserPresenter
 
 	private Button saveButton = new Button("Guardar");
 	private Button newButton = new Button("Nuevo");
-	private Button fijarContrasenaButton = new Button("Fijar Contraseña");
+	private Button borrarButton = new Button("Borrar");
+	private Button fijarContrasenaButton = new Button("Fijar Contraseña por Defecto");
+	
 	
 	public UserView() {
 		super(10);
@@ -157,6 +159,7 @@ public class UserView extends EditableCellView<Usuario> implements UserPresenter
 			horizontalPanelButton.setSpacing(5);
 			horizontalPanelButton.add(saveButton);
 			horizontalPanelButton.add(newButton);
+			horizontalPanelButton.add(borrarButton);
 			horizontalPanelButton.add(fijarContrasenaButton);
 			horizontalPanelButton.add(reCargarButton);
 			horizontalPanel.add(horizontalPanelButton);
@@ -276,6 +279,11 @@ public class UserView extends EditableCellView<Usuario> implements UserPresenter
 	@Override
 	protected String getNro(Usuario entity) {
 		return entity.getNro()+"";
+	}
+
+	@Override
+	public HasClickHandlers getEliminarButton() {
+		return borrarButton;
 	}
 
 }

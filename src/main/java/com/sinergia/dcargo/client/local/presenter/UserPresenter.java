@@ -17,11 +17,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.sinergia.dcargo.client.local.api.LlamadaRemota;
+import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
+import com.sinergia.dcargo.client.local.view.Cargador;
 import com.sinergia.dcargo.client.shared.Oficina;
 import com.sinergia.dcargo.client.shared.Usuario;
 
@@ -38,6 +41,9 @@ public class UserPresenter implements Presenter {
 	@Inject
 	private Logger log;
 	
+	@Inject
+	private Cargador cargador;
+	
 	private ServicioUsuarioCliente userServiceClient = GWT.create(ServicioUsuarioCliente.class);
 	
 	private ServicioOficinaCliente officeServiceClient = GWT.create(ServicioOficinaCliente.class);
@@ -50,6 +56,7 @@ public class UserPresenter implements Presenter {
 		List<Usuario> commitChangesLocal();
 		void addNewUser(Usuario user);
 		HasClickHandlers getFijarContrasenaButton();
+		HasClickHandlers getEliminarButton();
 		HasClickHandlers getReCargarButton();
 		void setOffices(List<Oficina> offices);
 		Usuario getUsuarioSeleccionado();
@@ -185,7 +192,26 @@ public class UserPresenter implements Presenter {
 				});
 			}
 		});
-
+		
+		this.display.getEliminarButton().addClickHandler(e->{
+			final Usuario user = display.getUsuarioSeleccionado();
+			if(user == null) {
+				new MensajeAviso("Selecione un usuario").show();
+			} else {
+				cargador.center();
+				userServiceClient.delete(user.getId(), new LlamadaRemota<Void>("Error al borrar el usuario: " + user.getNombres(), false){
+					@Override
+					public void onSuccess(Method method, Void response) {
+						userServiceClient.getUsers(new LlamadaRemota<List<Usuario>>("Error a recargar en la eliminacion de usuario", true){
+							@Override
+							public void onSuccess(Method method, List<Usuario> response) {
+								showUsersData(response);
+								new MensajeAviso("Se borro exitosamente el usuario" + user.getNombres()).show();
+								UserPresenter.this.cargador.hide();
+							}});
+					}});
+			}
+		});
 	}
 	
 	int i = 1;

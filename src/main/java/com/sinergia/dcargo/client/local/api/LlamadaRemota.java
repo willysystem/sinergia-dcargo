@@ -15,9 +15,9 @@ public abstract class LlamadaRemota<R> implements MethodCallback<R> {
 	@Inject
 	protected Cargador cargador;
 	
-//	@Inject
-//	protected Logger log;
-
+	@Inject
+	protected MensajeError mensajeErrorVentana;
+	
 	protected String mensajeError;
 	protected boolean ocultarCargador;
 	
@@ -29,7 +29,7 @@ public abstract class LlamadaRemota<R> implements MethodCallback<R> {
 	@Override
 	public void onFailure(Method method, Throwable exception) {
 		GWT.log(mensajeError + ": " + exception.getMessage());
-		new MensajeError(mensajeError, exception).show();
+		mensajeErrorVentana.mostrar(mensajeError, exception);
 		if(ocultarCargador) cargador.hide();
 	}
 

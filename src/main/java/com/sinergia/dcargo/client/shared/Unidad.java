@@ -14,10 +14,13 @@ public class Unidad implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "unidad")
 	private java.util.Set<Item> items = new java.util.HashSet<Item>();
 	/**
 	 * @generated

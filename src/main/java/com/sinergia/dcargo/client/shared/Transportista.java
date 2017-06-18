@@ -14,6 +14,8 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 
 	/**
@@ -68,12 +70,24 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "transportista")
 	private java.util.Set<Conocimiento> conocimientos = new java.util.HashSet<Conocimiento>();
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "transportistaChofer")
 	private java.util.Set<Conocimiento> conocimientosChofer = new java.util.HashSet<Conocimiento>();
+
+	/**
+	 * @generated
+	 */
+	private Character estado;
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private String estadoDescripcion;
 
 	/**
 	 * @generated
@@ -106,7 +120,8 @@ public class Transportista implements java.io.Serializable {
 				+ " direccion=" + direccion + " telefono=" + telefono
 				+ " placa=" + placa + " marca=" + marca + " color=" + color
 				+ " capacidad=" + capacidad + " vecino_de=" + vecino_de
-				+ " ci=" + ci + " nit=" + nit;
+				+ " ci=" + ci + " nit=" + nit + " estado=" + estado
+				+ " estadoDescripcion=" + estadoDescripcion;
 	}
 
 	/**
@@ -338,6 +353,35 @@ public class Transportista implements java.io.Serializable {
 	public void removeConocimientosChofer(Conocimiento conocimientosChofer) {
 		getConocimientosChofer().remove(conocimientosChofer);
 		conocimientosChofer.setTransportistaChofer(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public Character getEstado() {
+		return this.estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstado(Character estado) {
+		this.estado = estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	public String getEstadoDescripcion() {
+		return this.estadoDescripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstadoDescripcion(String estadoDescripcion) {
+		this.estadoDescripcion = estadoDescripcion;
 	}
 
 

@@ -16,11 +16,14 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "conocimiento")
 	private java.util.Set<Guia> guias = new java.util.HashSet<Guia>();
 
 	/**
@@ -55,10 +58,12 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Oficina oficinaOrigen;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Oficina oficinaDestino;
 
 	/**
@@ -80,11 +85,13 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Usuario usuario;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Temporal(value = TemporalType.TIMESTAMP)
 	private java.util.Date fechaRegistro;
 
 	/**
@@ -103,11 +110,13 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Transportista transportista;
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.ManyToOne
 	private Transportista transportistaChofer;
 
 	/**

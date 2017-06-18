@@ -4,7 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Hashtable;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.annotation.Resource;
@@ -20,6 +22,7 @@ import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
 import com.sinergia.dcargo.client.shared.Unidad;
 import com.sinergia.dcargo.client.shared.Cliente;
+import com.sinergia.dcargo.client.shared.EstadoGuia;
 import com.sinergia.dcargo.client.shared.Guia;
 import com.sinergia.dcargo.client.shared.Item;
 import com.sinergia.dcargo.client.shared.Oficina;
@@ -45,8 +48,14 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	@EJB
 	private OficinaServicio oficinaServicio;
 	
+	final private Hashtable<Character, String> estados = new Hashtable<>();
+	
 	public ServicioGuiaImpl() {
 		super(new Guia());
+		estados.put('P', "Pendiente");
+		estados.put('R', "Remitido");
+		estados.put('E', "Entregado");
+		estados.put('A', "Anulado");
 	}
 	
 	@Override
@@ -71,6 +80,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		String origen = guia.getOficinaOrigen() == null ? "": guia.getOficinaOrigen().getNombre();
 		String destino = guia.getOficinaDestino() == null ? "": guia.getOficinaDestino().getNombre();
 		String nroFactura = guia.getNroFactura() == null ? "": guia.getNroFactura();
+		Character estado = getEstado(guia.getEstadoDescripcion()); 
 		
 		HashMap<String, Object> parametros = new HashMap<>(); 
 		String where = "";
@@ -118,11 +128,10 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			where = where + " c.nroFactura = :nroFactura AND";
 			parametros.put("nroFactura", guia.getNroFactura());
 		}
-		if(guia.getActivo() != null){
-			where = where + " c.activo = :activo AND";
-			parametros.put("activo", guia.getActivo());
+		if(estado != null){
+			where = where + " c.estado = :estado AND";
+			parametros.put("estado", estado);
 		}
-		
 		
 		String query = null;
 		String select = "SELECT c FROM Guia c";
@@ -160,7 +169,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setFechaRegistro(guiaP.getFechaRegistro());
 		gDTO.setFechaEntrega(guiaP.getFechaEntrega());
 		gDTO.setNroFactura(guiaP.getNroFactura());
-		gDTO.setActivo(guiaP.getActivo());
+		gDTO.setEstadoDescripcion(getDescripcion(guiaP.getEstado()));
 		
 		Cliente remite1 = null;
 		if(guiaP.getRemitente() != null) {
@@ -202,9 +211,13 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	public Guia nuevaGuia() throws Exception {
 		Guia guia = new Guia();
 		Query query = em.createQuery("SELECT MAX(g.nroGuia) FROM Guia g");
-		Integer nroGuia = Integer.valueOf(query.getSingleResult().toString()) + 1;
+		Object object = query.getSingleResult();
+		String numero = "0";
+		if(object != null) numero = object.toString();
+		Integer nroGuia = Integer.valueOf(numero) + 1;
 		guia.setNroGuia(nroGuia);
-		guia.setActivo(false);
+		guia.setFechaRegistro(new Date());
+		guia.setEstado('P');
 		Guia guiaP = merge(guia);
 		guia.setId(guiaP.getId());
 		return guia;
@@ -304,6 +317,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setNotaEntrega(guiaP.getNotaEntrega());
 		gDTO.setPagoOrigen(guiaP.getPagoOrigen());
 		gDTO.setSaldoDestino(guiaP.getSaldoDestino());
+		gDTO.setTotalGuia(guiaP.getTotalGuia());
 		
 		List<Item> items = new ArrayList<>();
 		for (Item itemP: guiaP.getItems()) {
@@ -340,10 +354,41 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	}
 
 	@Override
-	public void cambiarEstado(Long idGuia, Boolean estado) throws Exception {
+	public void guardarTotal(Long idGuia, Double total) throws Exception {
 		Guia guia = buscarPorId(idGuia);
-		guia.setActivo(estado);
+		guia.setTotalGuia(total);
 		em.merge(guia);
 	}
+	
+	@Override
+	public List<EstadoGuia> getEstados() throws Exception {
+		List<EstadoGuia> estadosDTO = new ArrayList<>();
+		for (Map.Entry<Character, String> e: estados.entrySet()) {
+			EstadoGuia eg = new EstadoGuia();
+			eg.setEstadoDescripcion(e.getValue());
+			estadosDTO.add(eg);
+		}
+		return estadosDTO;
+	}
+	
+	private Character getEstado(String estadoDescripcion) {
+		for (Map.Entry<Character, String> e: estados.entrySet()) {
+			if(e.getValue().equals(estadoDescripcion)) return e.getKey();
+		}
+		return null;
+	}
+	
+	private String getDescripcion(Character estado) {
+		for (Map.Entry<Character, String> e: estados.entrySet()) {
+			if(e.getKey() == estado) return e.getValue();
+		}
+		return null;
+	}
 
+	@Override
+	public void cambiarEstado(Long idGuia, String estadoDescripcion) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setEstado(getEstado(estadoDescripcion));
+		em.merge(guia);
+	}
 }

@@ -4,6 +4,9 @@ import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+
+import org.fusesource.restygwt.client.Method;
+
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Style.Unit;
@@ -13,22 +16,27 @@ import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.ui.Button;
-import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.sinergia.dcargo.client.local.api.LlamadaRemota;
+import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
+import com.sinergia.dcargo.client.local.message.MensajeExito;
+import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
 import com.sinergia.dcargo.client.local.presenter.PresentadorGuia;
 import com.sinergia.dcargo.client.shared.Cliente;
+import com.sinergia.dcargo.client.shared.EstadoGuia;
 import com.sinergia.dcargo.client.shared.Guia;
 import com.sinergia.dcargo.client.shared.Oficina;
 
@@ -37,6 +45,21 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	
 	@Inject
 	private VistaGuiaAccion vistaNuevaGuia;
+	
+	@Inject
+	private ServicioGuiaCliente servicioGuiaCliente;
+	
+	@Inject
+	private Cargador cargador;
+	
+	@Inject
+	private MensajeExito mensajeExito;
+	
+	@Inject
+	private ServicioGuiaCliente servicioGuia;
+	
+	@Inject
+	private ImprimirPDF imprimirPDF;
 	
 	private MultiWordSuggestOracle clienteOracle = new MultiWordSuggestOracle();
 	private MultiWordSuggestOracle oficinaOracle = new MultiWordSuggestOracle();
@@ -55,7 +78,8 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private TextBox nroFacturaOrigenTextBox = new TextBox();
 	private TextBox nroFacturaDestinoTextBox = new TextBox();
 	
-	private CheckBox activoCheckBox = new CheckBox();
+	private ListBox estadoListBox = new ListBox();
+	//private CheckBox activoCheckBox = new CheckBox();
 	
 	private Button buscarBtn = new Button("Buscar");
 	
@@ -63,7 +87,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private Button consultarBtn = new Button("Consultar");	
 	private Button modificarBtn = new Button("Modificar");
 	private Button anularBtn = new Button("Anular");
-	private Button reporteBtn = new Button("Reporte");
+	private Button imprimirBtn = new Button("Imprimir Búsqueda");
 	private Button entregaBtn = new Button("Entrega");
 //	private Button salirBtn = new Button("Salir");
 	
@@ -76,11 +100,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		super(paging);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void viewIU() {
-		
-		//SingleSelectionModel<Guia> selectionModel = new SingleSelectionModel<>();
-		//grid.setSelectionModel(selectionModel);
 		
 		nroFacturaOrigenTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
 			@Override
@@ -89,7 +111,6 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			}
 		});
 		
-		activoCheckBox.setValue(true);
 		fechaReceptionDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
 		fechaEntregaDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
 		
@@ -135,8 +156,8 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	    layout.setHTML(3, 0, "Nro Guia:");
 	    layout.setWidget(3, 1, nroGuia);
 	    
-	    layout.setHTML(3, 2, "Activo:");
-	    layout.setWidget(3, 3, activoCheckBox);
+	    layout.setHTML(3, 2, "Estado:");
+	    layout.setWidget(3, 3, estadoListBox);
 	    
 	    layout.setWidget(3, 4, buscarBtn);
 	    
@@ -240,18 +261,18 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		grid.setColumnWidth(facturaDestinoColmun, 15, Unit.PX);
 		grid.addColumn(facturaDestinoColmun, "Fact. Destino");			
 		
-		// Activo
+		// Estado
 		TextColumn<Guia> activoColmun = new TextColumn<Guia>() {
 			@Override
 			public String getValue(Guia entity) {
-				if(entity.getActivo() != null){
-					return entity.getActivo()?"Si":"No";
+				if(entity.getEstadoDescripcion() != null){
+					return entity.getEstadoDescripcion();
 				}
 				return "";
 			}
 		};
 		grid.setColumnWidth(activoColmun, 10, Unit.PX);
-		grid.addColumn(activoColmun, "Activo");
+		grid.addColumn(activoColmun, "Estado");
 		
 		//grid.setWidth("1000px");
 		grid.setHeight("300px");
@@ -277,7 +298,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		horizontalPanelButton.add(consultarBtn);
 		horizontalPanelButton.add(modificarBtn);
 		horizontalPanelButton.add(anularBtn);
-		horizontalPanelButton.add(reporteBtn);
+		horizontalPanelButton.add(imprimirBtn);
 		horizontalPanelButton.add(entregaBtn);
 //		horizontalPanelButton.add(salirBtn);
 		horizontalPanel.add(horizontalPanelButton);
@@ -291,7 +312,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		
 		mainContentView.getCentralPanel().add(dock);
 		
+		cargarEstadosListBox();
 		implementarAcciones();
+		
 	}
 	
 	@Override
@@ -333,13 +356,17 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		guia.setFechaRegistro(fechaReceptionDateBox.getValue());
 		guia.setFechaEntrega(fechaEntregaDateBox.getValue());
 		guia.setNroFactura(nroFacturaOrigenTextBox.getValue());
-		guia.setActivo(activoCheckBox.getValue());
+		guia.setEstadoDescripcion(estadoListBox.getSelectedValue());
 		return guia;
 	}
 
 	@Override
 	public void fijarOracleParaClientes(List<String> palabras) {
-		clienteOracle.addAll(palabras);
+		for (String s : palabras) {
+			if(s != null)
+				clienteOracle.add(s);
+		}
+		
 	}
 
 	@Override
@@ -350,6 +377,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private void implementarAcciones() {
 		nuevoBtn.addClickHandler(e -> vistaNuevaGuia.mostrar(GuiaAccion.NUEVO, null));
 		consultarBtn.addClickHandler(e -> {
+			@SuppressWarnings("unchecked")
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
 			if(guia == null){
 				new MensajeAviso("Seleccione la Guia que decea consultar").show();
@@ -358,6 +386,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			}
 		});
 		modificarBtn.addClickHandler(e -> {
+			@SuppressWarnings("unchecked")
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
 			if(guia == null){
 				new MensajeAviso("Seleccione la Guia que decea consultar").show();
@@ -365,10 +394,67 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 				vistaNuevaGuia.mostrar(GuiaAccion.MODIFICAR, guia);
 			}
 		});
-		anularBtn.setEnabled(false);
-		reporteBtn.setEnabled(false);
+		anularBtn.addClickHandler(e -> {
+			@SuppressWarnings("unchecked")
+			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
+			if(guia == null){
+				new MensajeAviso("Seleccione la Guia que decea anular").show();
+			} else {
+				VistaGuia.this.cargador.center();
+				servicioGuia.cambiarEstado(guia.getId(), "Anulado", new LlamadaRemota<Void>("No se pudo anular la Guia", true) {
+					@Override
+					public void onSuccess(Method method, Void response) {
+						mensajeExito.mostrar("Guia anulada existosamente, con nro: " + guia.getNroGuia());
+						mensajeExito.center();
+						VistaGuia.this.cargador.hide();
+					}
+				});
+			}
+		});
+		imprimirBtn.addClickHandler(e -> {
+			List<Guia> guias = dataProvider.getList();
+			String[][] guiasImprimir = new String[guias.size()][11];
+			int k = 0;
+			for (Guia guia : guias) {
+				String remite = "";
+				if(guia.getRemitente()!=null) remite = guia.getRemitente().getNombre();
+				String consignatario = "";
+				if(guia.getConsignatario()!=null) consignatario = guia.getConsignatario().getNombre(); 
+				GWT.log("  k:" + k);
+				guiasImprimir[k][0]  = (k+1)+"";
+				guiasImprimir[k][1]  = guia.getNroGuia()+"";
+				guiasImprimir[k][2]  = remite;
+				guiasImprimir[k][3]  = consignatario;
+				guiasImprimir[k][4]  = guia.getOficinaOrigen()==null?"":guia.getOficinaOrigen().getNombre();
+				guiasImprimir[k][5]  = guia.getOficinaDestino()==null?"":guia.getOficinaDestino().getNombre();
+				guiasImprimir[k][6]  = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(guia.getFechaRegistro());
+				guiasImprimir[k][7]  = "";//guia.getFechaEntrega()+"";
+				guiasImprimir[k][8]  = guia.getNroFactura();
+				guiasImprimir[k][9]  = "";
+				guiasImprimir[k][10] = guia.getEstadoDescripcion();
+				k++;
+			}
+			imprimirPDF.generarImpresionBusqueda(guiasImprimir);
+		});
+		
+		anularBtn.setEnabled(true);
+		imprimirBtn.setEnabled(true);
 		entregaBtn.setEnabled(false);
+		
 //		salirBtn.addClickHandler(e->{});
 		//modificarBtn.addClickHandler(e -> vistaNuevaGuia.mostrar(GuiaAccion.MODIFICAR, guia));
 	}
+	
+	private void cargarEstadosListBox() {
+		servicioGuiaCliente.getEstados(new LlamadaRemota<List<EstadoGuia>>("No se puede obtener estados", false){
+			@Override
+			public void onSuccess(Method method, List<EstadoGuia> response) {
+				GWT.log("onSuccess:" + response.size());
+				for (EstadoGuia e : response) {
+					estadoListBox.addItem(e.getEstadoDescripcion());
+				}
+			}
+		});
+	}
+	
 }

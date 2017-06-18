@@ -14,6 +14,7 @@ import javax.ws.rs.QueryParam;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
+import com.sinergia.dcargo.client.shared.EstadoGuia;
 import com.sinergia.dcargo.client.shared.Guia;
 
 @Path("/rest/guia")
@@ -88,10 +89,20 @@ public interface ServicioGuiaCliente extends RestService {
 	  @Produces("application/json")
 	  void consultarGuia(@QueryParam("idGuia") Long idGuia, MethodCallback<Guia> call);
 	  
+	  @GET 
+	  @Path("/getEstados")
+	  @Produces("application/json")
+	  public void getEstados(MethodCallback<List<EstadoGuia>> call);
+	  
 	  @PUT
 	  @Consumes("application/json")
-	  @Path("/cambiarEstado/{idGuia}/{estado}")
-	  void cambiarEstado(@QueryParam("idGuia") Long idGuia, @QueryParam("estado")Boolean estado, MethodCallback<Void> call);
+	  @Path("/cambiarEstado/{idGuia}/{estadoDescripcion}")
+	  void cambiarEstado(@QueryParam("idGuia") Long idGuia, @QueryParam("estadoDescripcion")String estadoDescripcion, MethodCallback<Void> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/guardarTotal/{idGuia}/{total}")
+	  void guardarTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total")Double total, MethodCallback<Void> call);
 	  
 	  @DELETE
 	  @Path("/{id:[0-9]+}")

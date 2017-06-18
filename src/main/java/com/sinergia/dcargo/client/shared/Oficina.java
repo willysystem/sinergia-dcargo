@@ -16,10 +16,13 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Id
+	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "office")
 	private java.util.Set<Usuario> users = new java.util.HashSet<Usuario>();
 
 	/**
@@ -30,20 +33,24 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "oficinaOrigen")
 	private java.util.Set<Conocimiento> conocimientosOrigen = new java.util.HashSet<Conocimiento>();
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "oficinaDestino")
 	private java.util.Set<Conocimiento> conocimientosDestino = new java.util.HashSet<Conocimiento>();
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "oficinaOrigen")
 	private java.util.Set<Guia> guiasOrigen = new java.util.HashSet<Guia>();
 
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "oficinaDestino")
 	private java.util.Set<Guia> guiasDestino = new java.util.HashSet<Guia>();
 
 	/**
