@@ -16,18 +16,24 @@ import com.google.gwt.user.client.History;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.event.EventoHandlerCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoHandlerCliente;
+import com.sinergia.dcargo.client.local.event.EventoHandlerConocimiento;
 import com.sinergia.dcargo.client.local.event.EventoHandlerGuia;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
+import com.sinergia.dcargo.client.local.api.ServicioConocimientoCliente;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
+import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
+import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
+import com.sinergia.dcargo.client.local.event.EventoConocimiento;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.event.EventoHandlerUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
 import com.sinergia.dcargo.client.local.presenter.PresentadorCambioContrasenia;
 import com.sinergia.dcargo.client.local.presenter.PresentadorClientes;
+import com.sinergia.dcargo.client.local.presenter.PresentadorConocimiento;
 import com.sinergia.dcargo.client.local.presenter.PresentadorGuia;
 import com.sinergia.dcargo.client.local.presenter.Presenter;
 import com.sinergia.dcargo.client.local.presenter.UserPresenter;
@@ -43,9 +49,6 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
   private Logger log;
   
   @Inject
-  private AdminParametros adminParametros;
-  
-  @Inject
   private MainContentPresenter mainContentPresenter;
   @Inject
   private UserPresenter userMainPresenter;
@@ -55,6 +58,8 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
   private PresentadorClientes presentadorClientes;
   @Inject
   private PresentadorGuia presentadorGuia;
+  @Inject
+  private PresentadorConocimiento presentadorConocimiento;
 
   
   private HasWidgets container;
@@ -101,13 +106,15 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 			History.newItem("guias");
 		}
 	});
+    eventBus.addHandler(EventoConocimiento.TYPE, new EventoHandlerConocimiento() {
+		@Override
+		public void onLogin(EventoConocimiento event) {
+			History.newItem("conocimiento");
+		}
+	});
     
   }
   
-  private void doHome(){
-	  History.newItem("home");  
-  }
-
   public void go(final HasWidgets container) {
     this.container = container;
     bind();
@@ -128,10 +135,6 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 
       if (token.equals("contrasenia")) {
     	  presenter = preCambioContrasenia;
-        //IOCBeanDef<ContactsPresenter> bean = manager.lookupBean(ContactsPresenter.class);
-        //if (bean != null) {
-//          presenter = loginPresenter;
-        //}
       } else if (token.equals("home")) {
     	  presenter =  mainContentPresenter;
       } else if (token.equals("users")) {
@@ -140,15 +143,9 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
     	  presenter =  presentadorClientes;
       } else if (token.equals("guias")) {
     	  presenter =  presentadorGuia;
-      } 
-      
-      
-//    } else if (token.equals("add") || token.equals("edit")) {
-//        IOCBeanDef<EditContactPresenter> bean = manager.lookupBean(EditContactPresenter.class);
-//        if (bean != null) {
-//          presenter = bean.getInstance();
-//        }
-//    }
+      } else if (token.equals("conocimiento")) {
+    	  presenter =  presentadorConocimiento;
+      }
       
       if (presenter != null) {
         presenter.go(container);
@@ -159,21 +156,32 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
   
   @Produces
   public ServicioItemCliente servicioItemCliente(){
-	  ServicioItemCliente servicioItem = GWT.create(ServicioItemCliente.class);
-	  return servicioItem;
+	  return GWT.create(ServicioItemCliente.class);
   }
   
   @Produces
   public ServicioGuiaCliente servicioGuiaCliente(){
-	  ServicioGuiaCliente servicioItem = GWT.create(ServicioGuiaCliente.class);
-	  return servicioItem;
+	  return GWT.create(ServicioGuiaCliente.class);
   }
   
   @Produces
   public ServicioClienteCliente servicioClienteCliente(){
-	  ServicioClienteCliente servicio = GWT.create(ServicioClienteCliente.class);
-	  return servicio;
+	  return GWT.create(ServicioClienteCliente.class);
   }
   
+  @Produces
+  public ServicioOficinaCliente servicioOficinaCliente(){
+	  return GWT.create(ServicioOficinaCliente.class);
+  }
+  
+  @Produces
+  public ServicioConocimientoCliente servicioConocimientoCliente(){
+	  return GWT.create(ServicioConocimientoCliente.class);
+  }
+  
+  @Produces
+  public ServicioTransportistasCliente servicioTransportistasCliente(){
+	  return GWT.create(ServicioTransportistasCliente.class);
+  }
   
 }

@@ -28,13 +28,13 @@ import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
+import com.sinergia.dcargo.client.local.event.EventoConocimiento;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
 import com.sinergia.dcargo.client.shared.Usuario;
 
 /**
- * 
  * @author Willy Hurtado Vela 
  *         willysystems@gmail.com
  */
@@ -100,7 +100,6 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		MenuBar menu = new MenuBar();
 	    menu.setAutoOpen(true);
 	    menu.setAnimationEnabled(true);
-
 	   
 	    MenuBar guiasMenuBar = new MenuBar(true);
 	    guiasMenuBar.setAnimationEnabled(true);
@@ -115,26 +114,13 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    menu.addItem(menuGuia);
 	    
 	    // Conocimiento
-	    MenuBar conocimientoMenuBar = new MenuBar(true);
-	    conocimientoMenuBar.setAnimationEnabled(true);
-	    
-//	    MenuItem registroConocimientoMenuItem = new MenuItem("Registro", menuCommand);
-//	    MenuItem consultarConocimientoMenuItem = new MenuItem("Consultar", menuCommand);
-//	    MenuItem modificarConocimientoMenuItem = new MenuItem("Modificar", menuCommand);
-//	    MenuItem anularConocimientoMenuItem = new MenuItem("Anular", menuCommand);
-//	    MenuItem reporteConocimientoMenuItem = new MenuItem("Reporte", menuCommand);
-//	    MenuItem actualizarDatosConocimientoMenuItem = new MenuItem("Actualizar datos complementarios", menuCommand);
-//	    MenuItem nuevoConocimientoMenuItem = new MenuItem("Conocimiento* (Nuevo)", menuCommand);
-	    
-	    
-//	    conocimientoMenuBar.addItem(registroConocimientoMenuItem);
-//	    conocimientoMenuBar.addItem(consultarConocimientoMenuItem);
-//	    conocimientoMenuBar.addItem(modificarConocimientoMenuItem);
-//	    conocimientoMenuBar.addItem(anularConocimientoMenuItem);
-//	    conocimientoMenuBar.addItem(reporteConocimientoMenuItem);
-//	    conocimientoMenuBar.addItem(actualizarDatosConocimientoMenuItem);
-//	    conocimientoMenuBar.addItem(nuevoConocimientoMenuItem);
-	    menu.addItem(new MenuItem("Conocimiento", conocimientoMenuBar));
+	    MenuItem conocimientoMenuBar =  new MenuItem("Conocimiento", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoConocimiento());
+			}
+		});
+	    menu.addItem(conocimientoMenuBar);
 	    
 	    // Liquidaciones
 	    MenuItem cargaLiquidacion = new MenuItem("Liquidación de carga", menuCommand);

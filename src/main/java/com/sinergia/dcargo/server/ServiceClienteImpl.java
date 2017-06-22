@@ -221,7 +221,5 @@ public class ServiceClienteImpl extends Dao<Cliente> implements ServicioCliente 
 		res.setVariableBoolean(true);
 		return res;
 	}
-
-
 	
 }

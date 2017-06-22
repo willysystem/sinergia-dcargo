@@ -13,10 +13,16 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
@@ -47,6 +53,9 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	
 	@EJB
 	private OficinaServicio oficinaServicio;
+	
+	@Inject 
+	private Logger log;
 	
 	final private Hashtable<Character, String> estados = new Hashtable<>();
 	
@@ -116,13 +125,13 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 				parametros.put("oficinaDestinoId", ofis.get(0).getId());
 			}
 		}
-		if(guia.getFechaRegistro() != null){
-			where = where + " c.fechaRegistro = :fechaRegistro AND";
-			parametros.put("fechaRegistro", guia.getFechaRegistro());
+		if(guia.getFechaIni() != null){
+			where = where + " c.fechaRegistro >= :fechaIni AND";
+			parametros.put("fechaIni", guia.getFechaIni());
 		}
-		if(guia.getFechaEntrega() != null){
-			where = where + " c.fechaEntrega = :fechaEntrega AND";
-			parametros.put("fechaEntrega", guia.getFechaEntrega());
+		if(guia.getFechaFin() != null){
+			where = where + " c.fechaRegistro <= :fechaFin AND";
+			parametros.put("fechaFin", guia.getFechaFin());
 		}
 		if(!"".equals(nroFactura)){
 			where = where + " c.nroFactura = :nroFactura AND";
@@ -141,6 +150,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			where = where.substring(0, where.length() - 4);
 			query = select + " WHERE " + where;
 		}
+		log.info("-> query: " + query);
 		
 		Query q = em.createQuery(query);
 		for (Entry<String, Object> e: parametros.entrySet()) {
@@ -149,8 +159,9 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			} else {
 				q.setParameter(e.getKey(), e.getValue());
 			}
+			log.info("->" + e.getKey() + ": " + e.getValue());
 		}
-		System.out.println("-> query: " + query);
+		
 		@SuppressWarnings("unchecked")
 		List<Guia> guias = q.getResultList();
 		
@@ -162,7 +173,8 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		return guiasDTO;
 	}
 
-	private Guia serializarParaBusqueda(Guia guiaP) {
+	@Override
+	public Guia serializarParaBusqueda(Guia guiaP) {
 		Guia gDTO = new Guia();
 		gDTO.setId(guiaP.getId());
 		gDTO.setNroGuia(guiaP.getNroGuia());
@@ -209,15 +221,17 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	
 	@Override
 	public Guia nuevaGuia() throws Exception {
-		Guia guia = new Guia();
 		Query query = em.createQuery("SELECT MAX(g.nroGuia) FROM Guia g");
 		Object object = query.getSingleResult();
 		String numero = "0";
 		if(object != null) numero = object.toString();
 		Integer nroGuia = Integer.valueOf(numero) + 1;
+		
+		Guia guia = new Guia();
 		guia.setNroGuia(nroGuia);
 		guia.setFechaRegistro(new Date());
 		guia.setEstado('P');
+		
 		Guia guiaP = merge(guia);
 		guia.setId(guiaP.getId());
 		return guia;
@@ -391,4 +405,5 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		guia.setEstado(getEstado(estadoDescripcion));
 		em.merge(guia);
 	}
+	
 }

@@ -50,17 +50,6 @@ public class PresentadorGuia implements Presenter {
 	private ServicioGuiaCliente servicioGuia = GWT.create(ServicioGuiaCliente.class);
 
 	public interface Display {
-
-		//void showUsers(List<Usuario> response);
-//		HasClickHandlers getSaveButton();
-//		HasClickHandlers getNewButton();
-//		List<Usuario> commitChangesLocal();
-//		void addNewUser(Usuario user);
-//		HasClickHandlers getFijarContrasenaButton();
-//		HasClickHandlers getReCargarButton();
-//		void setOffices(List<Oficina> offices);
-//		Usuario getUsuarioSeleccionado();
-		//void reCargarDatos(List<Usuario> user);
 		
 		void viewIU();
 		HasClickHandlers getBuscarButton();

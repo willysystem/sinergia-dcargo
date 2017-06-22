@@ -6,9 +6,9 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 
 import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.Guia;
 import com.sinergia.dcargo.client.shared.Item;
 import com.sinergia.dcargo.client.shared.Precio;
+import com.sinergia.dcargo.client.shared.Transportista;
 import com.sinergia.dcargo.client.shared.Unidad;
 
 public class Utilitario {
@@ -23,8 +23,8 @@ public class Utilitario {
 			if(clazz.equals(Cliente.class)){
 				((Cliente)e).setGuiasConsignatario(null);
 				((Cliente)e).setGuiasRemitente(null);
-			} else if(clazz.equals(Guia.class)){
-				
+			} else if(clazz.equals(Transportista.class)){
+				((Transportista)e).setConocimientosPropietario(null);
 			} else if(clazz.equals(Item.class)){
 				((Item)e).setGuia(null);
 			} else if(clazz.equals(Unidad.class)){

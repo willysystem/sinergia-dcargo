@@ -163,6 +163,17 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.Transient
+	private java.util.Date fechaIni;
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private java.util.Date fechaFin;
+
+	/**
+	 * @generated
+	 */
 	public Guia() {
 	}
 
@@ -180,7 +191,8 @@ public class Guia implements java.io.Serializable {
 				+ " pagoOrigen=" + pagoOrigen + " fecha=" + fecha
 				+ " totalGuia=" + totalGuia + " notaEntrega=" + notaEntrega
 				+ " nro=" + nro + " estado=" + estado + " estadoDescripcion="
-				+ estadoDescripcion;
+				+ estadoDescripcion + " fechaIni=" + fechaIni + " fechaFin="
+				+ fechaFin;
 	}
 
 	/**
@@ -616,5 +628,35 @@ public class Guia implements java.io.Serializable {
 	 */
 	public void setEstadoDescripcion(String estadoDescripcion) {
 		this.estadoDescripcion = estadoDescripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	public java.util.Date getFechaIni() {
+		return this.fechaIni;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setFechaIni(java.util.Date fechaIni) {
+		this.fechaIni = fechaIni;
+	}
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	public java.util.Date getFechaFin() {
+		return this.fechaFin;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setFechaFin(java.util.Date fechaFin) {
+		this.fechaFin = fechaFin;
 	}
 }

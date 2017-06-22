@@ -121,4 +121,7 @@ public interface ServicioGuia {
   @Path("/{id:[0-9]+}")
   Boolean borrar(@PathParam("id") Long id);
 
+  public Guia serializarParaBusqueda(Guia guiaP);
+ 
+  
 }

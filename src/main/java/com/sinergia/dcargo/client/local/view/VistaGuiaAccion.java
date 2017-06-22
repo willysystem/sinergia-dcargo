@@ -71,8 +71,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	@Inject
 	private VistaClienteAccion vistaClienteAccion;
 	
-	//private ServicioItemCliente servicioItem = GWT.create(ServicioItemCliente.class);
-	private ServicioGuiaCliente servicioGuia = GWT.create(ServicioGuiaCliente.class);
+	@Inject
+	private ServicioGuiaCliente servicioGuia;
 
 	private MultiWordSuggestOracle clienteOracle = new MultiWordSuggestOracle();
 	private MultiWordSuggestOracle oficinaOracle = new MultiWordSuggestOracle();

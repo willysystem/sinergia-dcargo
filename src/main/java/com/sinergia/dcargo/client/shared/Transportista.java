@@ -17,7 +17,6 @@ public class Transportista implements java.io.Serializable {
 	@javax.persistence.Id
 	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
-
 	/**
 	 * @generated
 	 */
@@ -25,7 +24,8 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	private String brevet_ci;
+	@javax.persistence.Column(unique = true)
+	private String brevetCi;
 	/**
 	 * @generated
 	 */
@@ -66,19 +66,11 @@ public class Transportista implements java.io.Serializable {
 	 * @generated
 	 */
 	private String nit;
-
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "transportista")
-	private java.util.Set<Conocimiento> conocimientos = new java.util.HashSet<Conocimiento>();
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.OneToMany(mappedBy = "transportistaChofer")
-	private java.util.Set<Conocimiento> conocimientosChofer = new java.util.HashSet<Conocimiento>();
-
+	@javax.persistence.OneToMany(mappedBy = "transportistaPropietario")
+	private java.util.Set<Conocimiento> conocimientosPropietario = new java.util.HashSet<Conocimiento>();
 	/**
 	 * @generated
 	 */
@@ -88,6 +80,11 @@ public class Transportista implements java.io.Serializable {
 	 */
 	@javax.persistence.Transient
 	private String estadoDescripcion;
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private Integer nro;
 
 	/**
 	 * @generated
@@ -98,8 +95,6 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -109,19 +104,6 @@ public class Transportista implements java.io.Serializable {
 	 */
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	/**
-	 * @generated
-	 */
-	public String toString() {
-		return "Transportista" + " id=" + id + " codigo=" + codigo
-				+ " brevet_ci=" + brevet_ci + " nombre=" + nombre
-				+ " direccion=" + direccion + " telefono=" + telefono
-				+ " placa=" + placa + " marca=" + marca + " color=" + color
-				+ " capacidad=" + capacidad + " vecino_de=" + vecino_de
-				+ " ci=" + ci + " nit=" + nit + " estado=" + estado
-				+ " estadoDescripcion=" + estadoDescripcion;
 	}
 
 	/**
@@ -141,15 +123,15 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String getBrevet_ci() {
-		return this.brevet_ci;
+	public String getBrevetCi() {
+		return this.brevetCi;
 	}
 
 	/**
 	 * @generated
 	 */
-	public void setBrevet_ci(String brevet_ci) {
-		this.brevet_ci = brevet_ci;
+	public void setBrevetCi(String brevetCi) {
+		this.brevetCi = brevetCi;
 	}
 
 	/**
@@ -295,65 +277,35 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "transportista")
-	public java.util.Set<Conocimiento> getConocimientos() {
-		return this.conocimientos;
+	public java.util.Set<Conocimiento> getConocimientosPropietario() {
+		return this.conocimientosPropietario;
 	}
 
 	/**
 	 * @generated
 	 */
-	public void setConocimientos(java.util.Set<Conocimiento> conocimientos) {
-		this.conocimientos = conocimientos;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void addConocimientos(Conocimiento conocimientos) {
-		getConocimientos().add(conocimientos);
-		conocimientos.setTransportista(this);
-	}
-
-	/**
-	 * @generated
-	 */
-	public void removeConocimientos(Conocimiento conocimientos) {
-		getConocimientos().remove(conocimientos);
-		conocimientos.setTransportista(null);
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.OneToMany(mappedBy = "transportistaChofer")
-	public java.util.Set<Conocimiento> getConocimientosChofer() {
-		return this.conocimientosChofer;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setConocimientosChofer(
-			java.util.Set<Conocimiento> conocimientosChofer) {
-				this.conocimientosChofer = conocimientosChofer;
+	public void setConocimientosPropietario(
+			java.util.Set<Conocimiento> conocimientosPropietario) {
+				this.conocimientosPropietario = conocimientosPropietario;
 			}
 
 	/**
 	 * @generated
 	 */
-	public void addConocimientosChofer(Conocimiento conocimientosChofer) {
-		getConocimientosChofer().add(conocimientosChofer);
-		conocimientosChofer.setTransportistaChofer(this);
-	}
+	public void addConocimientosPropietario(
+			Conocimiento conocimientosPropietario) {
+				getConocimientosPropietario().add(conocimientosPropietario);
+				conocimientosPropietario.setTransportistaPropietario(this);
+			}
 
 	/**
 	 * @generated
 	 */
-	public void removeConocimientosChofer(Conocimiento conocimientosChofer) {
-		getConocimientosChofer().remove(conocimientosChofer);
-		conocimientosChofer.setTransportistaChofer(null);
-	}
+	public void removeConocimientosPropietario(
+			Conocimiento conocimientosPropietario) {
+				getConocimientosPropietario().remove(conocimientosPropietario);
+				conocimientosPropietario.setTransportistaPropietario(null);
+			}
 
 	/**
 	 * @generated
@@ -372,7 +324,6 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public String getEstadoDescripcion() {
 		return this.estadoDescripcion;
 	}
@@ -384,5 +335,30 @@ public class Transportista implements java.io.Serializable {
 		this.estadoDescripcion = estadoDescripcion;
 	}
 
+	/**
+	 * @generated
+	 */
+	public Integer getNro() {
+		return this.nro;
+	}
 
+	/**
+	 * @generated
+	 */
+	public void setNro(Integer nro) {
+		this.nro = nro;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Transportista" + " id=" + id + " codigo=" + codigo
+				+ " brevetCi=" + brevetCi + " nombre=" + nombre + " direccion="
+				+ direccion + " telefono=" + telefono + " placa=" + placa
+				+ " marca=" + marca + " color=" + color + " capacidad="
+				+ capacidad + " vecino_de=" + vecino_de + " ci=" + ci + " nit="
+				+ nit + " estado=" + estado + " estadoDescripcion="
+				+ estadoDescripcion + " nro=" + nro;
+	}
 }

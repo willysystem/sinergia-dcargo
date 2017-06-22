@@ -53,11 +53,6 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	private Boolean activo;
-
-	/**
-	 * @generated
-	 */
 	@javax.persistence.ManyToOne
 	private Oficina oficinaOrigen;
 	/**
@@ -110,14 +105,42 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
-	private Transportista transportista;
+	@javax.persistence.Transient
+	private Integer nro;
+
+	/**
+	 * @generated
+	 */
+	private Character estado;
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private String estadoDescripcion;
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private java.util.Date fechaIni;
+	/**
+	 * @generated
+	 */
+	@javax.persistence.Transient
+	private java.util.Date fechaFin;
 
 	/**
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
-	private Transportista transportistaChofer;
+	private Transportista transportistaPropietario;
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.ManyToOne
+	private Transportista transportistaConductor;
 
 	/**
 	 * @generated
@@ -148,11 +171,13 @@ public class Conocimiento implements java.io.Serializable {
 		return "Conocimiento" + " id=" + id + " nroConocimiento="
 				+ nroConocimiento + " fecha=" + fecha + " multa=" + multa
 				+ " dias=" + dias + " observacion=" + observacion + " adjunto="
-				+ adjunto + " activo=" + activo + " flete=" + flete
+				+ adjunto + " estado=" + estado + " flete=" + flete
 				+ " acuenta=" + acuenta + " endestino=" + endestino + " saldo="
 				+ saldo + " fechaRegistro=" + fechaRegistro + " adjunto2="
 				+ adjunto2 + " aclaracion=" + aclaracion + " aclaracion2="
-				+ aclaracion2;
+				+ aclaracion2 + " nro=" + nro + " estadoDescripcion="
+				+ estadoDescripcion + " fechaIni=" + fechaIni + " fechaFin="
+				+ fechaFin;
 	}
 
 	/**
@@ -268,20 +293,6 @@ public class Conocimiento implements java.io.Serializable {
 	 */
 	public void setAdjunto(String adjunto) {
 		this.adjunto = adjunto;
-	}
-
-	/**
-	 * @generated
-	 */
-	public Boolean getActivo() {
-		return this.activo;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setActivo(Boolean activo) {
-		this.activo = activo;
 	}
 
 	/**
@@ -445,31 +456,100 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
-	public Transportista getTransportista() {
-		return this.transportista;
+	public Integer getNro() {
+		return this.nro;
 	}
 
 	/**
 	 * @generated
 	 */
-	public void setTransportista(Transportista transportista) {
-		this.transportista = transportista;
+	public void setNro(Integer nro) {
+		this.nro = nro;
 	}
 
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
-	public Transportista getTransportistaChofer() {
-		return this.transportistaChofer;
+	public Character getEstado() {
+		return this.estado;
 	}
 
 	/**
 	 * @generated
 	 */
-	public void setTransportistaChofer(Transportista transportistaChofer) {
-		this.transportistaChofer = transportistaChofer;
+	public void setEstado(Character estado) {
+		this.estado = estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String getEstadoDescripcion() {
+		return this.estadoDescripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstadoDescripcion(String estadoDescripcion) {
+		this.estadoDescripcion = estadoDescripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Date getFechaIni() {
+		return this.fechaIni;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setFechaIni(java.util.Date fechaIni) {
+		this.fechaIni = fechaIni;
+	}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Date getFechaFin() {
+		return this.fechaFin;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setFechaFin(java.util.Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
+
+	/**
+	 * @generated
+	 */
+	public Transportista getTransportistaPropietario() {
+		return this.transportistaPropietario;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setTransportistaPropietario(
+			Transportista transportistaPropietario) {
+				this.transportistaPropietario = transportistaPropietario;
+			}
+
+	/**
+	 * @generated
+	 */
+	public Transportista getTransportistaConductor() {
+		return this.transportistaConductor;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setTransportistaConductor(Transportista transportistaConductor) {
+		this.transportistaConductor = transportistaConductor;
 	}
 
 }

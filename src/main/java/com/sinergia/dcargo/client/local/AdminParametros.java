@@ -12,9 +12,11 @@ import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.slf4j.Logger;
 
 import com.google.gwt.core.shared.GWT;
+import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
 import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioPrecioCliente;
+import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
 import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Carga;
@@ -24,6 +26,8 @@ import com.sinergia.dcargo.client.shared.Cliente;
 import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.Oficina;
 import com.sinergia.dcargo.client.shared.Precio;
+import com.sinergia.dcargo.client.shared.ServicioTransportista;
+import com.sinergia.dcargo.client.shared.Transportista;
 import com.sinergia.dcargo.client.shared.Unidad;
 
 @Singleton
@@ -39,14 +43,18 @@ public class AdminParametros {
 	//private VistaGuiaAccion vistaGuiaAccion;
 	
 	private ServicioClienteCliente servicioCliente = GWT.create(ServicioClienteCliente.class);
-	private ServicioOficinaCliente servicioOficina = GWT.create(ServicioOficinaCliente.class);;
-	private ServicioUnidadCliente servicioUnidad   = GWT.create(ServicioUnidadCliente.class);;
-	private ServicioPrecioCliente servicioPrecio   = GWT.create(ServicioPrecioCliente.class);;
+	private ServicioOficinaCliente servicioOficina = GWT.create(ServicioOficinaCliente.class);
+	private ServicioUnidadCliente servicioUnidad   = GWT.create(ServicioUnidadCliente.class);
+	private ServicioPrecioCliente servicioPrecio   = GWT.create(ServicioPrecioCliente.class);
+	
+	@Inject
+	private ServicioTransportistasCliente servicioTransportista;
 	
 	private List<Cliente> clientes;
 	private List<Oficina> oficinas;
 	private List<Unidad> unidades;
 	private List<Precio> precios;
+	private List<Transportista> transportistas;
 	
 	private DateParam dateParam;
 	
@@ -88,10 +96,18 @@ public class AdminParametros {
 									public void onSuccess(Method method, List<Precio> response) {
 										precios = response;
 										log.info("precios.size" + precios.size() );
-										cargador.hide();
 										if(carga != null){
 											carga.cargarOracles();
 										}
+										
+										servicioTransportista.getTodos(new LlamadaRemota<List<Transportista>>("",true) {
+											@Override
+											public void onSuccess(Method method, List<Transportista> response) {
+												transportistas = response;
+												log.info("transportistas.size" + transportistas.size() );
+												AdminParametros.this.cargador.hide();
+											}
+										});
 									}
 									@Override
 									public void onFailure(Method method, Throwable exception) {
@@ -158,6 +174,14 @@ public class AdminParametros {
 
 	public void setPrecios(List<Precio> precios) {
 		this.precios = precios;
+	}
+	
+	public List<Transportista> getTransportistas() {
+		return transportistas;
+	}
+
+	public void setTransportistas(List<Transportista> transportistas) {
+		this.transportistas = transportistas;
 	}
 
 	public DateParam getDateParam() {

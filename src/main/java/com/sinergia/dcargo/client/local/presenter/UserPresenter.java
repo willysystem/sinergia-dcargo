@@ -18,7 +18,6 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
-import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
@@ -33,10 +32,6 @@ public class UserPresenter implements Presenter {
 
 	@Inject
 	public Display display;
-//	private UserView display;
-
-//	@Inject
-//	private HandlerManager eventBus;
 	
 	@Inject
 	private Logger log;
@@ -44,13 +39,14 @@ public class UserPresenter implements Presenter {
 	@Inject
 	private Cargador cargador;
 	
-	private ServicioUsuarioCliente userServiceClient = GWT.create(ServicioUsuarioCliente.class);
+	@Inject
+	private ServicioUsuarioCliente userServiceClient; // = GWT.create(ServicioUsuarioCliente.class);
 	
-	private ServicioOficinaCliente officeServiceClient = GWT.create(ServicioOficinaCliente.class);
+	@Inject
+	private ServicioOficinaCliente officeServiceClient; // = GWT.create(ServicioOficinaCliente.class);
 
 	public interface Display {
 
-		//void showUsers(List<Usuario> response);
 		HasClickHandlers getSaveButton();
 		HasClickHandlers getNewButton();
 		List<Usuario> commitChangesLocal();
@@ -60,12 +56,10 @@ public class UserPresenter implements Presenter {
 		HasClickHandlers getReCargarButton();
 		void setOffices(List<Oficina> offices);
 		Usuario getUsuarioSeleccionado();
-		//void reCargarDatos(List<Usuario> user);
 		void viewIU();
 		void cargarDataUI(List<Usuario> users);
 			
 	}
-	
 	
 	public UserPresenter() {
 		GWT.log(this.getClass().getSimpleName() + "()");
