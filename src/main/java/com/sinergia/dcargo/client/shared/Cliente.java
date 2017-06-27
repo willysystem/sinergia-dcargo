@@ -22,7 +22,6 @@ public class Cliente implements java.io.Serializable {
 	 */
 	@javax.persistence.Column(unique = true)
 	private String nombre;
-
 	/**
 	 * @generated
 	 */
@@ -40,18 +39,15 @@ public class Cliente implements java.io.Serializable {
 	 * @generated
 	 */
 	private String ci;
-
 	/**
 	 * @generated
 	 */
 	private Integer codigo;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private Integer nro;
-
 	/**
 	 * @generated
 	 */
@@ -62,7 +58,6 @@ public class Cliente implements java.io.Serializable {
 	 */
 	@javax.persistence.OneToMany(mappedBy = "consignatario")
 	private java.util.Set<Guia> guiasConsignatario = new java.util.HashSet<Guia>();
-
 	/**
 	 * @generated
 	 */
@@ -82,8 +77,6 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -98,7 +91,6 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Column(unique = true)
 	public String getNombre() {
 		return this.nombre;
 	}
@@ -108,16 +100,6 @@ public class Cliente implements java.io.Serializable {
 	 */
 	public void setNombre(String nombre) {
 		this.nombre = nombre;
-	}
-
-	/**
-	 * @generated
-	 */
-	public String toString() {
-		return "Cliente" + " id=" + id + " nombre=" + nombre + " direccion="
-				+ direccion + " telefono=" + telefono + " nit=" + nit + " ci="
-				+ ci + " codigo=" + codigo + " nro=" + nro + " estado="
-				+ estado + " estadoDescripcion=" + estadoDescripcion;
 	}
 
 	/**
@@ -151,7 +133,6 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Column(unique = true)
 	public String getNit() {
 		return this.nit;
 	}
@@ -194,7 +175,6 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public Integer getNro() {
 		return this.nro;
 	}
@@ -209,7 +189,6 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "remitente")
 	public java.util.Set<Guia> getGuiasRemitente() {
 		return this.guiasRemitente;
 	}
@@ -240,7 +219,6 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "consignatario")
 	public java.util.Set<Guia> getGuiasConsignatario() {
 		return this.guiasConsignatario;
 	}
@@ -285,7 +263,6 @@ public class Cliente implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public String getEstadoDescripcion() {
 		return this.estadoDescripcion;
 	}
@@ -295,5 +272,15 @@ public class Cliente implements java.io.Serializable {
 	 */
 	public void setEstadoDescripcion(String estadoDescripcion) {
 		this.estadoDescripcion = estadoDescripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Cliente" + " id=" + id + " nombre=" + nombre + " direccion="
+				+ direccion + " telefono=" + telefono + " nit=" + nit + " ci="
+				+ ci + " codigo=" + codigo + " nro=" + nro + " estado="
+				+ estado + " estadoDescripcion=" + estadoDescripcion;
 	}
 }

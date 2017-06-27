@@ -13,6 +13,7 @@ import com.google.gwt.core.client.GWT;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
+import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.Usuario;
 
@@ -24,6 +25,12 @@ public class MainContentPresenter implements Presenter {
 	
 	@Inject
 	private AdminParametros adminParametros;
+	
+	//@Inject
+	private ServicioUsuarioCliente userService = GWT.create(ServicioUsuarioCliente.class);
+	
+	@Inject
+	private MensajeAviso mensajeAviso;
 	
 	private Usuario usuario;
 	
@@ -37,8 +44,6 @@ public class MainContentPresenter implements Presenter {
 		void setCurrentUser(Usuario user);
 		void setCurrentDate(String date);
 	}
-	
-	private ServicioUsuarioCliente userServiceClient;
 
 	public MainContentPresenter() {
 		GWT.log(this.getClass().getSimpleName() + "()");
@@ -47,13 +52,11 @@ public class MainContentPresenter implements Presenter {
 	@PostConstruct
 	public void postConstruct() {
 		log.info("@PostConstruct: " + this.getClass().getSimpleName());
-		userServiceClient = GWT.create(ServicioUsuarioCliente.class);
 	}
 	
 	@AfterInitialization
 	public void after() {
 		log.info("@AfterInitialization: " + MainContentPresenter.class.getSimpleName());
-		userServiceClient = GWT.create(ServicioUsuarioCliente.class);
 	}
 	
 	@Inject
@@ -63,22 +66,25 @@ public class MainContentPresenter implements Presenter {
 	public void go(HasWidgets container) {
 		
 		//bind();
+		log.info("go: " + MainContentPresenter.class);
 		
 		display.showMainContent(container); 
 		
-		userServiceClient.getCurrentUser(new MethodCallback<Usuario>() {
+		userService.getCurrentUser(new MethodCallback<Usuario>() {
 			@Override
 			public void onSuccess(Method method, Usuario response) {
+				log.info("user: " + response);
 				usuario = response;
+				adminParametros.setUsuario(usuario);
 				display.setCurrentUser(response);
 			}
 			@Override
 			public void onFailure(Method method, Throwable exception) {
-				
+				mensajeAviso.mostrar("Error obtener el usuario actual");
 			}
 		});
 		
-		userServiceClient.getSeverDate(new MethodCallback<DateParam>() {
+		userService.getSeverDate(new MethodCallback<DateParam>() {
 			@Override
 			public void onFailure(Method method, Throwable exception) {
 				log.error("" + exception.getMessage());
@@ -87,8 +93,6 @@ public class MainContentPresenter implements Presenter {
 			@Override
 			public void onSuccess(Method method, DateParam response) {
 				log.info("getSeverDate(): " + response.getFormattedValue());
-				//DateTimeFormat formatDate = DateTimeFormat.getFormat("EEEE dd/MM/yyyy");
-				//String date = formatDate.format(response.getFormattedValue());
 				adminParametros.setDateParam(response);
 				display.setCurrentDate(response.getFormattedValue());
 			}

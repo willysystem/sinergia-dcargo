@@ -58,6 +58,7 @@ import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.shared.Guia;
 import com.sinergia.dcargo.client.shared.Item;
 import com.sinergia.dcargo.client.shared.Precio;
+import com.sinergia.dcargo.client.shared.ServicioGuia;
 import com.sinergia.dcargo.client.shared.Unidad;
 
 import com.sencha.gxt.widget.core.client.grid.SummaryType.SumSummaryType;
@@ -341,15 +342,21 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 				// Resumen y total
 				String resumen = "";
 				Double total = 0.0D;
+				Double pesoTotal = 0.0D;
+				Integer bultosTotal = 0;
 				for (Item i: store.getAll()) {
 					resumen = resumen + i.getContenido() + ",";
 					total = total + i.getTotal();
+					pesoTotal = pesoTotal + i.getPeso();
+					bultosTotal = bultosTotal + i.getCantidad();
 				}
 				resumen = resumen.substring(0, resumen.length()-1);
 				vistaGuiaAccion.setResumen(resumen);
 				
 				final Double totalTemp = total;
 				final String resumenTemp = resumen;
+				final Double pesoTotalTemp = pesoTotal;
+				final Integer bultosTotalTemp = bultosTotal;
 				
 				vistaGuiaAccion.fijarEstadoGuiaEspera();
 				servicioItem.guardar(itemTemp, new LlamadaRemota<Void>("No se guardo Item", false){
@@ -358,9 +365,21 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 						servicioGuia.guardarTotal(guiaSeleccionada.getId(), totalTemp, new LlamadaRemota<Void>("No se pudo guardar Total", false){
 							@Override
 							public void onSuccess(Method method, Void response) {
-								guiaSeleccionada.setResumenContenido(resumenTemp);
-								guiaSeleccionada.setTotalGuia(totalTemp);
-								vistaGuiaAccion.fijarEstadoGuiaCargado();
+								servicioGuia.guardarPesoTotal(guiaSeleccionada.getId(), pesoTotalTemp, new LlamadaRemota<Void>("No se pudo guardar peso Total", false){
+									@Override
+									public void onSuccess(Method method, Void response) {
+										servicioGuia.guardarBultosTotal(guiaSeleccionada.getId(), bultosTotalTemp, new LlamadaRemota<Void>("No se pudo guardar bultos Total", false){
+											@Override
+											public void onSuccess(Method method, Void response) {
+												guiaSeleccionada.setResumenContenido(resumenTemp);
+												guiaSeleccionada.setTotalGuia(totalTemp);
+												guiaSeleccionada.setTotalPeso(pesoTotalTemp);
+												guiaSeleccionada.setTotalCantidad(bultosTotalTemp);
+												vistaGuiaAccion.fijarEstadoGuiaCargado();
+											}
+										});											
+									}
+								});
 							}
 						});
 					}

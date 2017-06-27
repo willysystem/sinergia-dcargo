@@ -39,8 +39,7 @@ public class UserPresenter implements Presenter {
 	@Inject
 	private Cargador cargador;
 	
-	@Inject
-	private ServicioUsuarioCliente userServiceClient; // = GWT.create(ServicioUsuarioCliente.class);
+	private ServicioUsuarioCliente userServiceClient = GWT.create(ServicioUsuarioCliente.class);
 	
 	@Inject
 	private ServicioOficinaCliente officeServiceClient; // = GWT.create(ServicioOficinaCliente.class);

@@ -72,15 +72,20 @@ public class PresentadorConocimiento implements Presenter {
 	public void go(HasWidgets container) {
 		log.info(this.getClass().getSimpleName() + ".go()" );
 		display.viewIU();
+		log.info(this.getClass().getSimpleName() + ".go()2" );
 		
 		transportistas = adminParametros.getTransportistas();
 		
 		List<String> palabras = new ArrayList<>();
 		for (Transportista cli :transportistas) {
-			palabras.add(cli.getNombre());
+			if(cli.getNombre() != null){
+				palabras.add(cli.getNombre());
+			}
 		}
-		display.fijarOracleParaTransportistas(palabras);
+		log.info(this.getClass().getSimpleName() + ".go()3: ");
 		
+		display.fijarOracleParaTransportistas(palabras);
+		log.info(this.getClass().getSimpleName() + ".go()4" );
 		bind();
 
 	}

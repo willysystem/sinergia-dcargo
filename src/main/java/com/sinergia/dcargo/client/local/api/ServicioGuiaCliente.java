@@ -104,6 +104,16 @@ public interface ServicioGuiaCliente extends RestService {
 	  @Path("/guardarTotal/{idGuia}/{total}")
 	  void guardarTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total")Double total, MethodCallback<Void> call);
 	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/guardarPesoTotal/{idGuia}/{pesoTotal}")
+	  void guardarPesoTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("pesoTotal") Double pesoTotal, MethodCallback<Void> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/guardarBultosTotal/{idGuia}/{bultosTotal}")
+	  void guardarBultosTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("bultosTotal") Integer bultosTotal, MethodCallback<Void> call);
+	  
 	  @DELETE
 	  @Path("/{id:[0-9]+}")
 	  void borrar(@PathParam("id") Long id,  MethodCallback<Boolean> call);

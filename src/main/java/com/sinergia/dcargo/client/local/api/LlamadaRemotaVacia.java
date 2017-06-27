@@ -10,7 +10,7 @@ public class LlamadaRemotaVacia<R> extends LlamadaRemota<R>{
 
 	@Override
 	public void onSuccess(Method method, R response) {
-		
+		// cargador.fijarEstadoGuiaCargado();
 	}
 
 }

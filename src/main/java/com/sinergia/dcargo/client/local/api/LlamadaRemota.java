@@ -4,7 +4,6 @@ import javax.inject.Inject;
 
 import org.fusesource.restygwt.client.Method;
 import org.fusesource.restygwt.client.MethodCallback;
-import org.slf4j.Logger;
 
 import com.google.gwt.core.client.GWT;
 import com.sinergia.dcargo.client.local.message.MensajeError;

@@ -15,6 +15,7 @@ import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -28,6 +29,8 @@ import com.google.gwt.user.client.ui.SuggestBox;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.datepicker.client.DateBox;
+import com.google.gwt.view.client.SelectionChangeEvent;
+import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
@@ -56,6 +59,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private MensajeExito mensajeExito;
 	
 	@Inject
+	private MensajeAviso mensajeAviso;
+	
+	@Inject
 	private ServicioGuiaCliente servicioGuia;
 	
 	@Inject
@@ -79,7 +85,6 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private TextBox nroFacturaDestinoTextBox = new TextBox();
 	
 	private ListBox estadoListBox = new ListBox();
-	//private CheckBox activoCheckBox = new CheckBox();
 	
 	private Button buscarBtn = new Button("Buscar");
 	
@@ -89,8 +94,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private Button anularBtn = new Button("Anular");
 	private Button imprimirBtn = new Button("Imprimir Búsqueda");
 	private Button entregaBtn = new Button("Entrega");
-//	private Button salirBtn = new Button("Salir");
-	
+	private Button salirBtn = new Button("Salir");
 	
 	public VistaGuia() {
 		super(10);
@@ -133,30 +137,30 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	    cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
 	    
 	    // Campos
-	    layout.setHTML(1, 0, "Remite:");
+	    layout.setWidget(1, 0, new HTML("<b>Remite: </b>"));
 	    layout.setWidget(1, 1, remiteSuggestBox);
-	    layout.setHTML(2, 0, "Consignatario:");
+	    layout.setWidget(2, 0, new HTML("<b>Consignatario: </b>"));
 	    layout.setWidget(2, 1, consignatarioSuggestBox);
 	    
-	    layout.setHTML(1, 2, "Origen:");
+	    layout.setWidget(1, 2, new HTML("<b>Origen: </b>"));
 	    layout.setWidget(1, 3, origenSuggestBox);
-	    layout.setHTML(2, 2, "Destino:");
+	    layout.setWidget(2, 2, new HTML("<b>Destino: </b>"));
 	    layout.setWidget(2, 3, destinoSuggestBox);
 	  
-	    layout.setHTML(1, 4, "Fecha Recepción:");
+	    layout.setWidget(1, 4, new HTML("<b>Fecha Recepción: </b>"));
 	    layout.setWidget(1, 5, fechaReceptionDateBox);
-	    layout.setHTML(2, 4, "Fecha Entrega:");
+	    layout.setWidget(2, 4, new HTML("<b>Fecha Entrega: </b>"));
 	    layout.setWidget(2, 5, fechaEntregaDateBox);
 	    
-	    layout.setHTML(1, 6, "Factura origen:");
+	    layout.setWidget(1, 6, new HTML("<b>Factura origen: </b>"));
 	    layout.setWidget(1, 7, nroFacturaOrigenTextBox);
-	    layout.setHTML(2, 6, "Fecha destino:");
+	    layout.setWidget(2, 6, new HTML("<b>Fecha destino: </b>"));
 	    layout.setWidget(2, 7, nroFacturaDestinoTextBox);
 	    
-	    layout.setHTML(3, 0, "Nro Guia:");
+	    layout.setWidget(3, 0, new HTML("<b>Nro Guia: </b>"));
 	    layout.setWidget(3, 1, nroGuia);
 	    
-	    layout.setHTML(3, 2, "Estado:");
+	    layout.setWidget(3, 2, new HTML("<b>Estado: </b>"));
 	    layout.setWidget(3, 3, estadoListBox);
 	    
 	    layout.setWidget(3, 4, buscarBtn);
@@ -276,6 +280,24 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		
 		//grid.setWidth("1000px");
 		grid.setHeight("300px");
+		grid.getSelectionModel().addSelectionChangeHandler(new Handler() {
+			@SuppressWarnings("unchecked")
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
+				if(guia != null) {
+					String estado = guia.getEstadoDescripcion();
+					if(estado.charAt(0) == 'A') {
+						anularBtn.setEnabled(false);
+						modificarBtn.setEnabled(false);
+					} else {
+						anularBtn.setEnabled(true);
+						modificarBtn.setEnabled(true);
+					}
+				}
+			}
+		});
+		
 		
 		VerticalPanel vpGrid = new VerticalPanel();
 		vpGrid.setWidth("100%");
@@ -300,7 +322,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		horizontalPanelButton.add(anularBtn);
 		horizontalPanelButton.add(imprimirBtn);
 		horizontalPanelButton.add(entregaBtn);
-//		horizontalPanelButton.add(salirBtn);
+		horizontalPanelButton.add(salirBtn);
 		horizontalPanel.add(horizontalPanelButton);
 		
 		DockPanel dock = new DockPanel();
@@ -366,7 +388,6 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			if(s != null)
 				clienteOracle.add(s);
 		}
-		
 	}
 
 	@Override
@@ -375,44 +396,45 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	}
 	
 	private void implementarAcciones() {
+		buscarBtn.addClickHandler(e -> ((SingleSelectionModel<Guia>)grid.getSelectionModel()).clear());
 		nuevoBtn.addClickHandler(e -> vistaNuevaGuia.mostrar(GuiaAccion.NUEVO, null));
 		consultarBtn.addClickHandler(e -> {
 			@SuppressWarnings("unchecked")
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
-			if(guia == null){
-				new MensajeAviso("Seleccione la Guia que decea consultar").show();
-			} else {
+			if(guia == null)
+				mensajeAviso.mostrar("Seleccione la Guia que decea consultar");
+			else 
 				vistaNuevaGuia.mostrar(GuiaAccion.CONSULTAR, guia);
-			}
 		});
 		modificarBtn.addClickHandler(e -> {
 			@SuppressWarnings("unchecked")
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
-			if(guia == null){
-				new MensajeAviso("Seleccione la Guia que decea consultar").show();
-			} else {
+			if(guia == null)
+				mensajeAviso.mostrar("Seleccione la Guia que decea consultar");
+			else 
 				vistaNuevaGuia.mostrar(GuiaAccion.MODIFICAR, guia);
-			}
 		});
 		anularBtn.addClickHandler(e -> {
 			@SuppressWarnings("unchecked")
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
-			if(guia == null){
-				new MensajeAviso("Seleccione la Guia que decea anular").show();
-			} else {
+			if(guia == null)
+				mensajeAviso.mostrar("Seleccione la Guia que decea anular");
+			 else {
 				VistaGuia.this.cargador.center();
 				servicioGuia.cambiarEstado(guia.getId(), "Anulado", new LlamadaRemota<Void>("No se pudo anular la Guia", true) {
 					@Override
 					public void onSuccess(Method method, Void response) {
-						mensajeExito.mostrar("Guia anulada existosamente, con nro: " + guia.getNroGuia());
-						mensajeExito.center();
 						VistaGuia.this.cargador.hide();
+						mensajeExito.mostrar("Guia anulada existosamente, con nro: " + guia.getNroGuia(), buscarBtn);
+						
 					}
 				});
 			}
 		});
 		imprimirBtn.addClickHandler(e -> {
+			log.info("--> imprimir Busqueda Guia: ");
 			List<Guia> guias = dataProvider.getList();
+			log.info("--> guias: " + guias);
 			String[][] guiasImprimir = new String[guias.size()][11];
 			int k = 0;
 			for (Guia guia : guias) {
@@ -434,15 +456,17 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 				guiasImprimir[k][10] = guia.getEstadoDescripcion();
 				k++;
 			}
-			imprimirPDF.generarImpresionBusqueda(guiasImprimir);
+			imprimirPDF.generarImpresionBusquedaGuias(guiasImprimir);
+		});
+		salirBtn.addClickHandler(e -> {
+			log.info("Salir: "+ com.google.gwt.core.client.GWT.getHostPageBaseURL());
+			Window.Location.assign(com.google.gwt.core.client.GWT.getHostPageBaseURL());
 		});
 		
 		anularBtn.setEnabled(true);
 		imprimirBtn.setEnabled(true);
 		entregaBtn.setEnabled(false);
 		
-//		salirBtn.addClickHandler(e->{});
-		//modificarBtn.addClickHandler(e -> vistaNuevaGuia.mostrar(GuiaAccion.MODIFICAR, guia));
 	}
 	
 	private void cargarEstadosListBox() {
@@ -450,9 +474,12 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			@Override
 			public void onSuccess(Method method, List<EstadoGuia> response) {
 				GWT.log("onSuccess:" + response.size());
+				estadoListBox.clear();
+				estadoListBox.addItem("Todos");
 				for (EstadoGuia e : response) {
 					estadoListBox.addItem(e.getEstadoDescripcion());
 				}
+				estadoListBox.setSelectedIndex(2);
 			}
 		});
 	}

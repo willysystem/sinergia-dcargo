@@ -51,25 +51,21 @@ public class Item implements java.io.Serializable {
 	 */
 	@javax.persistence.ManyToOne
 	private Unidad unidad;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private Integer nro;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
 	private Precio precio;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private Boolean valido;
-
 	/**
 	 * @generated
 	 */
@@ -80,7 +76,6 @@ public class Item implements java.io.Serializable {
 	 */
 	@javax.persistence.Transient
 	private String precioMonto;
-
 	/**
 	 * @generated
 	 */
@@ -95,8 +90,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -195,7 +188,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Guia getGuia() {
 		return this.guia;
 	}
@@ -210,7 +202,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Unidad getUnidad() {
 		return this.unidad;
 	}
@@ -225,19 +216,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String toString() {
-		return "Item" + " id=" + id + " nroSecuencial=" + nroSecuencial
-				+ " cantidad=" + cantidad + " contenido=" + contenido
-				+ " peso=" + peso + " monto=" + monto + " activo=" + activo
-				+ " nro=" + nro + " valido=" + valido + " unidadTitulo="
-				+ unidadTitulo + " precioMonto=" + precioMonto + " total="
-				+ total;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.Transient
 	public Integer getNro() {
 		return this.nro;
 	}
@@ -252,7 +230,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Precio getPrecio() {
 		return this.precio;
 	}
@@ -267,7 +244,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public Boolean getValido() {
 		return this.valido;
 	}
@@ -282,7 +258,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public String getUnidadTitulo() {
 		return this.unidadTitulo;
 	}
@@ -297,7 +272,6 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public String getPrecioMonto() {
 		return this.precioMonto;
 	}
@@ -321,5 +295,12 @@ public class Item implements java.io.Serializable {
 	 */
 	public void setTotal(Double total) {
 		this.total = total;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "";
 	}
 }

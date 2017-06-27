@@ -84,7 +84,7 @@ public abstract class View<E> {
 				return getNro(entity);
 			}
 		};
-		grid.setColumnWidth(nro, 10, Unit.PX);
+		grid.setColumnWidth(nro, 15, Unit.PX);
 		grid.addColumn(nro, "Nº");
 
 	}

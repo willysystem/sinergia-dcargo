@@ -17,7 +17,6 @@ public class Precio implements java.io.Serializable {
 	@javax.persistence.Id
 	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
-
 	/**
 	 * @generated
 	 */
@@ -26,7 +25,6 @@ public class Precio implements java.io.Serializable {
 	 * @generated
 	 */
 	private Double precio;
-
 	/**
 	 * @generated
 	 */
@@ -42,8 +40,6 @@ public class Precio implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -53,14 +49,6 @@ public class Precio implements java.io.Serializable {
 	 */
 	public void setId(Long id) {
 		this.id = id;
-	}
-
-	/**
-	 * @generated
-	 */
-	public String toString() {
-		return "Precio" + " id=" + id + " descripcion=" + descripcion
-				+ " precio=" + precio;
 	}
 
 	/**
@@ -94,7 +82,6 @@ public class Precio implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "precio")
 	public java.util.Set<Item> getItems() {
 		return this.items;
 	}
@@ -120,5 +107,13 @@ public class Precio implements java.io.Serializable {
 	public void removeItems(Item items) {
 		getItems().remove(items);
 		items.setPrecio(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Precio" + " id=" + id + " descripcion=" + descripcion
+				+ " precio=" + precio;
 	}
 }

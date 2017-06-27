@@ -300,12 +300,12 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		HorizontalPanel horizontalPanelButton = new HorizontalPanel();
 		horizontalPanelButton.setSpacing(5);
 		
-		if(guiaAccion == GuiaAccion.NUEVO) {
+		if(guiaAccion == GuiaAccion.NUEVO || guiaAccion == GuiaAccion.MODIFICAR) {
 			horizontalPanelButton.add(remitirBtn);
 			horizontalPanelButton.add(imprimirBtn);
 			horizontalPanelButton.add(salirBtn);
 		} 
-		if(guiaAccion == GuiaAccion.MODIFICAR || guiaAccion == GuiaAccion.CONSULTAR) {
+		if(guiaAccion == GuiaAccion.CONSULTAR) {
 			horizontalPanelButton.add(salirBtn);
 		}
 		
@@ -597,6 +597,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		});
 		
 		imprimirBtn.addClickHandler(e->{
+			GWT.log("--> imprimir Guia: " + guiaSeleccionada);
+			GWT.log("--> imprimir Guia.getItems(): " + guiaSeleccionada.getItems());
 			GWT.log("guiaSeleccionada.getItems(): " + guiaSeleccionada.getItems().size());
 			String items[][] = new String[7][guiaSeleccionada.getItems().size()];
 			int k = 0;
@@ -629,7 +631,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 					                   consignatarioSuggestBox.getValue(), telefonoConsignaValorLabel.getText(),destinoSuggestBox.getValue(), 
 					                   items, bultos+"", peso+"", total+"",  
 					                   resumenTextBox.getValue(), pagoOrigenTextBox.getValue()+"", pagoDestinoTextBox.getValue()+"", 
-					                   ciRemitente
+					                   ciRemitente == null ? "" : ciRemitente
 		     );
 		});
 		

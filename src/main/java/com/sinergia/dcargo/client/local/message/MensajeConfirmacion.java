@@ -17,13 +17,13 @@ import com.google.gwt.user.client.ui.VerticalPanel;
  * @author willy
  */
 @Singleton 
-public class MensageConfirmacion extends DialogBox {
+public class MensajeConfirmacion extends DialogBox {
 	
-	public MensageConfirmacion(){
+	public MensajeConfirmacion(){
 		super();
 	}
 	
-	public MensageConfirmacion(String mensaje, ClickHandler clickHandlerAceptar){
+	public MensajeConfirmacion(String mensaje, ClickHandler clickHandlerAceptar){
 		super();
 		setGlassEnabled(true);
 		setAnimationEnabled(false);
@@ -52,7 +52,7 @@ public class MensageConfirmacion extends DialogBox {
 		cancelarButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				MensageConfirmacion.this.hide();
+				MensajeConfirmacion.this.hide();
 			}
 		});
 		horizontalPanel2.add(cancelarButton);
@@ -91,7 +91,7 @@ public class MensageConfirmacion extends DialogBox {
 		cancelarButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				MensageConfirmacion.this.hide();
+				MensajeConfirmacion.this.hide();
 			}
 		});
 		horizontalPanel2.add(cancelarButton);

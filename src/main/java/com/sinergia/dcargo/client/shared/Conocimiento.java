@@ -19,13 +19,11 @@ public class Conocimiento implements java.io.Serializable {
 	@javax.persistence.Id
 	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.OneToMany(mappedBy = "conocimiento")
 	private java.util.Set<Guia> guias = new java.util.HashSet<Guia>();
-
 	/**
 	 * @generated
 	 */
@@ -53,6 +51,10 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	private Character estado;
+	/**
+	 * @generated
+	 */
 	@javax.persistence.ManyToOne
 	private Oficina oficinaOrigen;
 	/**
@@ -60,7 +62,6 @@ public class Conocimiento implements java.io.Serializable {
 	 */
 	@javax.persistence.ManyToOne
 	private Oficina oficinaDestino;
-
 	/**
 	 * @generated
 	 */
@@ -72,23 +73,13 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	private Double endestino;
-	/**
-	 * @generated
-	 */
-	private Double saldo;
-	/**
-	 * @generated
-	 */
 	@javax.persistence.ManyToOne
 	private Usuario usuario;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Temporal(value = TemporalType.TIMESTAMP)
 	private java.util.Date fechaRegistro;
-
 	/**
 	 * @generated
 	 */
@@ -101,24 +92,16 @@ public class Conocimiento implements java.io.Serializable {
 	 * @generated
 	 */
 	private String aclaracion2;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private Integer nro;
-
-	/**
-	 * @generated
-	 */
-	private Character estado;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private String estadoDescripcion;
-
 	/**
 	 * @generated
 	 */
@@ -129,18 +112,25 @@ public class Conocimiento implements java.io.Serializable {
 	 */
 	@javax.persistence.Transient
 	private java.util.Date fechaFin;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
 	private Transportista transportistaPropietario;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
 	private Transportista transportistaConductor;
+
+	/**
+	 * @generated
+	 */
+	private Double pagoOrigen;
+	/**
+	 * @generated
+	 */
+	private Double pagoDestino;
 
 	/**
 	 * @generated
@@ -151,8 +141,6 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -167,23 +155,6 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String toString() {
-		return "Conocimiento" + " id=" + id + " nroConocimiento="
-				+ nroConocimiento + " fecha=" + fecha + " multa=" + multa
-				+ " dias=" + dias + " observacion=" + observacion + " adjunto="
-				+ adjunto + " estado=" + estado + " flete=" + flete
-				+ " acuenta=" + acuenta + " endestino=" + endestino + " saldo="
-				+ saldo + " fechaRegistro=" + fechaRegistro + " adjunto2="
-				+ adjunto2 + " aclaracion=" + aclaracion + " aclaracion2="
-				+ aclaracion2 + " nro=" + nro + " estadoDescripcion="
-				+ estadoDescripcion + " fechaIni=" + fechaIni + " fechaFin="
-				+ fechaFin;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.OneToMany(mappedBy = "conocimiento")
 	public java.util.Set<Guia> getGuias() {
 		return this.guias;
 	}
@@ -298,7 +269,20 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
+	public Character getEstado() {
+		return this.estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstado(Character estado) {
+		this.estado = estado;
+	}
+
+	/**
+	 * @generated
+	 */
 	public Oficina getOficinaOrigen() {
 		return this.oficinaOrigen;
 	}
@@ -313,7 +297,6 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Oficina getOficinaDestino() {
 		return this.oficinaDestino;
 	}
@@ -356,35 +339,6 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public Double getEndestino() {
-		return this.endestino;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setEndestino(Double endestino) {
-		this.endestino = endestino;
-	}
-
-	/**
-	 * @generated
-	 */
-	public Double getSaldo() {
-		return this.saldo;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setSaldo(Double saldo) {
-		this.saldo = saldo;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.ManyToOne
 	public Usuario getUsuario() {
 		return this.usuario;
 	}
@@ -399,7 +353,6 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Temporal(value = TemporalType.TIMESTAMP)
 	public java.util.Date getFechaRegistro() {
 		return this.fechaRegistro;
 	}
@@ -465,20 +418,6 @@ public class Conocimiento implements java.io.Serializable {
 	 */
 	public void setNro(Integer nro) {
 		this.nro = nro;
-	}
-
-	/**
-	 * @generated
-	 */
-	public Character getEstado() {
-		return this.estado;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setEstado(Character estado) {
-		this.estado = estado;
 	}
 
 	/**
@@ -552,4 +491,47 @@ public class Conocimiento implements java.io.Serializable {
 		this.transportistaConductor = transportistaConductor;
 	}
 
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Conocimiento" + " id=" + id + " nroConocimiento="
+				+ nroConocimiento + " fecha=" + fecha + " multa=" + multa
+				+ " dias=" + dias + " observacion=" + observacion + " adjunto="
+				+ adjunto + " estado=" + estado + " flete=" + flete
+				+ " acuenta=" + acuenta + " pagoOrigen=" + pagoOrigen
+				+ " pagoDestino=" + pagoDestino + " fechaRegistro="
+				+ fechaRegistro + " adjunto2=" + adjunto2 + " aclaracion="
+				+ aclaracion + " aclaracion2=" + aclaracion2 + " nro=" + nro
+				+ " estadoDescripcion=" + estadoDescripcion + " fechaIni="
+				+ fechaIni + " fechaFin=" + fechaFin;
+	}
+
+	/**
+	 * @generated
+	 */
+	public Double getPagoOrigen() {
+		return this.pagoOrigen;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setPagoOrigen(Double pagoOrigen) {
+		this.pagoOrigen = pagoOrigen;
+	}
+
+	/**
+	 * @generated
+	 */
+	public Double getPagoDestino() {
+		return this.pagoDestino;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setPagoDestino(Double pagoDestino) {
+		this.pagoDestino = pagoDestino;
+	}
 }

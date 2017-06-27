@@ -7,11 +7,11 @@ import javax.inject.Singleton;
 
 import org.fusesource.restygwt.client.Method;
 
-import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.TextColumn;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -53,6 +53,9 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 	
 	@Inject
 	private MensajeExito mensajeExito;
+	
+	@Inject
+	private MensajeAviso mensajeAviso;  
 	
 	@Inject
 	private ServicioGuiaCliente servicioGuia;
@@ -172,19 +175,6 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 		grid.setColumnWidth(nroGuiaColmun, 10, Unit.PX);
 		grid.addColumn(nroGuiaColmun, "Conoc.");
 		
-		// Fecha
-		TextColumn<Conocimiento> fechaColmun = new TextColumn<Conocimiento>() {
-			@Override
-			public String getValue(Conocimiento entity) {
-				if(entity.getFechaRegistro() != null){
-					return DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(entity.getFechaRegistro());
-				}
-				return "";	
- 			}
-		};
-		grid.setColumnWidth(fechaColmun, 15, Unit.PX);
-		grid.addColumn(fechaColmun, "Registro");
-		
 		// Origen
 		TextColumn<Conocimiento> origenColmun = new TextColumn<Conocimiento>() {
 			@Override
@@ -223,7 +213,20 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 			}
 		};
 		grid.setColumnWidth(conductorColmun, 30, Unit.PX);
-		grid.addColumn(conductorColmun, "Propietario");
+		grid.addColumn(conductorColmun, "Conductor");
+		
+		// Fecha
+		TextColumn<Conocimiento> fechaColmun = new TextColumn<Conocimiento>() {
+			@Override
+			public String getValue(Conocimiento entity) {
+				if(entity.getFechaRegistro() != null){
+					return DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(entity.getFechaRegistro());
+				}
+				return "";	
+				}
+		};
+		grid.setColumnWidth(fechaColmun, 15, Unit.PX);
+		grid.addColumn(fechaColmun, "Registro");
 		
 		// Estado
 		TextColumn<Conocimiento> estadoColmun = new TextColumn<Conocimiento>() {
@@ -277,7 +280,7 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 		
 		mainContentView.getCentralPanel().add(dock);
 		
-		cargarEstadosListBox();
+		cargarDatosIniciles();
 		implementarAcciones();
 		
 	}
@@ -336,7 +339,7 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 	}
 	
 	
-	private void cargarEstadosListBox() {
+	private void cargarDatosIniciles() {
 		servicioConocimiento.getEstados(new LlamadaRemota<List<EstadoGuia>>("No se puede obtener estados", false){
 			@Override
 			public void onSuccess(Method method, List<EstadoGuia> response) {
@@ -345,8 +348,10 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 				for (EstadoGuia e : response) {
 					estadoListBox.addItem(e.getEstadoDescripcion());
 				}
+				estadoListBox.setSelectedIndex(2);
 			}
 		});
+		
 	}
 	
 	private void implementarAcciones() {
@@ -354,32 +359,30 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 		consultarBtn.addClickHandler(e -> {
 			@SuppressWarnings("unchecked")
 			Conocimiento conocimiento = ((SingleSelectionModel<Conocimiento>)grid.getSelectionModel()).getSelectedObject();
-			if(conocimiento == null){
-				new MensajeAviso("Seleccione la Guia que decea consultar").show();
-			} else {
+			if(conocimiento == null)
+				mensajeAviso.mostrar("Seleccione la Conocimiento que decea consultar");
+			else 
 				vistaConocimientoAccion.mostrar(ConocimientoAccion.CONSULTAR, conocimiento);
-			}
 		});
 		modificarBtn.addClickHandler(e -> {
 			@SuppressWarnings("unchecked")
 			Conocimiento conocimiento = ((SingleSelectionModel<Conocimiento>)grid.getSelectionModel()).getSelectedObject();
-			if(conocimiento == null){
-				new MensajeAviso("Seleccione la Guia que decea consultar").show();
-			} else {
+			if(conocimiento == null)
+				mensajeAviso.mostrar("Seleccione la Conocimiento que decea consultar");
+			else
 				vistaConocimientoAccion.mostrar(ConocimientoAccion.MODIFICAR, conocimiento);
-			}
 		});
 		anularBtn.addClickHandler(e -> {
 			@SuppressWarnings("unchecked")
-			Conocimiento guia = ((SingleSelectionModel<Conocimiento>)grid.getSelectionModel()).getSelectedObject();
-			if(guia == null){
-				new MensajeAviso("Seleccione la Guia que decea anular").show();
+			Conocimiento conocimiento = ((SingleSelectionModel<Conocimiento>)grid.getSelectionModel()).getSelectedObject();
+			if(conocimiento == null){
+				new MensajeAviso("Seleccione la Conocimiento que decea anular").show();
 			} else {
 				VistaConocimiento.this.cargador.center();
-				servicioGuia.cambiarEstado(guia.getId(), "Anulado", new LlamadaRemota<Void>("No se pudo anular la Guia", true) {
+				servicioGuia.cambiarEstado(conocimiento.getId(), "Anulado", new LlamadaRemota<Void>("No se pudo anular la Conocimiento", true) {
 					@Override
 					public void onSuccess(Method method, Void response) {
-						mensajeExito.mostrar("Guia anulada existosamente, con nro: " + guia.getNroConocimiento());
+						mensajeExito.mostrar("Conocimiento anulada existosamente, con nro: " + conocimiento.getNroConocimiento());
 						mensajeExito.center();
 						VistaConocimiento.this.cargador.hide();
 					}
@@ -387,29 +390,28 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 			}
 		});
 		imprimirBtn.addClickHandler(e -> {
-			List<Conocimiento> guias = dataProvider.getList();
-			String[][] guiasImprimir = new String[guias.size()][11];
+			List<Conocimiento> cs = dataProvider.getList();
+			String[][] guiasImprimir = new String[cs.size()][8];
 			int k = 0;
-			for (Conocimiento guia : guias) {
-//				String remite = "";
-//				if(guia.getRemitente()!=null) remite = guia.getRemitente().getNombre();
-//				String consignatario = "";
-//				if(guia.getConsignatario()!=null) consignatario = guia.getConsignatario().getNombre(); 
-//				GWT.log("  k:" + k);
-//				guiasImprimir[k][0]  = (k+1)+"";
-//				guiasImprimir[k][1]  = guia.getNroGuia()+"";
-//				guiasImprimir[k][2]  = remite;
-//				guiasImprimir[k][3]  = consignatario;
-//				guiasImprimir[k][4]  = guia.getOficinaOrigen()==null?"":guia.getOficinaOrigen().getNombre();
-//				guiasImprimir[k][5]  = guia.getOficinaDestino()==null?"":guia.getOficinaDestino().getNombre();
-//				guiasImprimir[k][6]  = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(guia.getFechaRegistro());
-//				guiasImprimir[k][7]  = "";//guia.getFechaEntrega()+"";
-//				guiasImprimir[k][8]  = guia.getNroFactura();
-//				guiasImprimir[k][9]  = "";
-//				guiasImprimir[k][10] = guia.getEstadoDescripcion();
+			for (Conocimiento conocimiento : cs) {
+				String propietario = "";
+				if(conocimiento.getTransportistaPropietario()!=null) propietario = conocimiento.getTransportistaPropietario().getNombre();
+				String conductor = "";
+				if(conocimiento.getTransportistaConductor()!=null) conductor = conocimiento.getTransportistaConductor().getNombre(); 
+				guiasImprimir[k][0]  = (k+1)+"";
+				guiasImprimir[k][1]  = conocimiento.getNroConocimiento()+"";
+				guiasImprimir[k][2]  = conocimiento.getOficinaOrigen()==null?"":conocimiento.getOficinaOrigen().getNombre();
+				guiasImprimir[k][3]  = conocimiento.getOficinaDestino()==null?"":conocimiento.getOficinaDestino().getNombre();
+				guiasImprimir[k][4]  = propietario;
+				guiasImprimir[k][5]  = conductor;
+				guiasImprimir[k][6]  = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(conocimiento.getFechaRegistro());
+				guiasImprimir[k][7]  = conocimiento.getEstadoDescripcion(); 
 				k++;
 			}
-			imprimirPDF.generarImpresionBusqueda(guiasImprimir);
+			imprimirPDF.generarImpresionBusquedaConocimientos(guiasImprimir);
+		});
+		salirBtn.addClickHandler(e -> {
+			Window.Location.assign(com.google.gwt.core.client.GWT.getHostPageBaseURL());
 		});
 		
 		anularBtn.setEnabled(true);
@@ -421,15 +423,17 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 	private Long getIdFromNombreTransportista(String nombre){
 		List<Transportista> transportistas = adminParametros.getTransportistas();
 		for (Transportista t : transportistas) {
-			if(t.getNombre().equals(nombre)) return t.getId();
+			if(t != null && t.getNombre() != null)
+				if(t.getNombre().equals(nombre)) return t.getId();
 		}
 		return null;
 	}
 	
 	private Long getIdFromNombreOficina(String nombre){
 		List<Oficina> oficinas = adminParametros.getOficinas();
-		for (Oficina o :oficinas) {
-			if(o.getNombre().equals(nombre)) return o.getId();
+		for (Oficina o: oficinas) {
+			if(o != null)
+				if(o.getNombre().equals(nombre)) return o.getId();
 		}
 		return null;
 	}

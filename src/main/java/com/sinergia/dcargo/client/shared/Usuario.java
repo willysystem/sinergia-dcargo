@@ -11,62 +11,51 @@ public class Usuario extends Persona implements java.io.Serializable {
 	 * @generated
 	 */
 	private static final long serialVersionUID = 348744729L;
-
+	/**
+	 * @generated
+	 */
+	private String nombreUsuario;
+	/**
+	 * @generated
+	 */
+	private String contrasenia;
+	/**
+	 * @generated
+	 */
+	private java.util.Date fechaExpiracion;
+	/**
+	 * @generated
+	 */
+	private Character estado;
+	/**
+	 * @generated
+	 */
+	private Boolean administrador;
 	/**
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
 	private Oficina office;
-
-	/**
-	 * @generated
-	 */
-	private String contrasenia;
-
-	/**
-	 * @generated
-	 */
-	private java.util.Date fechaExpiracion;
-
-	/**
-	 * @generated
-	 */
-	private Boolean administrador;
-
-	/**
-	 * @generated
-	 */
-	private String nombreUsuario;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.OneToMany(mappedBy = "usuario")
 	private java.util.Set<Conocimiento> conocimientos = new java.util.HashSet<Conocimiento>();
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.OneToMany(mappedBy = "usuarioRegistro")
 	private java.util.Set<Guia> guiasRegistro = new java.util.HashSet<Guia>();
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.OneToMany(mappedBy = "usuarioEntrega")
 	private java.util.Set<Guia> guiasEntrega = new java.util.HashSet<Guia>();
-
-	/**
-	 * @generated
-	 */
-	private Character estado;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private String descripcionEstado;
-
 	/**
 	 * @generated
 	 */
@@ -76,33 +65,21 @@ public class Usuario extends Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String toString() {
-		return "Usuario" + " nombreUsuario=" + nombreUsuario + " contrasenia="
-				+ contrasenia + " fechaExpiracion=" + fechaExpiracion
-				+ " estado=" + estado + " administrador=" + administrador
-				+ " descripcionEstado=" + descripcionEstado + " activo="
-				+ activo;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.ManyToOne
-	public Oficina getOffice() {
-		return this.office;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setOffice(Oficina office) {
-		this.office = office;
-	}
-
-	/**
-	 * @generated
-	 */
 	public Usuario() {
+	}
+
+	/**
+	 * @generated
+	 */
+	public String getNombreUsuario() {
+		return this.nombreUsuario;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setNombreUsuario(String nombreUsuario) {
+		this.nombreUsuario = nombreUsuario;
 	}
 
 	/**
@@ -136,6 +113,20 @@ public class Usuario extends Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	public Character getEstado() {
+		return this.estado;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setEstado(Character estado) {
+		this.estado = estado;
+	}
+
+	/**
+	 * @generated
+	 */
 	public Boolean getAdministrador() {
 		return this.administrador;
 	}
@@ -150,21 +141,20 @@ public class Usuario extends Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String getNombreUsuario() {
-		return this.nombreUsuario;
+	public Oficina getOffice() {
+		return this.office;
 	}
 
 	/**
 	 * @generated
 	 */
-	public void setNombreUsuario(String nombreUsuario) {
-		this.nombreUsuario = nombreUsuario;
+	public void setOffice(Oficina office) {
+		this.office = office;
 	}
 
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "usuario")
 	public java.util.Set<Conocimiento> getConocimientos() {
 		return this.conocimientos;
 	}
@@ -195,7 +185,6 @@ public class Usuario extends Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "usuarioRegistro")
 	public java.util.Set<Guia> getGuiasRegistro() {
 		return this.guiasRegistro;
 	}
@@ -226,7 +215,6 @@ public class Usuario extends Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "usuarioEntrega")
 	public java.util.Set<Guia> getGuiasEntrega() {
 		return this.guiasEntrega;
 	}
@@ -257,21 +245,6 @@ public class Usuario extends Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public Character getEstado() {
-		return this.estado;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setEstado(Character estado) {
-		this.estado = estado;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.Transient
 	public String getDescripcionEstado() {
 		return this.descripcionEstado;
 	}
@@ -286,7 +259,6 @@ public class Usuario extends Persona implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public Boolean getActivo() {
 		return this.activo;
 	}
@@ -296,5 +268,16 @@ public class Usuario extends Persona implements java.io.Serializable {
 	 */
 	public void setActivo(Boolean activo) {
 		this.activo = activo;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Usuario" + " nombreUsuario=" + nombreUsuario + " contrasenia="
+				+ contrasenia + " fechaExpiracion=" + fechaExpiracion
+				+ " estado=" + estado + " administrador=" + administrador
+				+ " descripcionEstado=" + descripcionEstado + " activo="
+				+ activo;
 	}
 }

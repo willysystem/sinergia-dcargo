@@ -25,6 +25,7 @@ public class Utilitario {
 				((Cliente)e).setGuiasRemitente(null);
 			} else if(clazz.equals(Transportista.class)){
 				((Transportista)e).setConocimientosPropietario(null);
+				((Transportista)e).setConocimientosConductor(null);
 			} else if(clazz.equals(Item.class)){
 				((Item)e).setGuia(null);
 			} else if(clazz.equals(Unidad.class)){

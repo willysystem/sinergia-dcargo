@@ -4,6 +4,7 @@ import javax.inject.Singleton;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
@@ -13,6 +14,8 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 
 @Singleton
 public class MensajeExito extends DialogBox {
+	
+	private Button aceptarButton;
 	
 	public MensajeExito() {
 		super();
@@ -32,7 +35,7 @@ public class MensajeExito extends DialogBox {
 		label.setPixelSize(250, 50);
 		verticalPanel.add(label);
 		
-		Button aceptarButton = new Button("Aceptar");
+		aceptarButton = new Button("Aceptar");
 		aceptarButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
@@ -44,6 +47,11 @@ public class MensajeExito extends DialogBox {
 		setWidget(verticalPanel);
 		center();
 
+	}
+	
+	public void mostrar(String mensaje, final HasClickHandlers button){
+		mostrar(mensaje);
+		aceptarButton.addClickHandler( e -> ((Button)button).click());
 	}
 	
 	public MensajeExito(String mensaje){

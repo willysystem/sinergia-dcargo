@@ -113,6 +113,6 @@ public interface ServicioTransportista {
   
   @DELETE
   @Path("/{id:[0-9]+}")
-  public Resultado borrar(@PathParam("id") Long id);
+  public void borrar(@PathParam("id") Long id);
   
 }

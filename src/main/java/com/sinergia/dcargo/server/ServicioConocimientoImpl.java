@@ -172,15 +172,16 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		cDTO.setAdjunto2(cP.getAdjunto2());
 		cDTO.setFlete(cP.getFlete());
 		cDTO.setAcuenta(cP.getAcuenta());
-		cDTO.setEndestino(cP.getEndestino());
-		cDTO.setSaldo(cP.getSaldo());
+		cDTO.setPagoOrigen(cP.getPagoOrigen());
+		cDTO.setPagoDestino(cP.getPagoDestino());
 		cDTO.setAclaracion(cP.getAclaracion());
 		cDTO.setAclaracion2(cP.getAclaracion2());
 		
-		List<Guia> guias = new ArrayList<>();
+		//List<Guia> guias = new ArrayList<>();
 		for (Guia gP : cP.getGuias()) {
 			Guia gDTO = servicioGuia.serializarParaBusqueda(gP);
-			guias.add(gDTO);
+			cDTO.getGuias().add(gDTO);
+			//guias.add(gDTO);
 		}
 		
 		if(cP.getOficinaOrigen() != null){
@@ -206,8 +207,17 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 			
 		if(cP.getTransportistaConductor() != null){
 			Transportista conductor = new Transportista();
-			conductor.setId(cP.getTransportistaConductor().getId());
-			conductor.setNombre(cP.getTransportistaConductor().getNombre());
+			Transportista coP = cP.getTransportistaConductor();
+			conductor.setId(coP.getId());
+			conductor.setNombre(coP.getNombre());
+			conductor.setVecino_de(coP.getVecino_de());
+			conductor.setCi(coP.getCi());
+			conductor.setDireccion(coP.getDireccion());
+			conductor.setTelefono(coP.getTelefono());
+			conductor.setMarca(coP.getMarca());
+			conductor.setColor(coP.getColor());
+			conductor.setPlaca(coP.getPlaca());
+			conductor.setBrevetCi(coP.getBrevetCi());
 			cDTO.setTransportistaConductor(conductor);
 		}
 		
@@ -235,14 +245,17 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	@Override
 	public void guardarPropietario(Long idConocimiento, Long idPropietario) throws Exception {
 		Conocimiento cP = buscarPorId(idConocimiento);
-		cP.setTransportistaPropietario(em.find(Transportista.class, idPropietario));
+		Transportista propietario = new Transportista();//em.find(Transportista.class, idPropietario);
+		propietario.setId(idPropietario);
+		cP.setTransportistaPropietario(propietario);
 		merge(cP);
 	}
 
 	@Override
 	public void guardarConductor(Long idConocimiento, Long idConductor) throws Exception {
 		Conocimiento cP = buscarPorId(idConocimiento);
-		cP.setTransportistaConductor(em.find(Transportista.class, idConductor));
+		Transportista conductor = em.find(Transportista.class, idConductor);
+		cP.setTransportistaConductor(conductor);
 		merge(cP);
 	}
 
@@ -324,16 +337,16 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	}
 
 	@Override
-	public void guardarEnDestino(Long idConocimiento, Double enDestino) throws Exception {
+	public void guardarPagoOrigen(Long idConocimiento, Double enDestino) throws Exception {
 		Conocimiento cP = buscarPorId(idConocimiento);
-		cP.setEndestino(enDestino);
+		cP.setPagoOrigen(enDestino);
 		merge(cP);
 	}
 
 	@Override
-	public void guardarSaldo(Long idConocimiento, Double saldo) throws Exception {
+	public void guardarPagoDestino(Long idConocimiento, Double pagoDestino) throws Exception {
 		Conocimiento cP = buscarPorId(idConocimiento);
-		cP.setSaldo(saldo);
+		cP.setPagoDestino(pagoDestino);
 		merge(cP);
 	}
 
@@ -377,8 +390,9 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 			Oficina oficinaDestino = new Oficina();
 			oficinaDestino.setId(conocimiento.getOficinaDestino().getId());
 			oficinaDestino.setNombre(conocimiento.getOficinaDestino().getNombre());
-			cDTO.setOficinaOrigen(oficinaDestino);
+			cDTO.setOficinaDestino(oficinaDestino);
 		}
+		
 		cDTO.setEstado(conocimiento.getEstado());
 		cDTO.setEstadoDescripcion(estados.get(conocimiento.getEstado()));
 		

@@ -1,7 +1,5 @@
 package com.sinergia.dcargo.client.shared;
 
-import javax.persistence.GenerationType;
-
 
 /**
  * @generated
@@ -22,14 +20,12 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "office")
-	private java.util.Set<Usuario> users = new java.util.HashSet<Usuario>();
-
+	private String nombre;
 	/**
 	 * @generated
 	 */
-	private String nombre;
-
+	@javax.persistence.OneToMany(mappedBy = "office")
+	private java.util.Set<Usuario> users = new java.util.HashSet<Usuario>();
 	/**
 	 * @generated
 	 */
@@ -40,13 +36,11 @@ public class Oficina implements java.io.Serializable {
 	 */
 	@javax.persistence.OneToMany(mappedBy = "oficinaDestino")
 	private java.util.Set<Conocimiento> conocimientosDestino = new java.util.HashSet<Conocimiento>();
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.OneToMany(mappedBy = "oficinaOrigen")
 	private java.util.Set<Guia> guiasOrigen = new java.util.HashSet<Guia>();
-
 	/**
 	 * @generated
 	 */
@@ -56,8 +50,12 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
+	public Oficina() {
+	}
+
+	/**
+	 * @generated
+	 */
 	public Long getId() {
 		return this.id;
 	}
@@ -72,7 +70,20 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "office")
+	public String getNombre() {
+		return this.nombre;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	/**
+	 * @generated
+	 */
 	public java.util.Set<Usuario> getUsers() {
 		return this.users;
 	}
@@ -103,34 +114,6 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String toString() {
-		return "Oficina" + " id=" + id + " nombre=" + nombre;
-	}
-
-	/**
-	 * @generated
-	 */
-	public Oficina() {
-	}
-
-	/**
-	 * @generated
-	 */
-	public String getNombre() {
-		return this.nombre;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setNombre(String nombre) {
-		this.nombre = nombre;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.OneToMany(mappedBy = "oficinaOrigen")
 	public java.util.Set<Conocimiento> getConocimientosOrigen() {
 		return this.conocimientosOrigen;
 	}
@@ -140,8 +123,8 @@ public class Oficina implements java.io.Serializable {
 	 */
 	public void setConocimientosOrigen(
 			java.util.Set<Conocimiento> conocimientosOrigen) {
-				this.conocimientosOrigen = conocimientosOrigen;
-			}
+		this.conocimientosOrigen = conocimientosOrigen;
+	}
 
 	/**
 	 * @generated
@@ -162,7 +145,6 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "oficinaDestino")
 	public java.util.Set<Conocimiento> getConocimientosDestino() {
 		return this.conocimientosDestino;
 	}
@@ -172,8 +154,8 @@ public class Oficina implements java.io.Serializable {
 	 */
 	public void setConocimientosDestino(
 			java.util.Set<Conocimiento> conocimientosDestino) {
-				this.conocimientosDestino = conocimientosDestino;
-			}
+		this.conocimientosDestino = conocimientosDestino;
+	}
 
 	/**
 	 * @generated
@@ -194,7 +176,6 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "oficinaOrigen")
 	public java.util.Set<Guia> getGuiasOrigen() {
 		return this.guiasOrigen;
 	}
@@ -225,7 +206,6 @@ public class Oficina implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "oficinaDestino")
 	public java.util.Set<Guia> getGuiasDestino() {
 		return this.guiasDestino;
 	}
@@ -251,5 +231,12 @@ public class Oficina implements java.io.Serializable {
 	public void removeGuiasDestino(Guia guiasDestino) {
 		getGuiasDestino().remove(guiasDestino);
 		guiasDestino.setOficinaDestino(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Oficina" + " id=" + id + " nombre=" + nombre;
 	}
 }

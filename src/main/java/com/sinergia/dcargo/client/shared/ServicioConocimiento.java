@@ -127,13 +127,13 @@ public interface ServicioConocimiento {
   
   @PUT
   @Consumes("application/json")
-  @Path("/guardarEnDestino/{idConocimiento}/{enDestino}")
-  public void guardarEnDestino(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("enDestino") Double enDestino) throws Exception;
+  @Path("/guardarPagoOrigen/{idConocimiento}/{pagoOrigen}")
+  public void guardarPagoOrigen(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("pagoOrigen") Double pagoOrigen) throws Exception;
   
   @PUT
   @Consumes("application/json")  
-  @Path("/guardarSaldo/{idConocimiento}/{enDestino}")
-  public void guardarSaldo(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("saldo") Double saldo) throws Exception;
+  @Path("/guardarPagoDestino/{idConocimiento}/{pagoDestino}")
+  public void guardarPagoDestino(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("pagoDestino") Double pagoDestino) throws Exception;
   
   @PUT
   @Consumes("application/json")

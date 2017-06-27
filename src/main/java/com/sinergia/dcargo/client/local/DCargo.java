@@ -12,6 +12,15 @@ import org.slf4j.Logger;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
+import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
+import com.sinergia.dcargo.client.local.api.ServicioConocimientoCliente;
+import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
+import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
+import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
+import com.sinergia.dcargo.client.local.api.ServicioPrecioCliente;
+import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
+import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
+import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 
 @EntryPoint
 public class DCargo {
@@ -40,8 +49,6 @@ public class DCargo {
 	public void init(){
 		log.info("@AfterInitialization: " + this.getClass().getSimpleName());
 		Defaults.setServiceRoot(GWT.getHostPageBaseURL());
-	    
-		//vistaNuevaGuia.mostrar();
 		
         appController.go(RootLayoutPanel.get());
 	}
@@ -49,6 +56,52 @@ public class DCargo {
 	@Produces
 	private HandlerManager produceEventBus() {
 	  return eventBus;
+	}
+	
+
+	@Produces
+	public ServicioUsuarioCliente servicioUsuarioCliente() {
+		return GWT.create(ServicioUsuarioCliente.class);
+	}
+	
+	@Produces
+	public ServicioItemCliente servicioItemCliente() {
+		return GWT.create(ServicioItemCliente.class);
+	}
+
+	@Produces
+	public ServicioGuiaCliente servicioGuiaCliente() {
+		return GWT.create(ServicioGuiaCliente.class);
+	}
+
+	@Produces
+	public ServicioClienteCliente servicioClienteCliente() {
+		return GWT.create(ServicioClienteCliente.class);
+	}
+
+	@Produces
+	public ServicioOficinaCliente servicioOficinaCliente() {
+		return GWT.create(ServicioOficinaCliente.class);
+	}
+
+	@Produces
+	public ServicioConocimientoCliente servicioConocimientoCliente() {
+		return GWT.create(ServicioConocimientoCliente.class);
+	}
+
+	@Produces
+	public ServicioTransportistasCliente servicioTransportistasCliente() {
+		return GWT.create(ServicioTransportistasCliente.class);
+	}
+	
+	@Produces
+	public ServicioUnidadCliente servicioUnidadCliente() {
+		return GWT.create(ServicioUnidadCliente.class);
+	}
+	
+	@Produces
+	public ServicioPrecioCliente servicioPrecioCliente() {
+		return GWT.create(ServicioPrecioCliente.class);
 	}
 
 }

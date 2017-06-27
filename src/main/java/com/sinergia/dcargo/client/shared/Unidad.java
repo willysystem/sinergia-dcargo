@@ -36,8 +36,6 @@ public class Unidad implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -52,7 +50,6 @@ public class Unidad implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "unidad")
 	public java.util.Set<Item> getItems() {
 		return this.items;
 	}

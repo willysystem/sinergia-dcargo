@@ -1,7 +1,5 @@
 package com.sinergia.dcargo.client.shared;
 
-import javax.persistence.GenerationType;
-
 
 /**
  * @generated
@@ -19,17 +17,15 @@ public class TipoPago implements java.io.Serializable {
 	@javax.persistence.Id
 	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	private Long id;
-
-	/**
-	 * @generated
-	 */
-	private String descripcion;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.OneToMany(mappedBy = "tipoPago")
 	private java.util.Set<Guia> guias = new java.util.HashSet<Guia>();
+	/**
+	 * @generated
+	 */
+	private String descripcion;
 
 	/**
 	 * @generated
@@ -40,8 +36,6 @@ public class TipoPago implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -56,28 +50,6 @@ public class TipoPago implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String toString() {
-		return "TipoPago" + " id=" + id + " descripcion=" + descripcion;
-	}
-
-	/**
-	 * @generated
-	 */
-	public String getDescripcion() {
-		return this.descripcion;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setDescripcion(String descripcion) {
-		this.descripcion = descripcion;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.OneToMany(mappedBy = "tipoPago")
 	public java.util.Set<Guia> getGuias() {
 		return this.guias;
 	}
@@ -103,5 +75,26 @@ public class TipoPago implements java.io.Serializable {
 	public void removeGuias(Guia guias) {
 		getGuias().remove(guias);
 		guias.setTipoPago(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public String getDescripcion() {
+		return this.descripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setDescripcion(String descripcion) {
+		this.descripcion = descripcion;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "TipoPago" + " id=" + id + " descripcion=" + descripcion;
 	}
 }

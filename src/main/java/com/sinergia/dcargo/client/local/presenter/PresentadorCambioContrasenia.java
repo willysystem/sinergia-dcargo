@@ -1,9 +1,6 @@
 package com.sinergia.dcargo.client.local.presenter;
 
-import java.util.List;
-
 import javax.annotation.PostConstruct;
-import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
@@ -44,16 +41,6 @@ public class PresentadorCambioContrasenia implements Presenter {
 		String getContraseniaNuevaUno();
 		String getContraseniaNuevaDos();
 		String getContraseniaAnterior();
-		
-		//		HasClickHandlers getSaveButton();
-//		HasClickHandlers getNewButton();
-//		List<Usuario> commitChangesLocal();
-//		void addNewUser(Usuario user);
-//		HasClickHandlers getFijarContrasenaButton();
-//		HasClickHandlers getReCargarButton();
-//		void setOffices(List<Oficina> offices);
-//		Usuario getUsuarioSeleccionado();
-//		void cargarDataUI(List<Usuario> users);
 			
 	}
 	
@@ -77,9 +64,7 @@ public class PresentadorCambioContrasenia implements Presenter {
 		log.info(this.getClass().getSimpleName() + ".go()" );
 		display.viewIU();
 		
-		
 		bind();
-
 	}
 
 	public void bind() {
@@ -116,9 +101,5 @@ public class PresentadorCambioContrasenia implements Presenter {
 				});
 			}
 		});
-
 	}
-
-	
-	
 }

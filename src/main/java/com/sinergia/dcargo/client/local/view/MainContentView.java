@@ -30,6 +30,7 @@ import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoTransportista;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
 import com.sinergia.dcargo.client.shared.Usuario;
@@ -81,11 +82,7 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		mainContainer.add(getMainMenu(), DockPanel.NORTH);
 		mainContainer.add(getContentBody() , DockPanel.CENTER);
 		mainContainer.add(getStatusBar(), DockPanel.SOUTH);
-//		initWidget(mainContainer);
-//		setWidth("100px");
-//		setHeight("100px");
 	    container.add(mainContainer);
-	   
 	    
 	}
 	
@@ -154,7 +151,12 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoCliente());
 			}
 		});
-	    MenuItem transportistasRegistroDatos = new MenuItem("Transportistas", menuCommand);
+	    MenuItem transportistasRegistroDatos = new MenuItem("Transportistas",  new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoTransportista());
+			}
+		});
 	    MenuItem cuentasIngresoRegistroDatos = new MenuItem("Cuentas de ingreso", menuCommand);
 	    MenuItem cuentasEgresoRegistroDatos = new MenuItem("Cuentas de egreso", menuCommand);
 	    

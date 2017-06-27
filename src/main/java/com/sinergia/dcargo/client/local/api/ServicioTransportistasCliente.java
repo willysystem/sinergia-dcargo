@@ -101,6 +101,6 @@ public interface ServicioTransportistasCliente extends RestService {
 	  
 	  @DELETE
 	  @Path("/{id:[0-9]+}")
-	  public void borrar(@PathParam("id") Long id, MethodCallback<Resultado> call);
+	  public void borrar(@PathParam("id") Long id, MethodCallback<Void> call);
 	  
 }

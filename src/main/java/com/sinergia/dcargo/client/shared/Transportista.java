@@ -69,11 +69,6 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "transportistaPropietario")
-	private java.util.Set<Conocimiento> conocimientosPropietario = new java.util.HashSet<Conocimiento>();
-	/**
-	 * @generated
-	 */
 	private Character estado;
 	/**
 	 * @generated
@@ -85,6 +80,16 @@ public class Transportista implements java.io.Serializable {
 	 */
 	@javax.persistence.Transient
 	private Integer nro;
+	/**
+	 * @generated
+	 */
+	@javax.persistence.OneToMany(mappedBy = "transportistaPropietario")
+	private java.util.Set<Conocimiento> conocimientosPropietario = new java.util.HashSet<Conocimiento>();
+	/**
+	 * @generated
+	 */
+	@javax.persistence.OneToMany(mappedBy = "transportistaConductor")
+	private java.util.Set<Conocimiento> conocimientosConductor = new java.util.HashSet<Conocimiento>();
 
 	/**
 	 * @generated
@@ -277,39 +282,6 @@ public class Transportista implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public java.util.Set<Conocimiento> getConocimientosPropietario() {
-		return this.conocimientosPropietario;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setConocimientosPropietario(
-			java.util.Set<Conocimiento> conocimientosPropietario) {
-				this.conocimientosPropietario = conocimientosPropietario;
-			}
-
-	/**
-	 * @generated
-	 */
-	public void addConocimientosPropietario(
-			Conocimiento conocimientosPropietario) {
-				getConocimientosPropietario().add(conocimientosPropietario);
-				conocimientosPropietario.setTransportistaPropietario(this);
-			}
-
-	/**
-	 * @generated
-	 */
-	public void removeConocimientosPropietario(
-			Conocimiento conocimientosPropietario) {
-				getConocimientosPropietario().remove(conocimientosPropietario);
-				conocimientosPropietario.setTransportistaPropietario(null);
-			}
-
-	/**
-	 * @generated
-	 */
 	public Character getEstado() {
 		return this.estado;
 	}
@@ -347,6 +319,70 @@ public class Transportista implements java.io.Serializable {
 	 */
 	public void setNro(Integer nro) {
 		this.nro = nro;
+	}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Set<Conocimiento> getConocimientosPropietario() {
+		return this.conocimientosPropietario;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setConocimientosPropietario(
+			java.util.Set<Conocimiento> conocimientosPropietario) {
+		this.conocimientosPropietario = conocimientosPropietario;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void addConocimientosPropietario(
+			Conocimiento conocimientosPropietario) {
+		getConocimientosPropietario().add(conocimientosPropietario);
+		conocimientosPropietario.setTransportistaPropietario(this);
+	}
+
+	/**
+	 * @generated
+	 */
+	public void removeConocimientosPropietario(
+			Conocimiento conocimientosPropietario) {
+		getConocimientosPropietario().remove(conocimientosPropietario);
+		conocimientosPropietario.setTransportistaPropietario(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Set<Conocimiento> getConocimientosConductor() {
+		return this.conocimientosConductor;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setConocimientosConductor(
+			java.util.Set<Conocimiento> conocimientosConductor) {
+		this.conocimientosConductor = conocimientosConductor;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void addConocimientosConductor(Conocimiento conocimientosConductor) {
+		getConocimientosConductor().add(conocimientosConductor);
+		conocimientosConductor.setTransportistaConductor(this);
+	}
+
+	/**
+	 * @generated
+	 */
+	public void removeConocimientosConductor(Conocimiento conocimientosConductor) {
+		getConocimientosConductor().remove(conocimientosConductor);
+		conocimientosConductor.setTransportistaConductor(null);
 	}
 
 	/**

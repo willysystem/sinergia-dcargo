@@ -21,14 +21,13 @@ import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Carga;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.local.view.VistaGuiaAccion;
 import com.sinergia.dcargo.client.shared.Cliente;
 import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.Oficina;
 import com.sinergia.dcargo.client.shared.Precio;
-import com.sinergia.dcargo.client.shared.ServicioTransportista;
 import com.sinergia.dcargo.client.shared.Transportista;
 import com.sinergia.dcargo.client.shared.Unidad;
+import com.sinergia.dcargo.client.shared.Usuario;
 
 @Singleton
 public class AdminParametros {
@@ -41,11 +40,17 @@ public class AdminParametros {
 	
 	//@Inject
 	//private VistaGuiaAccion vistaGuiaAccion;
+	@Inject
+	private ServicioClienteCliente servicioCliente; // = GWT.create(ServicioClienteCliente.class);
 	
-	private ServicioClienteCliente servicioCliente = GWT.create(ServicioClienteCliente.class);
-	private ServicioOficinaCliente servicioOficina = GWT.create(ServicioOficinaCliente.class);
-	private ServicioUnidadCliente servicioUnidad   = GWT.create(ServicioUnidadCliente.class);
-	private ServicioPrecioCliente servicioPrecio   = GWT.create(ServicioPrecioCliente.class);
+	@Inject
+	private ServicioOficinaCliente servicioOficina;// = GWT.create(ServicioOficinaCliente.class);
+	
+	@Inject
+	private ServicioUnidadCliente servicioUnidad;//   = GWT.create(ServicioUnidadCliente.class);
+	
+	@Inject
+	private ServicioPrecioCliente servicioPrecio;//   = GWT.create(ServicioPrecioCliente.class);
 	
 	@Inject
 	private ServicioTransportistasCliente servicioTransportista;
@@ -56,6 +61,16 @@ public class AdminParametros {
 	private List<Precio> precios;
 	private List<Transportista> transportistas;
 	
+	private Usuario usuario;
+	
+	public Usuario getUsuario() {
+		return usuario;
+	}
+
+	public void setUsuario(Usuario usuario) {
+		this.usuario = usuario;
+	}
+
 	private DateParam dateParam;
 	
 	public AdminParametros(){
@@ -196,6 +211,22 @@ public class AdminParametros {
 		for (Cliente cliente : clientes) {
 			if(cliente.getNombre().equals(nombre))
 				return cliente;
+		}
+		return null;
+	}
+	
+	public Transportista buscarTransportistaPorNombre(String nombre){
+		for (Transportista transportista : transportistas) {
+			if(transportista.getNombre().equals(nombre))
+				return transportista;
+		}
+		return null;
+	}
+	
+	public Transportista buscarTransportistaPorId(String nombre){
+		for (Transportista transportista : transportistas) {
+			if(transportista.getNombre().equals(nombre))
+				return transportista;
 		}
 		return null;
 	}

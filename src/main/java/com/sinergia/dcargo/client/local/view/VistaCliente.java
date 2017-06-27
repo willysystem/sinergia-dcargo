@@ -26,7 +26,7 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
-import com.sinergia.dcargo.client.local.message.MensageConfirmacion;
+import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.presenter.PresentadorClientes;
@@ -39,13 +39,16 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 	VistaClienteAccion vistaClienteAccion; 
 	
 	@Inject
-	MensageConfirmacion mensageConfirmacion;
+	MensajeConfirmacion mensageConfirmacion;
 	
 	@Inject 
 	ServicioClienteCliente servicioCliente;
 	
 	@Inject 
 	MensajeExito mensajeExito;
+	
+	@Inject
+	MensajeAviso mensajeAviso;
 	
 	public VistaCliente() {
 		super(10);
@@ -215,7 +218,7 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 		buscarBtn.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				((SingleSelectionModel<Cliente>)grid.getSelectionModel()).clear();				// TODO Auto-generated method stub
+				((SingleSelectionModel<Cliente>)grid.getSelectionModel()).clear();
 			}
 		});
 		
@@ -242,7 +245,7 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 			final Cliente cliente = ((SingleSelectionModel<Cliente>)grid.getSelectionModel()).getSelectedObject();
 			log.info("cliente: " + cliente);
 			if(cliente == null){
-				new MensajeAviso("Seleccione un cliente").show();
+				mensajeAviso.mostrar("Seleccione un cliente");
 			} else {
 				mensageConfirmacion.mostrar("Decea eliminar al cliente: " + cliente.getNombre(), new ClickHandler() {
 					@Override
@@ -250,7 +253,9 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 						servicioCliente.cambiarEstado(cliente.getId(), "E", new LlamadaRemota<Void>("No se pude eliminar cliente", true) {
 							@Override
 							public void onSuccess(Method method, Void response) {
-								mensajeExito.mostrar("Eliminado exitosamente");
+								mensageConfirmacion.hide();
+								//mensajeExito.mostrar("Eliminado exitosamente");
+								buscarBtn.click();
 							}
 						});
 					}

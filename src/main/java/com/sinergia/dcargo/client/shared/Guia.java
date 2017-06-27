@@ -1,8 +1,5 @@
 package com.sinergia.dcargo.client.shared;
 
-import javax.persistence.CascadeType;
-import javax.persistence.GenerationType;
-
 
 /**
  * @generated
@@ -24,7 +21,6 @@ public class Guia implements java.io.Serializable {
 	 * @generated
 	 */
 	private Integer nroGuia;
-
 	/**
 	 * @generated
 	 */
@@ -37,7 +33,6 @@ public class Guia implements java.io.Serializable {
 	 * @generated
 	 */
 	private String adjunto;
-
 	/**
 	 * @generated
 	 */
@@ -46,7 +41,6 @@ public class Guia implements java.io.Serializable {
 	 * @generated
 	 */
 	private java.util.Date fechaRegistro;
-
 	/**
 	 * @generated
 	 */
@@ -59,7 +53,6 @@ public class Guia implements java.io.Serializable {
 	 * @generated
 	 */
 	private String ciEntrega;
-
 	/**
 	 * @generated
 	 */
@@ -70,7 +63,6 @@ public class Guia implements java.io.Serializable {
 	 */
 	@javax.persistence.ManyToOne
 	private TipoPago tipoPago;
-
 	/**
 	 * @generated
 	 */
@@ -87,28 +79,23 @@ public class Guia implements java.io.Serializable {
 	 * @generated
 	 */
 	private Double pagoOrigen;
-
 	/**
 	 * @generated
 	 */
 	private java.util.Date fecha;
-
 	/**
 	 * @generated
 	 */
 	private Double totalGuia;
-
 	/**
 	 * @generated
 	 */
 	private String notaEntrega;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private Integer nro;
-
 	/**
 	 * @generated
 	 */
@@ -119,7 +106,6 @@ public class Guia implements java.io.Serializable {
 	 */
 	@javax.persistence.ManyToOne
 	private Cliente consignatario;
-
 	/**
 	 * @generated
 	 */
@@ -130,36 +116,30 @@ public class Guia implements java.io.Serializable {
 	 */
 	@javax.persistence.ManyToOne
 	private Usuario usuarioEntrega;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
 	private Oficina oficinaOrigen;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
 	private Oficina oficinaDestino;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.OneToMany(mappedBy = "guia")
 	private java.util.Set<Item> items = new java.util.HashSet<Item>();
-
 	/**
 	 * @generated
 	 */
 	private Character estado;
-
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private String estadoDescripcion;
-
 	/**
 	 * @generated
 	 */
@@ -180,26 +160,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public String toString() {
-		return "Guia" + " id=" + id + " nroGuia=" + nroGuia + " totalPeso="
-				+ totalPeso + " totalCantidad=" + totalCantidad + " adjunto="
-				+ adjunto + " nroFactura=" + nroFactura + " fechaRegistro="
-				+ fechaRegistro + " totalMinimo=" + totalMinimo
-				+ " fechaEntrega=" + fechaEntrega + " ciEntrega=" + ciEntrega
-				+ " novedadEntrega=" + novedadEntrega + " resumenContenido="
-				+ resumenContenido + " saldoDestino=" + saldoDestino
-				+ " pagoOrigen=" + pagoOrigen + " fecha=" + fecha
-				+ " totalGuia=" + totalGuia + " notaEntrega=" + notaEntrega
-				+ " nro=" + nro + " estado=" + estado + " estadoDescripcion="
-				+ estadoDescripcion + " fechaIni=" + fechaIni + " fechaFin="
-				+ fechaFin;
-	}
-
-	/**
-	 * @generated
-	 */
-	@javax.persistence.Id
-	@javax.persistence.GeneratedValue(strategy = javax.persistence.GenerationType.IDENTITY)
 	public Long getId() {
 		return this.id;
 	}
@@ -340,7 +300,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Conocimiento getConocimiento() {
 		return this.conocimiento;
 	}
@@ -355,7 +314,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public TipoPago getTipoPago() {
 		return this.tipoPago;
 	}
@@ -468,7 +426,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public Integer getNro() {
 		return this.nro;
 	}
@@ -483,7 +440,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Cliente getRemitente() {
 		return this.remitente;
 	}
@@ -498,7 +454,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Cliente getConsignatario() {
 		return this.consignatario;
 	}
@@ -513,7 +468,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Usuario getUsuarioRegistro() {
 		return this.usuarioRegistro;
 	}
@@ -528,7 +482,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Usuario getUsuarioEntrega() {
 		return this.usuarioEntrega;
 	}
@@ -543,7 +496,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Oficina getOficinaOrigen() {
 		return this.oficinaOrigen;
 	}
@@ -558,7 +510,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	public Oficina getOficinaDestino() {
 		return this.oficinaDestino;
 	}
@@ -573,7 +524,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "guia")
 	public java.util.Set<Item> getItems() {
 		return this.items;
 	}
@@ -618,7 +568,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public String getEstadoDescripcion() {
 		return this.estadoDescripcion;
 	}
@@ -633,7 +582,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public java.util.Date getFechaIni() {
 		return this.fechaIni;
 	}
@@ -648,7 +596,6 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.Transient
 	public java.util.Date getFechaFin() {
 		return this.fechaFin;
 	}
@@ -658,5 +605,23 @@ public class Guia implements java.io.Serializable {
 	 */
 	public void setFechaFin(java.util.Date fechaFin) {
 		this.fechaFin = fechaFin;
+	}
+
+	/**
+	 * @generated
+	 */
+	public String toString() {
+		return "Guia" + " id=" + id + " nroGuia=" + nroGuia + " totalPeso="
+				+ totalPeso + " totalCantidad=" + totalCantidad + " adjunto="
+				+ adjunto + " nroFactura=" + nroFactura + " fechaRegistro="
+				+ fechaRegistro + " totalMinimo=" + totalMinimo
+				+ " fechaEntrega=" + fechaEntrega + " ciEntrega=" + ciEntrega
+				+ " novedadEntrega=" + novedadEntrega + " resumenContenido="
+				+ resumenContenido + " saldoDestino=" + saldoDestino
+				+ " pagoOrigen=" + pagoOrigen + " fecha=" + fecha
+				+ " totalGuia=" + totalGuia + " notaEntrega=" + notaEntrega
+				+ " nro=" + nro + " estado=" + estado + " estadoDescripcion="
+				+ estadoDescripcion + " fechaIni=" + fechaIni + " fechaFin="
+				+ fechaFin;
 	}
 }

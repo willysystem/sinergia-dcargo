@@ -94,6 +94,8 @@ public class ServiceClienteImpl extends Dao<Cliente> implements ServicioCliente 
 		if(0 != codigo){
 			where = where + " c.codigo = " + codigo + " AND";
 		}
+		where = where + " c.estado <> :estado AND";
+		
 		String query = null;
 		String select = "SELECT c FROM Cliente c";
 		if("".equals(where)){
@@ -104,6 +106,7 @@ public class ServiceClienteImpl extends Dao<Cliente> implements ServicioCliente 
 		}
 		
 		Query q = em.createQuery(query);
+		q.setParameter("estado", 'E');
 		
 		@SuppressWarnings("unchecked")
 		List<Cliente> clientes = q.getResultList();

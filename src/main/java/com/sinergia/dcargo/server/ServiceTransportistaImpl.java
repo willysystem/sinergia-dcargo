@@ -50,11 +50,11 @@ public class ServiceTransportistaImpl extends Dao<Transportista> implements Serv
 	@Override
 	public List<Transportista> buscarTransportista(Transportista transportista) {
 		
-		String brevetCi = transportista.getNombre();
-		brevetCi = brevetCi == null ? "":brevetCi;
-		
 		String nombre = transportista.getNombre();
 		nombre = nombre == null ? "": nombre;
+		
+		String ci = transportista.getCi();
+		ci = ci == null ? "": ci;
 		
 		String direccion = transportista.getDireccion();
 		direccion = direccion == null ? "": direccion;
@@ -71,52 +71,27 @@ public class ServiceTransportistaImpl extends Dao<Transportista> implements Serv
 		String color = transportista.getColor();
 		color = color == null ? "": color;
 		
-		String capacidad = transportista.getCapacidad();
-		capacidad = capacidad == null ? "": capacidad;
-		
 		String vecinoDe = transportista.getVecino_de();
 		vecinoDe = vecinoDe == null ? "": vecinoDe;
 		
-		String ci = transportista.getCi();
-		ci = ci == null ? "": ci;
-		
-		String nit = transportista.getNit();
-		nit = nit == null ? "": nit;
-		
 		String where = "";
-		if(!"".equals(brevetCi)){
-			where = "c.brevetCi LIKE '%" + brevetCi + "%' AND";
-		}
-		if(!"".equals(nombre)){
+		if(!"".equals(nombre)) 
 			where = "c.nombre LIKE '%" + nombre + "%' AND";
-		}		
-		if(!"".equals(direccion)){
-			where = where + " c.direccion LIKE '%" + direccion + "%' AND";
-		}
-		if(!"".equals(telefono)){
-			where = where + " c.telefono LIKE '%" + telefono + "%' AND";
-		}
-		if(!"".equals(placa)){
-			where = where + " c.placa LIKE '%" + placa + "%' AND";
-		}
-		if(!"".equals(marca)){
-			where = where + " c.marca LIKE '%" + marca + "%' AND";
-		}
-		if(!"".equals(color)){
-			where = where + " c.color LIKE '%" + color + "%' AND";
-		}
-		if(!"".equals(capacidad)){
-			where = where + " c.capacidad LIKE '%" + capacidad + "%' AND";
-		}
-		if(!"".equals(vecinoDe)){
-			where = where + " c.vecinoDe LIKE '%" + vecinoDe + "%' AND";
-		}
-		if(!"".equals(ci)){
+		if(!"".equals(ci))
 			where = where + " c.ci LIKE '%" + ci + "%' AND";
-		}
-		if(!"".equals(nit)){
-			where = where + " c.nit LIKE '%" + nit + "%' AND";
-		}
+		if(!"".equals(direccion))
+			where = where + " c.direccion LIKE '%" + direccion + "%' AND";
+		if(!"".equals(telefono))
+			where = where + " c.telefono LIKE '%" + telefono + "%' AND";
+		if(!"".equals(placa))
+			where = where + " c.placa LIKE '%" + placa + "%' AND";
+		if(!"".equals(marca))
+			where = where + " c.marca LIKE '%" + marca + "%' AND";
+		if(!"".equals(color)) 
+			where = where + " c.color LIKE '%" + color + "%' AND";
+		if(!"".equals(vecinoDe))
+			where = where + " c.vecino_de LIKE '%" + vecinoDe + "%' AND";
+		
 		String query = null;
 		String select = "SELECT c FROM Transportista c";
 		if("".equals(where)){
@@ -253,9 +228,11 @@ public class ServiceTransportistaImpl extends Dao<Transportista> implements Serv
 	}
 
 	@Override
-	public Resultado borrar(Long id) {
-		// TODO Auto-generated method stub
-		return null;
+	public void borrar(Long id) {
+		Transportista tP = buscarPorId(id);
+		tP.setConocimientosConductor(null);
+		tP.setConocimientosPropietario(null);
+		em.remove(tP);
 	}
 	
 }

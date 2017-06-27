@@ -17,12 +17,14 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
+import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Cargador;
 import com.sinergia.dcargo.client.shared.Cliente;
+import com.sinergia.dcargo.client.shared.Transportista;
 
 @Singleton
-public class PresentadorClientes implements Presenter {
+public class PresentadorTransportistas implements Presenter {
 
 	@Inject
 	public Display display;
@@ -31,23 +33,21 @@ public class PresentadorClientes implements Presenter {
 	private Logger log;
 	
 	@Inject
+	private ServicioTransportistasCliente servicioTransportistas;
+	
+	@Inject
 	private Cargador cargador;
-	
-	private ServicioClienteCliente servicioCliente = GWT.create(ServicioClienteCliente.class);
-	
-	//private ServicioOfficaCliente officeServiceClient = GWT.create(ServicioOfficaCliente.class);
 
 	public interface Display {
-		
+
 		void viewIU();
 		HasClickHandlers getBuscarButton();
-		void cargarDataUI(List<Cliente> clientes);
-		Cliente getParametrosBusqueda();
+		void cargarDataUI(List<Transportista> clientes);
+		Transportista getParametrosBusqueda();
 
 	}
 	
-	
-	public PresentadorClientes() {
+	public PresentadorTransportistas() {
 		GWT.log(this.getClass().getSimpleName() + "()");
 	}
 	
@@ -65,22 +65,19 @@ public class PresentadorClientes implements Presenter {
 	public void go(HasWidgets container) {
 		log.info(this.getClass().getSimpleName() + ".go()" );
 		display.viewIU();
-		
 		bind();
-
 	}
 
 	public void bind() {
-
 		this.display.getBuscarButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				Cliente cliente = display.getParametrosBusqueda();
+				Transportista cliente = display.getParametrosBusqueda();
 				log.info("cliente: "+ cliente);
 				cargador.center();
-				servicioCliente.buscarClientes(cliente, new MethodCallback<List<Cliente>>() {
+				servicioTransportistas.buscarTransportista(cliente, new MethodCallback<List<Transportista>>() {
 				@Override
-				public void onSuccess(Method method, List<Cliente> response) {
+				public void onSuccess(Method method, List<Transportista> response) {
 					showClientesData(response);
 					cargador.hide();
 				}
@@ -92,17 +89,15 @@ public class PresentadorClientes implements Presenter {
 			});
 			}
 		});
-
 	}
 	
 	int i = 1;
-	private void showClientesData(List<Cliente> clientes) {
-		for (Cliente cliente: clientes) {
+	private void showClientesData(List<Transportista> clientes) {
+		for (Transportista cliente: clientes) {
 			cliente.setNro(i++);
 		}
 		i = 1;
 		display.cargarDataUI(clientes);
 	}
-	
 	
 }

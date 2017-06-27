@@ -182,6 +182,12 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setFechaEntrega(guiaP.getFechaEntrega());
 		gDTO.setNroFactura(guiaP.getNroFactura());
 		gDTO.setEstadoDescripcion(getDescripcion(guiaP.getEstado()));
+		gDTO.setPagoOrigen(guiaP.getPagoOrigen());
+		gDTO.setSaldoDestino(guiaP.getSaldoDestino());
+		gDTO.setTotalPeso(guiaP.getTotalPeso());
+		gDTO.setTotalGuia(guiaP.getTotalGuia());
+		gDTO.setTotalCantidad(guiaP.getTotalCantidad());
+		gDTO.setResumenContenido(guiaP.getResumenContenido());
 		
 		Cliente remite1 = null;
 		if(guiaP.getRemitente() != null) {
@@ -403,6 +409,20 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	public void cambiarEstado(Long idGuia, String estadoDescripcion) throws Exception {
 		Guia guia = buscarPorId(idGuia);
 		guia.setEstado(getEstado(estadoDescripcion));
+		em.merge(guia);
+	}
+
+	@Override
+	public void guardarPesoTotal(Long idGuia, Double pesoTotal) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setTotalPeso(pesoTotal);
+		em.merge(guia);
+	}
+
+	@Override
+	public void guardarBultosTotal(Long idGuia, Integer bultosTotal) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setTotalCantidad(bultosTotal);
 		em.merge(guia);
 	}
 	

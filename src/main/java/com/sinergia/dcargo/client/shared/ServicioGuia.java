@@ -115,7 +115,17 @@ public interface ServicioGuia {
   @PUT
   @Consumes("application/json")
   @Path("/guardarTotal/{idGuia}/{total}")
-  void guardarTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total")Double total) throws Exception;
+  void guardarTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total") Double total) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarPesoTotal/{idGuia}/{pesoTotal}")
+  void guardarPesoTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("pesoTotal") Double pesoTotal) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarBultosTotal/{idGuia}/{bultosTotal}")
+  void guardarBultosTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("bultosTotal") Integer bultosTotal) throws Exception;
   
   @DELETE
   @Path("/{id:[0-9]+}")
