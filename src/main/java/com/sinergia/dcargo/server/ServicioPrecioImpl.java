@@ -21,7 +21,7 @@ import com.sinergia.dcargo.server.util.Utilitario;
 public class ServicioPrecioImpl extends Dao<Precio> implements ServicioPrecio {
 
 	public ServicioPrecioImpl() {
-		super(new Precio());
+		super(Precio.class);
 	}
 	
 	@PersistenceContext(unitName = "dCargoUnit")

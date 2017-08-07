@@ -16,14 +16,18 @@ import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
+import com.sinergia.dcargo.client.local.event.EventoCuentas;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
 import com.sinergia.dcargo.client.local.presenter.PresentadorCambioContrasenia;
 import com.sinergia.dcargo.client.local.presenter.PresentadorClientes;
 import com.sinergia.dcargo.client.local.presenter.PresentadorConocimiento;
+import com.sinergia.dcargo.client.local.presenter.PresentadorCuentas;
 import com.sinergia.dcargo.client.local.presenter.PresentadorGuia;
+import com.sinergia.dcargo.client.local.presenter.PresentadorMovimiento;
 import com.sinergia.dcargo.client.local.presenter.PresentadorTransportistas;
 import com.sinergia.dcargo.client.local.presenter.Presenter;
 import com.sinergia.dcargo.client.local.presenter.UserPresenter;
@@ -51,6 +55,10 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 	private PresentadorConocimiento presentadorConocimiento;
 	@Inject
 	private PresentadorTransportistas presentadorTransportistas;
+	@Inject
+	private PresentadorCuentas presentadorCuentas;
+	@Inject
+	private PresentadorMovimiento presentadorMovimiento;
 
 	private HasWidgets container;
 
@@ -78,6 +86,8 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 		eventBus.addHandler(EventoGuia.TYPE, e -> History.newItem("guias")); 
 		eventBus.addHandler(EventoConocimiento.TYPE, e -> History.newItem("conocimiento"));
 		eventBus.addHandler(EventoTransportista.TYPE, e -> History.newItem("transportista"));
+		eventBus.addHandler(EventoCuentas.TYPE, e -> History.newItem("cuentas"));
+		eventBus.addHandler(EventoMovimiento.TYPE, e -> History.newItem("movimientos"));
 	}
 
 	public void go(final HasWidgets container) {
@@ -111,6 +121,10 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 				presenter = presentadorConocimiento;
 			} else if (token.equals("transportista")) {
 				presenter = presentadorTransportistas;
+			} else if (token.equals("cuentas")) {
+				presenter = presentadorCuentas;
+			} else if (token.equals("movimientos")) {
+				presenter = presentadorMovimiento;
 			}
 
 			if (presenter != null) {

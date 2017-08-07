@@ -29,7 +29,9 @@ import com.google.gwt.user.client.ui.Widget;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
+import com.sinergia.dcargo.client.local.event.EventoCuentas;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
@@ -132,16 +134,13 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    menu.addItem(new MenuItem("Liquidaciones", liquidacionesMenuBar));
 	    
 	    // Caja
-	    MenuItem ingresosCaja = new MenuItem("Ingresos", menuCommand);
-	    MenuItem egresosCaja = new MenuItem("Egresos", menuCommand);
-	    MenuItem reportesCaja = new MenuItem("Reportes", menuCommand);
-	    
-	    MenuBar cajaMenuBar = new MenuBar(true);
-	    cajaMenuBar.setAnimationEnabled(true);
-	    cajaMenuBar.addItem(ingresosCaja);
-	    cajaMenuBar.addItem(egresosCaja);
-	    cajaMenuBar.addItem(reportesCaja);
-	    menu.addItem(new MenuItem("Caja", cajaMenuBar));
+	    MenuItem cajaMenuBar =  new MenuItem("Caja", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoMovimiento());
+			}
+		});
+	    menu.addItem(cajaMenuBar);
 	    
 	    // Registro de Datos
 	    MenuBar registroDatosMenuBar = new MenuBar(true);
@@ -157,14 +156,17 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoTransportista());
 			}
 		});
-	    MenuItem cuentasIngresoRegistroDatos = new MenuItem("Cuentas de ingreso", menuCommand);
-	    MenuItem cuentasEgresoRegistroDatos = new MenuItem("Cuentas de egreso", menuCommand);
+	    MenuItem cuentasIngresoRegistroDatos = new MenuItem("Cuentas de ingreso y egreso", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoCuentas());
+			}
+		});
 	    
 	    registroDatosMenuBar.setAnimationEnabled(true);
 	    registroDatosMenuBar.addItem(clientesRegistroDatos);
 	    registroDatosMenuBar.addItem(transportistasRegistroDatos);
 	    registroDatosMenuBar.addItem(cuentasIngresoRegistroDatos);
-	    registroDatosMenuBar.addItem(cuentasEgresoRegistroDatos);
 	    menu.addItem(new MenuItem("Registro de Datos", registroDatosMenuBar));
 	    
 	    // Administración

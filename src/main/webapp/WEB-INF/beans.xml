@@ -15,7 +15,9 @@
     <exclude name = "com.sinergia.dcargo.client.local.AppController$3" />
     <exclude name = "com.sinergia.dcargo.client.local.AppController$4" />
     <exclude name = "com.sinergia.dcargo.client.local.AppController$5" />
+    <exclude name = "com.sinergia.dcargo.client.local.AdminParametros" />
     <exclude name = "com.sinergia.dcargo.client.local.GetSetAttributeGenerator" />
+    
     
     <exclude name = "com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia" />
     <exclude name = "com.sinergia.dcargo.client.local.event.EventoHandlerCambiarContrasenia" />
@@ -56,6 +58,9 @@
     <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorTransportistas$1" />
     <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorConocimiento" />
     <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorConocimiento$1" />
+    <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorCuentas" />
+    <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorCuentas$1" />
+    <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorMovimiento" />
 
 	<exclude name = "com.sinergia.dcargo.client.local.view.Cargador" />    
     <exclude name = "com.sinergia.dcargo.client.local.view.Cargador$AppBundle" />
@@ -140,8 +145,12 @@
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaGuia$11" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaGuia$12" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaClienteAccion" />
+    <exclude name = "com.sinergia.dcargo.client.local.view.VistaConocimiento" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaConocimientoAccion" />
+    <exclude name = "com.sinergia.dcargo.client.local.view.VistaTransportista" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaTransportistaAccion" />
+    <exclude name = "com.sinergia.dcargo.client.local.view.VistaMovimiento" />
+    <exclude name = "com.sinergia.dcargo.client.local.view.VistaMovimientoAccion" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaNuevaGuia" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaNuevaGuia$1" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaNuevaGuia$2" />
@@ -165,9 +174,14 @@
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaTransportista$8" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaTransportista$9" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaTransportista$10" />
+	<exclude name = "com.sinergia.dcargo.client.local.view.VistaCuentas" />
+	<exclude name = "com.sinergia.dcargo.client.local.view.VistaCuentasIngreso" />
+	<exclude name = "com.sinergia.dcargo.client.local.view.VistaCuentasEgreso" />
+	<exclude name = "com.sinergia.dcargo.client.local.view.VistaCuentaAccion" />    
     <exclude name = "com.sinergia.dcargo.client.local.view.FlexTableForm" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VerticalPanelEx" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaConocimientoAccion$GuiaPropiedad" />
+    
     
     <exclude name = "com.sinergia.dcargo.client.local.message.MensajeConfirmacion" />
     <exclude name = "com.sinergia.dcargo.client.local.message.MensajeConfirmacion$1" />

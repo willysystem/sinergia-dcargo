@@ -14,8 +14,10 @@ import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.user.client.ui.RootLayoutPanel;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
 import com.sinergia.dcargo.client.local.api.ServicioConocimientoCliente;
+import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
+import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
 import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioPrecioCliente;
 import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
@@ -104,4 +106,15 @@ public class DCargo {
 		return GWT.create(ServicioPrecioCliente.class);
 	}
 
+	@Produces
+	public ServicioCuentaCliente servicioCuentaCliente() {
+		return GWT.create(ServicioCuentaCliente.class);
+	}
+	
+	@Produces
+	public ServicioMovimientoCliente servicioMovimientoCliente() {
+		return GWT.create(ServicioMovimientoCliente.class);
+	}
+
+	
 }

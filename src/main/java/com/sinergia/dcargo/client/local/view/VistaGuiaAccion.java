@@ -618,7 +618,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 				
 				bultos = bultos + i.getCantidad();
 				peso = peso + i.getPeso();
-				total = total = i.getTotal();
+				total = i.getTotal();
 				
 			}
 			

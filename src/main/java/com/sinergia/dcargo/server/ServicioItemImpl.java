@@ -23,7 +23,7 @@ import com.sinergia.dcargo.server.util.Utilitario;
 public class ServicioItemImpl extends Dao<Item> implements ServicioItem {
 
 	public ServicioItemImpl() {
-		super(new Item());
+		super(Item.class);
 	}
 	
 	@PersistenceContext(unitName = "dCargoUnit")

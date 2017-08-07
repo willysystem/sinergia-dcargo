@@ -18,7 +18,7 @@ import com.sinergia.dcargo.server.dao.Dao;
 public class ServiceOficinaImpl extends Dao<Oficina> implements OficinaServicio {
 
 	public ServiceOficinaImpl() {
-		super(new Oficina());
+		super(Oficina.class);
 	}
 
 	@Resource

@@ -13,8 +13,6 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
-import javax.enterprise.inject.Produces;
-import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -22,7 +20,6 @@ import javax.persistence.Query;
 import javax.persistence.TemporalType;
 
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
@@ -60,7 +57,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	final private Hashtable<Character, String> estados = new Hashtable<>();
 	
 	public ServicioGuiaImpl() {
-		super(new Guia());
+		super(Guia.class);
 		estados.put('P', "Pendiente");
 		estados.put('R', "Remitido");
 		estados.put('E', "Entregado");

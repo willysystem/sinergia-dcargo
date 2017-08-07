@@ -7,9 +7,9 @@ import javax.persistence.InheritanceType;
 /**
  * @generated
  */
+@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 @javax.persistence.Entity
 @javax.persistence.Table(name = "persona")
-@Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 public abstract class Persona implements java.io.Serializable {
 	/**
 	 * @generated
@@ -38,6 +38,7 @@ public abstract class Persona implements java.io.Serializable {
 	 * @generated
 	 */
 	public Persona() {
+		initObjects();
 	}
 
 	/**
@@ -102,5 +103,11 @@ public abstract class Persona implements java.io.Serializable {
 	public String toString() {
 		return "Persona" + " id=" + id + " apellidos=" + apellidos
 				+ " nombres=" + nombres + " nro=" + nro;
+	}
+
+	/**
+	 * @generated
+	 */
+	private void initObjects() {
 	}
 }

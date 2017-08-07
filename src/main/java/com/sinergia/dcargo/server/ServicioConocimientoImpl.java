@@ -53,7 +53,7 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	final private Hashtable<Character, String> estados = new Hashtable<>();
 	
 	public ServicioConocimientoImpl() {
-		super(new Conocimiento());
+		super(Conocimiento.class);
 		estados.put('P', "Pendiente");
 		estados.put('V', "Vigente");
 		estados.put('E', "Entregado");

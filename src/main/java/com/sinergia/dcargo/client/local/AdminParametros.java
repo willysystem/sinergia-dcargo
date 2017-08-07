@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import com.google.gwt.core.shared.GWT;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
+import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioPrecioCliente;
 import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
@@ -22,6 +23,8 @@ import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Carga;
 import com.sinergia.dcargo.client.local.view.Cargador;
 import com.sinergia.dcargo.client.shared.Cliente;
+import com.sinergia.dcargo.client.shared.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.Oficina;
 import com.sinergia.dcargo.client.shared.Precio;
@@ -32,34 +35,25 @@ import com.sinergia.dcargo.client.shared.Usuario;
 @Singleton
 public class AdminParametros {
 
-	@Inject
-	private Cargador cargador;
+	@Inject private Cargador cargador;
 	
-	@Inject
-	protected Logger log;
+	@Inject protected Logger log;
 	
-	//@Inject
-	//private VistaGuiaAccion vistaGuiaAccion;
-	@Inject
-	private ServicioClienteCliente servicioCliente; // = GWT.create(ServicioClienteCliente.class);
+	@Inject private ServicioClienteCliente servicioCliente; 
+	@Inject private ServicioOficinaCliente servicioOficina;
+	@Inject private ServicioUnidadCliente servicioUnidad;
+	@Inject private ServicioPrecioCliente servicioPrecio;
+	@Inject private ServicioTransportistasCliente servicioTransportista;
+	@Inject private ServicioCuentaCliente servicioCuenta;
 	
-	@Inject
-	private ServicioOficinaCliente servicioOficina;// = GWT.create(ServicioOficinaCliente.class);
-	
-	@Inject
-	private ServicioUnidadCliente servicioUnidad;//   = GWT.create(ServicioUnidadCliente.class);
-	
-	@Inject
-	private ServicioPrecioCliente servicioPrecio;//   = GWT.create(ServicioPrecioCliente.class);
-	
-	@Inject
-	private ServicioTransportistasCliente servicioTransportista;
 	
 	private List<Cliente> clientes;
 	private List<Oficina> oficinas;
 	private List<Unidad> unidades;
 	private List<Precio> precios;
 	private List<Transportista> transportistas;
+	private List<CuentaIngreso> cuentasIngreso;
+	private List<CuentaEgreso> cuentasEgreso;
 	
 	private Usuario usuario;
 	
@@ -114,13 +108,27 @@ public class AdminParametros {
 										if(carga != null){
 											carga.cargarOracles();
 										}
-										
-										servicioTransportista.getTodos(new LlamadaRemota<List<Transportista>>("",true) {
+										servicioTransportista.getTodos(new LlamadaRemota<List<Transportista>>("Error al obtener los transportista",true) {
 											@Override
 											public void onSuccess(Method method, List<Transportista> response) {
 												transportistas = response;
 												log.info("transportistas.size" + transportistas.size() );
-												AdminParametros.this.cargador.hide();
+												servicioCuenta.getTodasCuentasIngreso(new LlamadaRemota<List<CuentaIngreso>>("Error al obtener los transportista", true) {
+													@Override
+													public void onSuccess(Method method, List<CuentaIngreso> response) {
+														log.info("CuentasIngreso.size" + response.size() );
+														cuentasIngreso = (List<CuentaIngreso>)response;
+														servicioCuenta.getTodasCuentasEgreso(new LlamadaRemota<List<CuentaEgreso>>("Error al obtener los transportista", true) {
+															@Override
+															public void onSuccess(Method method, List<CuentaEgreso> response) {
+																log.info("CuentasEgreso.size" + response.size() );
+																cuentasEgreso = (List<CuentaEgreso>)response;
+																//log.info("cuentasIngreso.size" + cuentasIngreso.size() );
+																AdminParametros.this.cargador.hide();
+															}
+														});
+													}
+												});
 											}
 										});
 									}
@@ -207,6 +215,14 @@ public class AdminParametros {
 		this.dateParam = dateParam;
 	}
 	
+	public List<CuentaEgreso> getCuentasEgreso() {
+		return cuentasEgreso;
+	}
+	
+	public List<CuentaIngreso> getCuentasIngreso() {
+		return cuentasIngreso;
+	}
+
 	public Cliente buscarClientePorNombre(String nombre){
 		for (Cliente cliente : clientes) {
 			if(cliente.getNombre().equals(nombre))
@@ -237,6 +253,54 @@ public class AdminParametros {
 				return ofi;
 		}
 		return null;
-	} 
+	}
+	
+	public CuentaIngreso buscarCuentaIngresoPorNroCuenta(Integer nroCuenta){
+		for (CuentaIngreso cuenta: cuentasIngreso) {
+			log.info("       cuentasIngreso: " + cuenta.getNroCuenta());
+			if(cuenta.getNroCuenta() != null)
+				if(cuenta.getNroCuenta().equals(nroCuenta))
+					return cuenta;
+		}
+		return null;
+	}
+	
+	public CuentaEgreso buscarCuentaEgresoPorNroCuenta(Integer nroCuenta){
+		for (CuentaEgreso cuenta: cuentasEgreso) {
+			log.info("       cuentasIngreso: " + cuenta.getNroCuenta());
+			if(cuenta.getNroCuenta() != null)
+				if(cuenta.getNroCuenta().equals(nroCuenta))
+					return cuenta;
+		}
+		return null;
+	}
+	
+	public void recargarCuentasIngreso(){
+		log.info("transportistas.size" + transportistas.size() );
+		cargador.show();
+		servicioCuenta.getTodasCuentasIngreso(new LlamadaRemota<List<CuentaIngreso>>("Error al obtener los transportista", true) {
+			@Override
+			public void onSuccess(Method method, List<CuentaIngreso> response) {
+				log.info("response.size" + response.size() );
+				cuentasIngreso = (List<CuentaIngreso>)response;
+				//log.info("cuentasIngreso.size" + cuentasIngreso.size() );
+				AdminParametros.this.cargador.hide();
+			}
+		});
+	}
+	
+	public void recargarCuentasEgreso(){
+		log.info("transportistas.size" + transportistas.size() );
+		cargador.show();
+		servicioCuenta.getTodasCuentasEgreso(new LlamadaRemota<List<CuentaEgreso>>("Error al obtener los transportista", true) {
+			@Override
+			public void onSuccess(Method method, List<CuentaEgreso> response) {
+				log.info("response.size" + response.size() );
+				cuentasEgreso = (List<CuentaEgreso>)response;
+				//log.info("cuentasIngreso.size" + cuentasIngreso.size() );
+				AdminParametros.this.cargador.hide();
+			}
+		});
+	}
 	
 }

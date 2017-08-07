@@ -301,6 +301,11 @@ public class Item implements java.io.Serializable {
 	 * @generated
 	 */
 	public String toString() {
-		return "";
+		return "Item" + " id=" + id + " nroSecuencial=" + nroSecuencial
+				+ " cantidad=" + cantidad + " contenido=" + contenido
+				+ " peso=" + peso + " monto=" + monto + " activo=" + activo
+				+ " nro=" + nro + " valido=" + valido + " unidadTitulo="
+				+ unidadTitulo + " precioMonto=" + precioMonto + " total="
+				+ total;
 	}
 }

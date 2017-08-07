@@ -135,6 +135,12 @@ public class Conocimiento implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "conocimiento")
+	private java.util.Set<MovimientoEgreso> movimientosEgreso = new java.util.HashSet<MovimientoEgreso>();
+
+	/**
+	 * @generated
+	 */
 	public Conocimiento() {
 	}
 
@@ -533,5 +539,36 @@ public class Conocimiento implements java.io.Serializable {
 	 */
 	public void setPagoDestino(Double pagoDestino) {
 		this.pagoDestino = pagoDestino;
+	}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Set<MovimientoEgreso> getMovimientosEgreso() {
+		return this.movimientosEgreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setMovimientosEgreso(
+			java.util.Set<MovimientoEgreso> movimientosEgreso) {
+		this.movimientosEgreso = movimientosEgreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void addMovimientosEgreso(MovimientoEgreso movimientosEgreso) {
+		getMovimientosEgreso().add(movimientosEgreso);
+		movimientosEgreso.setConocimiento(this);
+	}
+
+	/**
+	 * @generated
+	 */
+	public void removeMovimientosEgreso(MovimientoEgreso movimientosEgreso) {
+		getMovimientosEgreso().remove(movimientosEgreso);
+		movimientosEgreso.setConocimiento(null);
 	}
 }

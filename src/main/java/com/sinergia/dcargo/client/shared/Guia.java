@@ -154,6 +154,12 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
+	@javax.persistence.OneToMany(mappedBy = "guia")
+	private java.util.Set<MovimientoIngreso> movimientosIngreso = new java.util.HashSet<MovimientoIngreso>();
+
+	/**
+	 * @generated
+	 */
 	public Guia() {
 	}
 
@@ -623,5 +629,36 @@ public class Guia implements java.io.Serializable {
 				+ " nro=" + nro + " estado=" + estado + " estadoDescripcion="
 				+ estadoDescripcion + " fechaIni=" + fechaIni + " fechaFin="
 				+ fechaFin;
+	}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Set<MovimientoIngreso> getMovimientosIngreso() {
+		return this.movimientosIngreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setMovimientosIngreso(
+			java.util.Set<MovimientoIngreso> movimientosIngreso) {
+		this.movimientosIngreso = movimientosIngreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void addMovimientosIngreso(MovimientoIngreso movimientosIngreso) {
+		getMovimientosIngreso().add(movimientosIngreso);
+		movimientosIngreso.setGuia(this);
+	}
+
+	/**
+	 * @generated
+	 */
+	public void removeMovimientosIngreso(MovimientoIngreso movimientosIngreso) {
+		getMovimientosIngreso().remove(movimientosIngreso);
+		movimientosIngreso.setGuia(null);
 	}
 }

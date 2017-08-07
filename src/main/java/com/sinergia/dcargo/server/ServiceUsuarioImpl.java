@@ -17,8 +17,6 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
-import javax.ws.rs.core.Response;
-
 
 import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.Oficina;
@@ -35,7 +33,7 @@ import com.sinergia.dcargo.server.util.MD5;
 public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario {
 
 	public ServiceUsuarioImpl() {
-		super(new Usuario());
+		super(Usuario.class);
 	}
 	
 	@PersistenceContext(unitName = "dCargoUnit")
@@ -49,7 +47,7 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 	public List<Usuario> getAllUsers() {
 		Query query = em.createQuery("SELECT u FROM Usuario u", Usuario.class);
 		List<Usuario> results = query.getResultList();
-		List<Usuario> users = new ArrayList<Usuario>();
+		List<Usuario> users = new ArrayList<>();
 		for (Usuario user : results) {
 			if(user.getEstado()=='E') continue;
 			
@@ -162,11 +160,11 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		} 
 	}
 	
-	private String getDescripcionEstado(Character estado) {
-		if(estado == 'A') return "Activo";
-		if(estado == 'I') return "Inactivo";
-		if(estado == 'E') return "Eliminado";
-		
-		return "";
-	}	
+//	private String getDescripcionEstado(Character estado) {
+//		if(estado == 'A') return "Activo";
+//		if(estado == 'I') return "Inactivo";
+//		if(estado == 'E') return "Eliminado";
+//		
+//		return "";
+//	}	
 }

@@ -17,6 +17,7 @@ import com.google.gwt.editor.client.Editor.Path;
 import com.google.gwt.event.logical.shared.SelectionEvent;
 import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.logging.client.DefaultLevel.Info;
 import com.google.gwt.safehtml.shared.SafeHtml;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Widget;
@@ -54,6 +55,7 @@ import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
+import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.shared.Guia;
 import com.sinergia.dcargo.client.shared.Item;
@@ -77,7 +79,8 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 	@Inject
 	private ServicioGuiaCliente servicioGuia;
 	
-	
+	@Inject
+	private MensajeAviso mensajeAviso;
 	
 //	@Inject
 //	private Cargador cargador;
@@ -242,7 +245,13 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			Converter<String, Unidad> unidadConverter = new Converter<String, Unidad>() {
 				@Override
 				public String convertFieldValue(Unidad object) {
-					return object.getAbreviatura();
+					if(object == null) {
+						return "";
+					} else {
+						if(object.getAbreviatura() == null) return "";
+						else return object.getAbreviatura();
+					}
+					
 				}
 				@Override
 				public Unidad convertModelValue(String object) {
@@ -292,7 +301,12 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			Converter<String, Precio> precioConverter = new Converter<String, Precio>() {
 				@Override
 				public String convertFieldValue(Precio object) {
-					return object.getDescripcion();
+					if(object == null){
+						return "";
+					} else {
+						if(object.getDescripcion() == null) return "";
+						else return object.getDescripcion();
+					}
 				}
 				@Override
 				public Precio convertModelValue(String object) {
@@ -303,88 +317,47 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 				}
 			};
 
-			
+			IntegerField bultosIntegerField = new IntegerField();
+//			bultosIntegerField.addKeyDownHandler(e->{
+//				log.info("addKeyDownHandler: " + bultosIntegerField.getValue() + "-->" + e.getNativeEvent().getKeyCode());
+//				if(e.getNativeEvent().getKeyCode() == 13){
+//					store.commitChanges();
+//					editing.completeEditing();
+//				}
+//			});
+			TextField contenidoTextField = new TextField();
+//			contenidoTextField.addKeyDownHandler(e->{
+//				log.info("contenidoTextField.addKeyDownHandler: " + contenidoTextField.getValue() + "-->" + e.getNativeEvent().getKeyCode());
+//				if(e.getNativeEvent().getKeyCode() == 13){
+//					store.commitChanges();
+//					editing.completeEditing();
+//				}
+//			});
+//			totalField.addKeyDownHandler(e->{
+//				log.info("totalField.addKeyDownHandler: " + totalField.getValue() + "-->" + e.getNativeEvent().getKeyCode());
+//				if(e.getNativeEvent().getKeyCode() == 13){
+//					store.commitChanges();
+//					editing.completeEditing();
+//				}
+//			});
+//			totalField.addValueChangeHandler(e ->{
+//				log.info("totalField.addValueChangeHandler: " + totalField.getValue());
+//				store.commitChanges();
+//				editing.completeEditing();
+//			});
 			
 			editing = createGridEditing(grid);
-			editing.addEditor(bultosColumn, new IntegerField());
-			editing.addEditor(contenidoColumn, new TextField());
+			editing.addEditor(bultosColumn, bultosIntegerField);
+			editing.addEditor(contenidoColumn, contenidoTextField);
 			editing.addEditor(pesoColumn, pesoField);
 			editing.addEditor(unidadColumn, unidadConverter, unidadCombo);
 			editing.addEditor(precioColumn, precioConverter, precioCombo);
 			
 			editing.addEditor(totalColumn, totalField);
+		
 			editing.addCancelEditHandler(e -> store.rejectChanges());
 			editing.addCompleteEditHandler( e -> {
-				
-				store.commitChanges();
-				Item itemSelected = grid.getSelectionModel().getSelectedItem();
-				GWT.log("item: " + itemSelected);
-				if(itemSelected == null){
-					itemSelected = itemSeleccionado;
-				}
-				GWT.log("itemSeleccionado: " + itemSeleccionado);
-				
-				Unidad unidadTemp = new Unidad();
-				unidadTemp.setId(itemSelected.getUnidad().getId());
-				Precio precioTemp = new Precio();
-				precioTemp.setId(itemSelected.getPrecio().getId());
-				
-				Item itemTemp = new Item();
-				itemTemp.setId(itemSelected.getId());
-				itemTemp.setCantidad(itemSelected.getCantidad());
-				itemTemp.setContenido(itemSelected.getContenido());
-				itemTemp.setPeso(itemSelected.getPeso());
-				itemTemp.setUnidad(unidadTemp);
-				itemTemp.setPrecio(precioTemp);
-				itemTemp.setTotal(itemSelected.getTotal());
-				
-				
-				// Resumen y total
-				String resumen = "";
-				Double total = 0.0D;
-				Double pesoTotal = 0.0D;
-				Integer bultosTotal = 0;
-				for (Item i: store.getAll()) {
-					resumen = resumen + i.getContenido() + ",";
-					total = total + i.getTotal();
-					pesoTotal = pesoTotal + i.getPeso();
-					bultosTotal = bultosTotal + i.getCantidad();
-				}
-				resumen = resumen.substring(0, resumen.length()-1);
-				vistaGuiaAccion.setResumen(resumen);
-				
-				final Double totalTemp = total;
-				final String resumenTemp = resumen;
-				final Double pesoTotalTemp = pesoTotal;
-				final Integer bultosTotalTemp = bultosTotal;
-				
-				vistaGuiaAccion.fijarEstadoGuiaEspera();
-				servicioItem.guardar(itemTemp, new LlamadaRemota<Void>("No se guardo Item", false){
-					@Override
-					public void onSuccess(Method method, Void response) {
-						servicioGuia.guardarTotal(guiaSeleccionada.getId(), totalTemp, new LlamadaRemota<Void>("No se pudo guardar Total", false){
-							@Override
-							public void onSuccess(Method method, Void response) {
-								servicioGuia.guardarPesoTotal(guiaSeleccionada.getId(), pesoTotalTemp, new LlamadaRemota<Void>("No se pudo guardar peso Total", false){
-									@Override
-									public void onSuccess(Method method, Void response) {
-										servicioGuia.guardarBultosTotal(guiaSeleccionada.getId(), bultosTotalTemp, new LlamadaRemota<Void>("No se pudo guardar bultos Total", false){
-											@Override
-											public void onSuccess(Method method, Void response) {
-												guiaSeleccionada.setResumenContenido(resumenTemp);
-												guiaSeleccionada.setTotalGuia(totalTemp);
-												guiaSeleccionada.setTotalPeso(pesoTotalTemp);
-												guiaSeleccionada.setTotalCantidad(bultosTotalTemp);
-												vistaGuiaAccion.fijarEstadoGuiaCargado();
-											}
-										});											
-									}
-								});
-							}
-						});
-					}
-				});
-				
+				guardarItem();
 			});
 			
 			// column 5 is not editable
@@ -463,6 +436,10 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 	
 	protected GridEditing<Item> createGridEditing(Grid<Item> editableGrid) {
 		GridRowEditing<Item> rowEditing = new GridRowEditing<>(editableGrid);
+		
+		rowEditing.getSaveButton().addSelectHandler(e -> {
+			log.info("->");
+		});
 //		ColumnConfig<Item, Double> price = editableGrid.getColumnModel().getColumn(2);
 //		rowEditing.addRenderer(price, new AbstractSafeHtmlRenderer<Double>() {
 //			PriceTemplate template = GWT.create(PriceTemplate.class);
@@ -490,6 +467,91 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		this.vistaGuiaAccion = vistaGuiaAccion;
 	}
 	
+	private void guardarItem() {
+		
+		store.commitChanges();
+		Item itemSelected = grid.getSelectionModel().getSelectedItem();
+		GWT.log("item: " + itemSelected);
+		if(itemSelected == null){
+			itemSelected = itemSeleccionado;
+		}
+		
+		GWT.log("itemSeleccionado: " + itemSeleccionado);
+		Item itemTemp = new Item();
+		itemTemp.setId(itemSelected.getId());
+		itemTemp.setCantidad(itemSelected.getCantidad());
+		itemTemp.setContenido(itemSelected.getContenido());
+		itemTemp.setPeso(itemSelected.getPeso());
+		if(itemSelected.getUnidad() != null){
+			Unidad unidadTemp = new Unidad();
+			unidadTemp.setId(itemSelected.getUnidad().getId());
+			itemTemp.setUnidad(unidadTemp);
+		}
+		if(itemSelected.getPrecio() != null) {
+			Precio precioTemp = new Precio();
+			precioTemp.setId(itemSelected.getPrecio().getId());
+			itemTemp.setPrecio(precioTemp);
+		}
+		itemTemp.setTotal(itemSelected.getTotal());
+		
+		boolean valido = validarFila(itemTemp);
+		if(!valido){
+			mensajeAviso.mostrar("Los campos Bultos, Contenido y Total son obligatorios");
+			return ;
+		}
+		
+		// Resumen y total
+		String resumen = "";
+		Double total = 0.0D;
+		Double pesoTotal = 0.0D;
+		Integer bultosTotal = 0;
+		for (Item i: store.getAll()) {
+			resumen = resumen + i.getContenido() + ",";
+			total = total + i.getTotal();
+			pesoTotal = pesoTotal + (i.getPeso()==null?0:i.getPeso());
+			bultosTotal = bultosTotal + i.getCantidad();
+		}
+		resumen = resumen.substring(0, resumen.length()-1);
+		vistaGuiaAccion.setResumen(resumen);
+		
+		final Double totalTemp = total;
+		final String resumenTemp = resumen;
+		final Double pesoTotalTemp = pesoTotal;
+		final Integer bultosTotalTemp = bultosTotal;
+		
+		vistaGuiaAccion.fijarEstadoGuiaEspera();
+		servicioItem.guardar(itemTemp, new LlamadaRemota<Void>("No se guardo Item", false){
+			@Override
+			public void onSuccess(Method method, Void response) {
+				servicioGuia.guardarTotal(guiaSeleccionada.getId(), totalTemp, new LlamadaRemota<Void>("No se pudo guardar Total", false){
+					@Override
+					public void onSuccess(Method method, Void response) {
+						servicioGuia.guardarPesoTotal(guiaSeleccionada.getId(), pesoTotalTemp, new LlamadaRemota<Void>("No se pudo guardar peso Total", false){
+							@Override
+							public void onSuccess(Method method, Void response) {
+								servicioGuia.guardarBultosTotal(guiaSeleccionada.getId(), bultosTotalTemp, new LlamadaRemota<Void>("No se pudo guardar bultos Total", false){
+									@Override
+									public void onSuccess(Method method, Void response) {
+										guiaSeleccionada.setResumenContenido(resumenTemp);
+										guiaSeleccionada.setTotalGuia(totalTemp);
+										guiaSeleccionada.setTotalPeso(pesoTotalTemp);
+										guiaSeleccionada.setTotalCantidad(bultosTotalTemp);
+										vistaGuiaAccion.fijarEstadoGuiaCargado();
+									}
+								});											
+							}
+						});
+					}
+				});
+			}
+		});
+	}
 	
+	private boolean validarFila(Item item){
+		if(item.getCantidad() == null) return false;
+		if(item.getContenido() == null) return false;
+		if(item.getTotal() == null) return false;
+		return true;
+	}
 	
 }

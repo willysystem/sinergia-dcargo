@@ -237,7 +237,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			@Override
 			public String getValue(Guia entity) {
 				if(entity.getFechaEntrega() != null){
-					return DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(entity.getFechaEntrega());
+					
 				}
 				return "";
 			}

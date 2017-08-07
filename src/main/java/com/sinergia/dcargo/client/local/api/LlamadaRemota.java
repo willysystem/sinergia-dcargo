@@ -28,7 +28,7 @@ public abstract class LlamadaRemota<R> implements MethodCallback<R> {
 	@Override
 	public void onFailure(Method method, Throwable exception) {
 		GWT.log(mensajeError + ": " + exception.getMessage());
-		mensajeErrorVentana.mostrar(mensajeError, exception);
+		LlamadaRemota.this.mensajeErrorVentana.mostrar(mensajeError, exception);
 		if(ocultarCargador) cargador.hide();
 	}
 

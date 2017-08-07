@@ -21,16 +21,15 @@ public abstract class Dao<E> {
 	@PersistenceContext(unitName = "dCargoUnit")
 	private EntityManager em;
 	
-	private E entity;
+	private Class<E> clazz;
 	
-	public Dao(E e) {
-		this.entity = e;
+	public Dao(Class<E> clazz) {
+		this.clazz = clazz;
 	}
 	
-	@SuppressWarnings("unchecked")
 	public E  buscarPorId(Long id){
-		E e = (E) em.find(entity.getClass(), id);
-		return e; 
+		return em.find(clazz, id);
+		 
 	}
 	
 	public void persist(E e)  {
@@ -38,15 +37,14 @@ public abstract class Dao<E> {
 	}
 	
 	public E merge(E e) {
-		E merge = em.merge(e);
-		return merge; 
+		return em.merge(e);
 	} 
 	
 	@TransactionAttribute(TransactionAttributeType.NEVER)
-	public List<E> findAll(Class<E> clazz) {
+	public <T> List<T>  findAll(Class<T> clazz) {
 		
 	    CriteriaBuilder cb = em.getCriteriaBuilder();
-		CriteriaQuery<E> q = cb.createQuery(clazz);
+		CriteriaQuery<T> q = cb.createQuery(clazz);
 		q.select(q.from(clazz)) ;
 		
 		return em.createQuery(q).getResultList();

@@ -17,7 +17,7 @@ public class Utilitario {
 	
 	
 	public static  <E> List<E>  mapper(List<E> lista, Class<E> clazz){
-		List<E> listaDTO = new ArrayList<E>();
+		List<E> listaDTO = new ArrayList<>();
 		for (E e : lista) {
 			
 			if(clazz.equals(Cliente.class)){

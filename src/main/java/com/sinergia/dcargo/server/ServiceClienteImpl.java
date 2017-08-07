@@ -2,7 +2,6 @@ package com.sinergia.dcargo.server;
 
 
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
@@ -10,8 +9,6 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 
 import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.Cliente;
@@ -33,7 +30,7 @@ public class ServiceClienteImpl extends Dao<Cliente> implements ServicioCliente 
 	private SessionContext sctx;
 	
 	public ServiceClienteImpl() {
-		super(new Cliente());
+		super(Cliente.class);
 	}
 	
 
