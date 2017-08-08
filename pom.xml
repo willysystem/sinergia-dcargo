@@ -12,7 +12,7 @@
 		<slf4j.version>1.5.11</slf4j.version>
 
 		<!-- EAP component version management BOM -->
-		<version.jboss.bom>10.1.0.Final</version.jboss.bom>
+		<version.jboss.bom>10.0.0.Final</version.jboss.bom>
 
 		<version.jboss.spec.javaee.7.0>1.0.3.Final</version.jboss.spec.javaee.7.0>
 
