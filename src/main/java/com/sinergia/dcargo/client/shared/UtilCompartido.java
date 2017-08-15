@@ -28,6 +28,14 @@ public class UtilCompartido {
 		return list;
 	}
 	
+	public static CuentaIngresoTO toSubCuentaIngreso(CuentaIngreso cP2){
+		CuentaIngresoTO c2 = new CuentaIngresoTO();
+		c2.setId(cP2.getId());
+		c2.setNroCuenta(cP2.getNroCuenta());
+		c2.setDescripcion(cP2.getDescripcion());
+		return c2;
+	}
+	
 	public static List<CuentaEgresoTO> toDTOEgreso(List<CuentaEgreso> cuentas) {		
 		List<CuentaEgresoTO> list = new ArrayList<>(); 
 		for (CuentaEgreso cP1 : cuentas) {

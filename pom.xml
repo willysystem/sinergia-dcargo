@@ -210,11 +210,11 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.sencha.gxt/gxt -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.sencha.gxt</groupId> -->
-		<!-- <artifactId>gxt</artifactId> -->
-		<!-- <version>3.1.1</version> -->
-		<!-- </dependency> -->
+<!-- 		<dependency> -->
+<!-- 		<groupId>com.sencha.gxt</groupId> -->
+<!-- 		<artifactId>gxt</artifactId> -->
+<!-- 		<version>3.1.1</version> -->
+<!-- 		</dependency> -->
 
 
 		<!-- GWT Reflect -->

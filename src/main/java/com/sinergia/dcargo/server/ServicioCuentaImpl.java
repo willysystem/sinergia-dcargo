@@ -36,44 +36,39 @@ public class ServicioCuentaImpl extends Dao<Cuenta> implements ServicioCuenta {
 	}
 
 	public List<? extends Cuenta> getTodasCuentas(TipoCuenta tipoCuenta) throws Exception{
-		String tipo2 = tipoCuenta == TipoCuenta.INGRESO ? "CuentaIngreso": "CuentaEgreso";
-		String sql = "SELECT c FROM " + tipo2 + " c WHERE c.cuenta is null";
-		Query q = em.createQuery(sql);
-		@SuppressWarnings("unchecked")
-		List<Cuenta> cuentasP = q.getResultList();
-		List<Cuenta> cuentas = new ArrayList<>();
-		for (Cuenta cP1 : cuentasP) {
-			Cuenta c = tipoCuenta == TipoCuenta.INGRESO ? new CuentaIngreso(): new CuentaEgreso();
-			
-//			c.setId(cP1.getId());
-//			c.setNroCuenta(cP1.getNroCuenta());
-//			c.setDescripcion(cP1.getDescripcion());
-//			c.setMovimientos(null);
-//			for (Cuenta cP2 : cP1.getSubCuentas()) {	
-//				Cuenta c2 = tipoCuenta == TipoCuenta.INGRESO ? new CuentaIngreso(): new CuentaEgreso();
-//				c2.setId(cP2.getId());
-//				c2.setNroCuenta(cP2.getNroCuenta());
-//				c2.setDescripcion(cP2.getDescripcion());
-//				c2.setCuenta(c);
-//				c2.setSubCuentas(null);
-//				c2.setMovimientos(null);
-//				c.getSubCuentas().add(c2);
-//			}
-			cuentas.add(c);
-		}
-		return cuentas;
+	     String tipo2 = tipoCuenta == TipoCuenta.INGRESO ? "CuentaIngreso" : "CuentaEgreso";
+	     String sql = "SELECT c FROM " + tipo2 + " c WHERE c.cuenta is null";
+	     Query q = this.em.createQuery(sql);
+	     List<Cuenta> cuentasP = q.getResultList();
+	     ArrayList<Cuenta> cuentas = new ArrayList<Cuenta>();
+	     for (Cuenta cP1 : cuentasP) {
+	         Cuenta c = tipoCuenta == TipoCuenta.INGRESO ? new CuentaIngreso() : new CuentaEgreso();
+	         c.setId(cP1.getId());
+	         c.setNroCuenta(cP1.getNroCuenta());
+	         c.setDescripcion(cP1.getDescripcion());
+//	         for (Cuenta cP2 : cP1.getSubCuentas()) {
+//	             Cuenta c2 = tipoCuenta == TipoCuenta.INGRESO ? new CuentaIngreso() : new CuentaEgreso();
+//	             c2.setId(cP2.getId());
+//	             c2.setNroCuenta(cP2.getNroCuenta());
+//	             c2.setDescripcion(cP2.getDescripcion());
+//	             c.getSubCuentas().add(c2);
+//	         }
+	         cuentas.add(c);
+	     }
+	     return cuentas;
 	}
-	
 	
 	@SuppressWarnings("unchecked")
 	public List<CuentaIngreso> getTodasCuentasIngreso() throws Exception {
-		List<CuentaIngreso> cis = new ArrayList<>();
-		CuentaIngreso c1 = new CuentaIngreso();
-		cis.add(c1);
-		CuentaIngreso c2 = new CuentaIngreso();
-		cis.add(c2);
-		return cis;
-		//return (List<CuentaIngreso>)getTodasCuentas(TipoCuenta.INGRESO);
+//		List<CuentaIngreso> cis = new ArrayList<>();
+//		CuentaIngreso c1 = new CuentaIngreso();
+//		cis.add(c1);
+//		CuentaIngreso c2 = new CuentaIngreso();
+//		cis.add(c2);
+//		return cis;
+		
+		
+		return (List<CuentaIngreso>) getTodasCuentas(TipoCuenta.INGRESO);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -179,6 +174,33 @@ public class ServicioCuentaImpl extends Dao<Cuenta> implements ServicioCuenta {
 		}
 		em.merge(cuenta);
 	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<CuentaIngreso> getSubCuentasIngreso(Long cuentaIngresoId) throws Exception {
+		Cuenta cuenta = em.find(CuentaIngreso.class, cuentaIngresoId);
+		return (List<CuentaIngreso>) getSubCuentas(cuenta, TipoCuenta.INGRESO);
+	}
+	
+	public List<? extends Cuenta> getSubCuentas(Cuenta cuenta, TipoCuenta tipoCuenta) throws Exception {
+		List<Cuenta> subCuentas = new ArrayList<Cuenta>();
+        for (Cuenta cP2 : cuenta.getSubCuentas()) {
+        	Cuenta c2 = tipoCuenta == TipoCuenta.INGRESO ? new CuentaIngreso() : new CuentaEgreso();
+        	c2.setId(cP2.getId());
+        	c2.setNroCuenta(cP2.getNroCuenta());
+        	c2.setDescripcion(cP2.getDescripcion());
+        	subCuentas.add(c2);
+        }
+		return subCuentas;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public List<CuentaEgreso> getSubCuentasEgreso(Long cuentaEgresoId) throws Exception {
+		Cuenta cuenta = em.find(CuentaEgreso.class, cuentaEgresoId);
+		return (List<CuentaEgreso>) getSubCuentas(cuenta, TipoCuenta.EGRESO);
+	}
+	
 
 //	@Override
 //	public List<CuentaIngreso> getTodasCuentasIngresoPadre() throws Exception {

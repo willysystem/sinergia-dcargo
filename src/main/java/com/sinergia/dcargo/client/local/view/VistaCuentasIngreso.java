@@ -39,6 +39,7 @@ import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.CuentaIngresoTO;
 import com.sinergia.dcargo.client.local.CuentaTO;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
+import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
@@ -191,7 +192,16 @@ public class VistaCuentasIngreso implements IVistaCuentas {
 			public void onSuccess(Method method, List<CuentaIngreso> response) {
 				config();
 				List<CuentaIngresoTO> cuentasTO = UtilCompartido.toDTOIngreso(response);
-				showClientesData(cuentasTO);
+				for (final CuentaIngresoTO cuentaIngresoTO : cuentasTO) {
+					servicioCuenta.getSubCuentasIngreso(cuentaIngresoTO.getId(), new LlamadaRemota<List<CuentaIngreso>>("", false) {
+						@Override
+						public void onSuccess(Method method, List<CuentaIngreso> response) {
+							List<CuentaIngresoTO> subCuentasTO = UtilCompartido.toDTOIngreso(response);
+							cuentaIngresoTO.getSubCuentas().addAll(subCuentasTO);
+							showClientesData(cuentasTO);
+						}
+					});
+				}
 				VistaCuentasIngreso.this.cargador.hide();
 			}
 		});
@@ -203,6 +213,7 @@ public class VistaCuentasIngreso implements IVistaCuentas {
 		
 		for (CuentaIngresoTO cTO1 : cuentas) {
 			storeCuentaIngreso.add(cTO1);
+			log.info("cTO1.getSubCuentas().size(): " + cTO1.getSubCuentas().size());
 			for (CuentaTO cTO2: cTO1.getSubCuentas()) {
 				storeCuentaIngreso.add(cTO1, (CuentaIngresoTO)cTO2);
 			}

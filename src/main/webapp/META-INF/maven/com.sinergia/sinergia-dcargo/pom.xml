@@ -12,13 +12,13 @@
 		<slf4j.version>1.5.11</slf4j.version>
 
 		<!-- EAP component version management BOM -->
-		<version.jboss.bom>10.1.0.Final</version.jboss.bom>
+		<version.jboss.bom>10.0.0.Final</version.jboss.bom>
 
 		<version.jboss.spec.javaee.7.0>1.0.3.Final</version.jboss.spec.javaee.7.0>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<errai.dev.context>${project.artifactId}</errai.dev.context>
-		<as.version>10.1.0.Final</as.version>
+		<as.version>10.0.0.Final</as.version>
 		<!-- Add the absolute path for $JBOSS_HOME below to manage another instance -->
 		<errai.jboss.home>${project.build.directory}/wildfly-${as.version}</errai.jboss.home>
 
@@ -210,11 +210,11 @@
 		</dependency>
 
 		<!-- https://mvnrepository.com/artifact/com.sencha.gxt/gxt -->
-		<!-- <dependency> -->
-		<!-- <groupId>com.sencha.gxt</groupId> -->
-		<!-- <artifactId>gxt</artifactId> -->
-		<!-- <version>3.1.1</version> -->
-		<!-- </dependency> -->
+<!-- 		<dependency> -->
+<!-- 		<groupId>com.sencha.gxt</groupId> -->
+<!-- 		<artifactId>gxt</artifactId> -->
+<!-- 		<version>3.1.1</version> -->
+<!-- 		</dependency> -->
 
 
 		<!-- GWT Reflect -->

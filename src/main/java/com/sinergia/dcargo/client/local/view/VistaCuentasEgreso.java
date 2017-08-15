@@ -190,12 +190,20 @@ public class VistaCuentasEgreso implements IVistaCuentas {
 			public void onSuccess(Method method, List<CuentaEgreso> response) {
 				config();
 				List<CuentaEgresoTO> cuentasTO = UtilCompartido.toDTOEgreso(response);
-				showClientesData(cuentasTO);
+				for (final CuentaEgresoTO cuentaEgresoTO : cuentasTO) {
+					servicioCuenta.getSubCuentasEgreso(cuentaEgresoTO.getId(), new LlamadaRemota<List<CuentaEgreso>>("", false) {
+						@Override
+						public void onSuccess(Method method, List<CuentaEgreso> response) {
+							List<CuentaEgresoTO> subCuentasTO = UtilCompartido.toDTOEgreso(response);
+							cuentaEgresoTO.getSubCuentas().addAll(subCuentasTO);
+							showClientesData(cuentasTO);
+						}
+					});
+				}
 				VistaCuentasEgreso.this.cargador.hide();
 			}
 		});
 	}
-	
 	
 	public void cargarDataUI(List<CuentaEgresoTO> cuentas) {
 		storeCuentaEgreso.clear();

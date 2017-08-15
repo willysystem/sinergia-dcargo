@@ -24,7 +24,7 @@ import com.sencha.gxt.data.shared.TreeStore.TreeNode;
 //@JsonIdentityInfo(
 //		  generator = ObjectIdGenerators.PropertyGenerator.class, 
 //		  property = "id")
-public class Cuenta implements java.io.Serializable, TreeStore.TreeNode<Cuenta> {
+public class Cuenta implements java.io.Serializable/*, TreeStore.TreeNode<Cuenta>*/ {
 	/**
 	 * @generated
 	 */
@@ -235,14 +235,14 @@ public class Cuenta implements java.io.Serializable, TreeStore.TreeNode<Cuenta> 
 		this.cuentaPadreDescripcion = cuentaPadreDescripcion;
 	}
 
-	@Override
-	public List<? extends TreeNode<Cuenta>> getChildren() {
-		return null;
-	}
-
-	@Override
-	public Cuenta getData() {
-		return this;
-	}
+//	@Override
+//	public List<? extends TreeNode<Cuenta>> getChildren() {
+//		return null;
+//	}
+//
+//	@Override
+//	public Cuenta getData() {
+//		return this;
+//	}
 
 }

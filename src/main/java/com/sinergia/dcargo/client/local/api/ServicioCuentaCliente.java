@@ -48,6 +48,18 @@ public interface ServicioCuentaCliente extends RestService {
 	  @Produces("application/json")
 	  public void getTodasCuentasEgreso(MethodCallback<List<CuentaEgreso>> call);
 	  
+	  @GET
+	  @Path("/getSubCuentasIngreso/{cuentaIngresoId}")
+	  @Consumes("application/json")
+	  @Produces("application/json")
+	  public void getSubCuentasIngreso(@QueryParam("cuentaIngresoId") Long cuentaIngresoId, MethodCallback<List<CuentaIngreso>> call);
+	  
+	  @GET
+	  @Path("/getSubCuentasEgreso/{cuentaEgresoId}")
+	  @Consumes("application/json")
+	  @Produces("application/json")
+	  public void getSubCuentasEgreso(@QueryParam("cuentaEgresoId") Long cuentaEgresoId, MethodCallback<List<CuentaEgreso>> call);
+	  
 	  // EGRESO E INGRESO
 	  
 	  @PUT

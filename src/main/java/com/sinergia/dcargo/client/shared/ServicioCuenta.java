@@ -61,6 +61,18 @@ public interface ServicioCuenta {
   @Produces("application/json")
   public List<CuentaEgreso> getTodasCuentasEgreso() throws Exception;
   
+  @GET
+  @Path("/getSubCuentasIngreso/{cuentaIngresoId}")
+  @Consumes("application/json")
+  @Produces("application/json")
+  public List<CuentaIngreso> getSubCuentasIngreso(@QueryParam("cuentaIngresoId") Long cuentaIngresoId) throws Exception;
+  
+  @GET
+  @Path("/getSubCuentasEgreso/{cuentaEgresoId}")
+  @Consumes("application/json")
+  @Produces("application/json")
+  public List<CuentaEgreso> getSubCuentasEgreso(@QueryParam("cuentaEgresoId") Long cuentaEgresoId) throws Exception;
+  
   @PUT
   @Path("/guardarNroCuenta/{cuentaId}/{nroCuenta}/{tipoCuenta}")
   @Consumes("application/json")

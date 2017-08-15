@@ -897,14 +897,17 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 						VistaConocimientoAccion.this.cargador.hide();
 					}
 				});
-			} else {
-				VistaConocimientoAccion.this.mensajeAviso.mostrar("Requiere llenar los campos obligatorios");
-			}
+			} 
+//			else {
+//				VistaConocimientoAccion.this.mensajeAviso.mostrar("Requiere llenar los campos obligatorios");
+//			}
 		});
 		
 		imprimirBtn.addClickHandler(e -> {
+			
+//			validarConocimiento();
+			
 			if(!validarConocimiento()) {
-				VistaConocimientoAccion.this.mensajeAviso.mostrar("Requiere llenar los campos obligatorios");
 				return ;
 			}
 			
@@ -969,15 +972,30 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		buscarGuiasButton.addClickHandler(e -> {
 			Date fechaIni = fechaIniBusquedaGuia.getValue();
 			Date fechaFin = fechaFinBusquedaGuia.getValue();
+			
+			// Validate
 			if( fechaIni == null || fechaFin == null){
 				mensajeAviso.mostrar("Necesitar elegir un intervalo de fecha");
 				return;
 			}
+			if( destinoSuggestBox.getValue() == null || destinoSuggestBox.getValue().isEmpty()){
+				mensajeAviso.mostrar("Necesitar elegir un destino");
+				return;
+			}
+			
 			
 			Guia guia =  new Guia();
 			guia.setFechaIni(fechaIni);
 			guia.setFechaFin(fechaFin);
 			guia.setEstadoDescripcion("Remitido");
+			
+			Oficina oficinaOrigen = adminParametros.buscarOficinaPorNombre(origenLabelValue.getText());
+			guia.setOficinaOrigen(oficinaOrigen);
+			log.info("--> oficinaOrigen: " + oficinaOrigen);
+			
+			Oficina oficinaDestino = adminParametros.buscarOficinaPorNombre(destinoSuggestBox.getValue());
+			guia.setOficinaDestino(oficinaDestino);
+			log.info("--> oficinaDestino: " + oficinaDestino);
 			
 			fijarEstadoGuiaEspera();
 			servicioGuia.buscarGuias(guia, new LlamadaRemota<List<Guia>>("No se ejecuto correctamente la búsqueda de guias", true){
@@ -1007,12 +1025,21 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private boolean validarConocimiento() {
 		
 		// Propietario
+		if(conocimientoSeleccionado.getTransportistaPropietario() == null) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Tiene que elegir un propietario");
+			return false;
+		}
 		String nombrePropietario = conocimientoSeleccionado.getTransportistaPropietario().getNombre();
+		
 		boolean propietarioValido = false;
 		for (Transportista c: adminParametros.getTransportistas()) {
 			if(c.getNombre().equals(nombrePropietario)) {propietarioValido = true; break;} 
 		}
 		log.info("--> nombrePropietario:" + nombrePropietario + ": " + propietarioValido);
+		if(!propietarioValido) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("El propietario no es valido");
+			return false;
+		}
 		
 		// Conductor
 		String nombreConductor = conductorSuggestBox.getValue();
@@ -1021,6 +1048,10 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			if(c.getNombre().equals(nombreConductor)) {conductorValido = true; break;} 
 		}
 		log.info("--> nombreConductor:" + nombreConductor  + ": " + conductorValido);
+		if(!conductorValido) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("El conductor no es valido");
+			return false;
+		}
 		
 		// Origen
 		String origen = conocimientoSeleccionado.getOficinaOrigen().getNombre();
@@ -1029,6 +1060,10 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			if(o.getNombre().equals(origen)) {origenValido = true; break;}
 		}
 		log.info("--> origen:" + origen  + ": " + origenValido);
+		if(!origenValido) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Origen no valido");
+			return false;
+		}
 		
 		// Destino
 		String destino = destinoSuggestBox.getValue();
@@ -1037,44 +1072,80 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			if(o.getNombre().equals(destino)) {destinoValido = true; break;}
 		}
 		log.info("--> destino:" + destino  + ": " + destinoValido);
+		if(!destinoValido) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Destino no valido");
+			return false;
+		}
 		
 		// Multa
 		Double multa = multaTextBox.getValue();
+		if(multa == null) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Escriba una multa");
+			return false;
+		}
 		log.info("--> multa:" + multa);
 		
 		// Dias
 		Integer dias = diasTextBox.getValue();
+		if(dias == null) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Introduzca número de dias");
+			return false;
+		}
 		log.info("--> dias:" + dias);
 		
 		// Flete 
 		Double flete = fleteDoubleBox.getValue();
+		if(flete == null) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Flete esta vacio");
+			return false;
+		}
 		log.info("--> flete:" + flete);
 		
 		// Acuenta
 		Double acuenta = acuentaDoubleBox.getValue();
+		if(acuenta == null) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("A cuenta esta vacio");
+			return false;
+		}
 		log.info("--> acuenta:" + acuenta);
 		
 		// Pagar en Origen
 		Double pagoOrigen = pagoOrigenDoubleBox.getValue();
+		if(pagoOrigen == null) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Pago en Origen esta vacio");
+			return false;
+		}
 		log.info("--> pagoOrigen:" + pagoOrigen);
 		
 		// Pagar en Destino
 		Double pagoDestino = pagoDestinoDoubleBox.getValue();
+		if(pagoDestino == null) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Pago en Destino esta vacio");
+			return false;
+		}
 		log.info("--> pagoDestino:" + pagoDestino);
 		
-		log.info("--> storeDestino.size():" + storeDestino.size());
+		if(flete != (acuenta + pagoOrigen + pagoDestino)) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("El Flete debe ser igual a la suma de a cuenta, por pagar en origen y por pagar en el destino");
+			return false;
+		}
 		
-		if(!propietarioValido) 	return false;
-		if(!conductorValido)    return false;
-		if(!origenValido)       return false;
-		if(!destinoValido)      return false;
-		if(multa == null)       return false;
-		if(dias == null)        return false;
-		if(flete == null)       return false;
-		if(acuenta == null)     return false;
-		if(pagoOrigen == null)  return false;
-		if(pagoDestino == null) return false;
-		if(storeDestino.size() == 0) return false;
+//		if(!propietarioValido) 	return false;
+//		if(!conductorValido)    return false;
+//		if(!origenValido)       return false;
+//		if(!destinoValido)      return false;
+//		if(multa == null)       return false;
+//		if(dias == null)        return false;
+//		if(flete == null)       return false;
+//		if(acuenta == null)     return false;
+//		if(pagoOrigen == null)  return false;
+//		if(pagoDestino == null) return false;
+		
+		log.info("--> storeDestino.size():" + storeDestino.size());
+		if(storeDestino.size() == 0) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Elija las guias");
+			return false;
+		}
 		
 		return true;
 	}
