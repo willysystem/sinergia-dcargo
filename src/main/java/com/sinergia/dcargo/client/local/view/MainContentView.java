@@ -35,7 +35,7 @@ import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
-import com.sinergia.dcargo.client.shared.Usuario;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 /**
  * @author Willy Hurtado Vela 
@@ -124,13 +124,13 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    // Liquidaciones
 	    MenuItem cargaLiquidacion = new MenuItem("Liquidación de carga", menuCommand);
 	    MenuItem deudasLiquidacion = new MenuItem("Deudas por cobrar", menuCommand);
-	    MenuItem actualizarNotaEntregaLiquidacion = new MenuItem("Actualizar nota de entrega", menuCommand);
+	    //MenuItem actualizarNotaEntregaLiquidacion = new MenuItem("Actualizar nota de entrega", menuCommand);
 	    
 	    MenuBar liquidacionesMenuBar = new MenuBar(true);
 	    liquidacionesMenuBar.setAnimationEnabled(true);
 	    liquidacionesMenuBar.addItem(cargaLiquidacion);
 	    liquidacionesMenuBar.addItem(deudasLiquidacion);
-	    liquidacionesMenuBar.addItem(actualizarNotaEntregaLiquidacion);
+	    //liquidacionesMenuBar.addItem(actualizarNotaEntregaLiquidacion);
 	    menu.addItem(new MenuItem("Liquidaciones", liquidacionesMenuBar));
 	    
 	    // Caja

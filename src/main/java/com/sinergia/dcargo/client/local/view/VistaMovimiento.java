@@ -5,12 +5,14 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import org.fusesource.restygwt.client.Method;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
@@ -25,41 +27,48 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.sinergia.dcargo.client.local.AdminParametros;
+import com.sinergia.dcargo.client.local.api.LlamadaRemota;
+import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
+import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
 import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
 import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.presenter.PresentadorMovimiento;
-import com.sinergia.dcargo.client.shared.CuentaIngreso;
-import com.sinergia.dcargo.client.shared.Movimiento;
-import com.sinergia.dcargo.client.shared.MovimientoEgreso;
-import com.sinergia.dcargo.client.shared.MovimientoIngreso;
-import com.sinergia.dcargo.client.shared.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
+import com.sinergia.dcargo.client.shared.dominio.Movimiento;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
+import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
 
 @Singleton
 public class VistaMovimiento extends View<Movimiento> implements PresentadorMovimiento.Display {
 	
-	@Inject VistaMovimientoAccion vistaMovimientoAccion; 
-	@Inject MensajeConfirmacion mensageConfirmacion;
-	@Inject MensajeExito mensajeExito;
+	@Inject VistaMovimientoAccion         vistaMovimientoAccion; 
+	@Inject MensajeConfirmacion           mensageConfirmacion;
+	@Inject MensajeExito                  mensajeExito;
+	@Inject MensajeAviso                  mensajeAviso;
 	@Inject ServicioTransportistasCliente servicioTransportista;
-	@Inject AdminParametros adminParametros;
+	@Inject ServicioCuentaCliente         servicioCuenta;
+	@Inject ServicioMovimientoCliente     servicioMovimiento;
+	@Inject AdminParametros               adminParametros;
 	
 	public VistaMovimiento() { super(10); }
 	public VistaMovimiento(int paging) { super(paging); }
 	
 	private ListBox tipoCuentaListBox = new ListBox();
 	
-	private ListBox cuentaListBox = new ListBox();
+	private ListBox cuentaListBox    = new ListBox();
 	private ListBox subCuentaListBox = new ListBox();
 	
 	private DateBox fechaIniDateBox = new DateBox();
 	private DateBox fechaFinDateBox = new DateBox();
 	
-	private HTML       nroGuiaLabel      = new HTML("<b>Nro Guia: </b>");
-	private IntegerBox nroGuiaIntegerBox = new IntegerBox();
+	private HTML       cuentaLabel               = new HTML("<b>Cuenta: </b>");
+	private IntegerBox nroGuiaIntegerBox         = new IntegerBox();
 	private IntegerBox nroConocimientoIntegerBox = new IntegerBox();
-	private Widget     nroIntegerBox     = nroGuiaIntegerBox;
+	private Widget     nroIntegerBox             = nroGuiaIntegerBox;
 	
 	
 	private ListBox estadoListBox = new ListBox();
@@ -108,7 +117,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	    layout.setWidget(0, 5, fechaIniDateBox);
 	    layout.setWidget(1, 4, new HTML("<b>Fecha Final: </b>"));
 	    layout.setWidget(1, 5, fechaFinDateBox);
-	    layout.setWidget(2, 2, nroGuiaLabel);
+	    layout.setWidget(2, 2, cuentaLabel);
 	    layout.setWidget(2, 3, nroIntegerBox);
 	    layout.setWidget(2, 4, new HTML("<b>Estado: </b>"));
 	    layout.setWidget(2, 5, estadoListBox);
@@ -123,7 +132,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 				return entity.getTipoCuenta().name();
 			}
 		};
-		grid.setColumnWidth(tipoColmun, 80, Unit.PX);
+		grid.setColumnWidth(tipoColmun, 30, Unit.PX);
 		grid.addColumn(tipoColmun, "Tipo");
 		
 		// Fecha
@@ -139,58 +148,64 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		grid.addColumn(fechaColmun, "Fecha");
 		
 		// Guia/Conocimiento
-		TextColumn<Movimiento> ciColmun = new TextColumn<Movimiento>() {
+		TextColumn<Movimiento> guiaConocimientoColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
-				if(entity instanceof MovimientoIngreso)
-				   if(((MovimientoIngreso)entity).getGuia() != null){
-					   return ((MovimientoIngreso)entity).getGuia().getNroGuia() + "";
-				   }
-				else {
-					if(((MovimientoEgreso)entity).getConocimiento() != null){
-					   return ((MovimientoEgreso)entity).getConocimiento().getNroConocimiento() + "";
-					}
-				}
-				return "";
+//				if(entity instanceof MovimientoIngreso)
+//				   if(((MovimientoIngreso)entity).getGuia() != null){
+//					   return ((MovimientoIngreso)entity).getGuia().getNroGuia() + "";
+//				   }
+//				else {
+//					if(((MovimientoEgreso)entity).getConocimiento() != null){
+//					   return ((MovimientoEgreso)entity).getConocimiento().getNroConocimiento() + "";
+//					}
+//				}
+				return entity.getNroGuiOrConocimiento();
 			}
 		};
-		grid.setColumnWidth(ciColmun, 40, Unit.PX);
-		grid.addColumn(ciColmun, "");
+		grid.setColumnWidth(guiaConocimientoColmun, 50, Unit.PX);
+		grid.addColumn(guiaConocimientoColmun, "Guia/Conocimiento");
 		
-		// Direccion
+		// Suc cuenta
 		TextColumn<Movimiento> direccionColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
-//				return entity.getDireccion();
-				return null;
+				if(entity.getCuenta() == null) {
+					return "";
+				}
+				return entity.getCuenta().getNroCuenta() + " - " + entity.getCuenta().getDescripcion();
 			}
 		};
 		grid.setColumnWidth(direccionColmun, 80, Unit.PX);
-		grid.addColumn(direccionColmun, "Dirección");
+		grid.addColumn(direccionColmun, "Sub Cuenta");
 		
-		// Telefono
+		// Monto
 		TextColumn<Movimiento> telefonoColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
-//				return entity.getTelefono();
-				return null;
+				if(entity.getMonto() == null) {
+					return "";
+				}
+				String formatted = NumberFormat.getFormat("0.00").format(entity.getMonto());				
+				return formatted;
 			}
 		};
 		grid.setColumnWidth(telefonoColmun, 40, Unit.PX);
-		grid.addColumn(telefonoColmun, "Teléfono");
+		grid.addColumn(telefonoColmun, "Monto");
 		
-		// Placa
+		// Origen
 		TextColumn<Movimiento> placaColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
+				
 //				return entity.getPlaca();
 				return null;
 			}
 		};
 		grid.setColumnWidth(placaColmun, 40, Unit.PX);
-		grid.addColumn(placaColmun, "Placa");
+		grid.addColumn(placaColmun, "Origen");
 		
-		// Marca
+		// Destino
 		TextColumn<Movimiento> marcaColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
@@ -199,30 +214,30 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 			}
 		};
 		grid.setColumnWidth(marcaColmun, 40, Unit.PX);
-		grid.addColumn(marcaColmun, "Marca");
+		grid.addColumn(marcaColmun, "Destino");
 		
-		// Color
-		TextColumn<Movimiento> colorColmun = new TextColumn<Movimiento>() {
-			@Override
-			public String getValue(Movimiento entity) {
-//				return entity.getColor();
-				return null;
-			}
-		};
-		grid.setColumnWidth(colorColmun, 40, Unit.PX);
-		grid.addColumn(colorColmun, "Color");
+//		// Color
+//		TextColumn<Movimiento> colorColmun = new TextColumn<Movimiento>() {
+//			@Override
+//			public String getValue(Movimiento entity) {
+////				return entity.getColor();
+//				return null;
+//			}
+//		};
+//		grid.setColumnWidth(colorColmun, 40, Unit.PX);
+//		grid.addColumn(colorColmun, "Color");
 		
 		// Vecino de
 		TextColumn<Movimiento> vecinoColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
 //				return entity.getVecino_de();
-				return null;
+				return entity.getEstadoDescripcion();
 			}
 			
 		};
 		grid.setColumnWidth(vecinoColmun, 40, Unit.PX);
-		grid.addColumn(vecinoColmun, "Vecino de");
+		grid.addColumn(vecinoColmun, "Estado");
 		
 		grid.setWidth("1000px");
 		grid.setHeight("350px");
@@ -263,12 +278,12 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 			Movimiento transportista = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
 			log.info("Transportista: " + transportista);
 			if(transportista == null){
-				new MensajeAviso("Seleccione un Transportista").show();
+				mensajeAviso.mostrar("Seleccione un movimiento");
 			} else {
 				//vistaTransportistaAccion.mostrar(TransportistaAccion.CONSULTAR, transportista);
 			}
 		});
-		nuevoBtn.addClickHandler(e->vistaMovimientoAccion.mostrar(TransportistaAccion.NUEVO, null));
+		nuevoBtn.addClickHandler(e->vistaMovimientoAccion.mostrar(MovimientoAccion.NUEVO, null));
 		modificarBtn.addClickHandler(e->{
 			Movimiento Transportista = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
 			log.info("Transportista: " + Transportista);
@@ -301,6 +316,8 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		});
 		salirBtn.addClickHandler(e -> Window.Location.assign(GWT.getHostPageBaseURL()));
 		
+		implementarEscuchadores();
+		
 		cargarDatosIniciales();
 	}
 
@@ -326,6 +343,8 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 
 	@Override
 	public Movimiento getParametrosBusqueda() {
+		log.info("getParametrosBusqueda()");
+		
 		Movimiento t = new Movimiento();
 //		t.setNombre(nombresTextField.getValue());
 //		t.setDireccion(direccionTextField.getValue());
@@ -335,22 +354,106 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 //		t.setColor(colorTextField.getValue());
 //		t.setVecino_de(vecinoTextField.getValue());
 //		t.setCi(ciTextField.getValue());
+		t.setEstado(estadoListBox.getSelectedValue().equals("Todos")?null:estadoListBox.getSelectedValue().charAt(0));
+		
 		return t;
 	}
 	
+	private void implementarEscuchadores(){
+		
+		tipoCuentaListBox.addChangeHandler(e -> {
+			log.info("Tipo Cuenta  : " + tipoCuentaListBox.getSelectedValue());
+			if(tipoCuentaListBox.getSelectedValue() == null) return ;
+			
+			if(tipoCuentaListBox.getSelectedValue().equals("Todos")){
+				tipoCuentaListBox.clear();
+				tipoCuentaListBox.addItem("Todos", "Todos");
+				tipoCuentaListBox.addItem(TipoCuenta.INGRESO.name(), TipoCuenta.INGRESO.name());
+				tipoCuentaListBox.addItem(TipoCuenta.EGRESO.name(), TipoCuenta.EGRESO.name());
+				
+				cuentaListBox.clear();
+				cuentaListBox.addItem("Todos", "0");
+				subCuentaListBox.clear();
+				subCuentaListBox.addItem("Todos", "0");
+				return ;
+			}
+				
+			if(tipoCuentaListBox.getSelectedValue().equals(TipoCuenta.INGRESO.name())) 
+				cargarDatosCuentaIngresoListBox();
+			else
+				cargarDatosCuentaEgresoListBox();
+			
+			subCuentaListBox.clear();
+			subCuentaListBox.addItem("Todos", "0");
+		});
+		cuentaListBox.addChangeHandler(e -> {
+			log.info("Cuenta: " + cuentaListBox.getSelectedValue());
+			if(cuentaListBox.getSelectedValue() == null) return ;
+			
+			cargarDatosSubCuentaListBox();
+		});
+	}
+	
+	
+	
 	private void cargarDatosIniciales() {
 		tipoCuentaListBox.clear();
+		tipoCuentaListBox.addItem("Todos", "Todos");
 		tipoCuentaListBox.addItem(TipoCuenta.INGRESO.name(), TipoCuenta.INGRESO.name());
 		tipoCuentaListBox.addItem(TipoCuenta.EGRESO.name(), TipoCuenta.EGRESO.name());
-		tipoCuentaListBox.setItemSelected(0, true);
 		
+		cuentaListBox.addItem("Todos", "0");
+		subCuentaListBox.clear();
+		subCuentaListBox.addItem("Todos", "0");
+
+		servicioMovimiento.getEstados(new LlamadaRemota<List<String>>("No se puede obtener estados", true) {
+			@Override
+			public void onSuccess(Method method, List<String> response) {
+				estadoListBox.clear();
+				estadoListBox.addItem("Todos");
+				response.forEach(e -> estadoListBox.addItem(e));
+			}
+		});
+		
+	}
+	
+	private void cargarDatosCuentaIngresoListBox() {
 		cuentaListBox.clear();
+		cuentaListBox.addItem("Todos","0");
 		List<CuentaIngreso> cuentasIngreso = adminParametros.getCuentasIngreso();
+		log.info("cuentasIngreso.size(): " + cuentasIngreso.size());
 		for (CuentaIngreso c: cuentasIngreso) {
 			cuentaListBox.addItem(c.getNroCuenta() + " - " + c.getDescripcion(), c.getId()+"");
 		}
+	}
+	
+	private void cargarDatosCuentaEgresoListBox() {
+		cuentaListBox.clear();
+		cuentaListBox.addItem("Todos","0");
+		List<CuentaEgreso> cuentasEgreso = adminParametros.getCuentasEgreso();
+		for (CuentaEgreso c: cuentasEgreso) {
+			cuentaListBox.addItem(c.getNroCuenta() + " - " + c.getDescripcion(), c.getId()+"");
+		}
 		cuentaListBox.setItemSelected(0, true);
-		
+	}
+	
+	private void cargarDatosSubCuentaListBox(){
+		Long id = Long.parseLong(cuentaListBox.getSelectedValue());
+		if(id == 0) {
+			subCuentaListBox.clear();
+			subCuentaListBox.addItem("Todos", "0");
+			return ;
+		} 
+		servicioCuenta.getSubCuentasIngreso(id, new LlamadaRemota<List<CuentaIngreso>>("No se puede obtener subcuentas", false) {
+			@Override
+			public void onSuccess(Method method, List<CuentaIngreso> response) {
+				subCuentaListBox.clear();
+				subCuentaListBox.addItem("Todos", "0");
+				for (CuentaIngreso cuentaIngreso: response) {
+					subCuentaListBox.addItem(cuentaIngreso.getNroCuenta() + " - " + cuentaIngreso.getDescripcion(), cuentaIngreso.getId() + "");
+				}
+			}
+		});
 	}
 	
 }

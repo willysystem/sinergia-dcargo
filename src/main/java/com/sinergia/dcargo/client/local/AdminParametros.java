@@ -1,6 +1,7 @@
 package com.sinergia.dcargo.client.local;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -22,15 +23,16 @@ import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Carga;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.CuentaEgreso;
-import com.sinergia.dcargo.client.shared.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.DateParam;
-import com.sinergia.dcargo.client.shared.Oficina;
-import com.sinergia.dcargo.client.shared.Precio;
-import com.sinergia.dcargo.client.shared.Transportista;
-import com.sinergia.dcargo.client.shared.Unidad;
-import com.sinergia.dcargo.client.shared.Usuario;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
+import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Precio;
+import com.sinergia.dcargo.client.shared.dominio.Transportista;
+import com.sinergia.dcargo.client.shared.dominio.Unidad;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Singleton
 public class AdminParametros {
@@ -226,6 +228,14 @@ public class AdminParametros {
 	public Cliente buscarClientePorNombre(String nombre){
 		for (Cliente cliente : clientes) {
 			if(cliente.getNombre().equals(nombre))
+				return cliente;
+		}
+		return null;
+	}
+	
+	public Cliente buscarClientePorId(Long id){
+		for (Cliente cliente : clientes) {
+			if(cliente.getId() == id )
 				return cliente;
 		}
 		return null;

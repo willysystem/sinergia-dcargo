@@ -14,8 +14,8 @@ import javax.ws.rs.QueryParam;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
-import com.sinergia.dcargo.client.shared.Cliente;
 import com.sinergia.dcargo.client.shared.Resultado;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
 
 @Path("/rest/cliente")
 public interface ServicioClienteCliente extends RestService {

@@ -18,7 +18,7 @@ import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
-import com.sinergia.dcargo.client.shared.Usuario;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Singleton
 public class PresentadorCambioContrasenia implements Presenter {

@@ -13,10 +13,10 @@ import javax.ws.rs.QueryParam;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
-import com.sinergia.dcargo.client.shared.CuentaEgreso;
-import com.sinergia.dcargo.client.shared.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.Resultado;
-import com.sinergia.dcargo.client.shared.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
+import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
 
 @Path("/rest/cuentas")
 public interface ServicioCuentaCliente extends RestService {

@@ -20,8 +20,8 @@ import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
 import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.Transportista;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.Transportista;
 
 @Singleton
 public class PresentadorTransportistas implements Presenter {

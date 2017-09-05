@@ -10,7 +10,7 @@ import javax.ws.rs.Produces;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
-import com.sinergia.dcargo.client.shared.Unidad;
+import com.sinergia.dcargo.client.shared.dominio.Unidad;
 
 @Path("/rest/unidad")
 public interface ServicioUnidadCliente extends RestService {

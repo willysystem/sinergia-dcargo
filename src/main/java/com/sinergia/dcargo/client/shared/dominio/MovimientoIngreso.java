@@ -1,5 +1,6 @@
-package com.sinergia.dcargo.client.shared;
+package com.sinergia.dcargo.client.shared.dominio;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * @generated
@@ -17,6 +18,7 @@ public class MovimientoIngreso extends Movimiento implements
 	 * @generated
 	 */
 	@javax.persistence.ManyToOne
+	@JsonIgnore
 	private Guia guia;
 
 	/**

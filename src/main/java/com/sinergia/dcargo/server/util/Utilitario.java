@@ -5,11 +5,11 @@ import java.util.List;
 
 import org.modelmapper.ModelMapper;
 
-import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.Item;
-import com.sinergia.dcargo.client.shared.Precio;
-import com.sinergia.dcargo.client.shared.Transportista;
-import com.sinergia.dcargo.client.shared.Unidad;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.Item;
+import com.sinergia.dcargo.client.shared.dominio.Precio;
+import com.sinergia.dcargo.client.shared.dominio.Transportista;
+import com.sinergia.dcargo.client.shared.dominio.Unidad;
 
 public class Utilitario {
 	

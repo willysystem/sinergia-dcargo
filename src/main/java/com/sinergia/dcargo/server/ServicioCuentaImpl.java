@@ -10,12 +10,12 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import com.sinergia.dcargo.client.shared.Cuenta;
-import com.sinergia.dcargo.client.shared.CuentaEgreso;
-import com.sinergia.dcargo.client.shared.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.Resultado;
 import com.sinergia.dcargo.client.shared.ServicioCuenta;
-import com.sinergia.dcargo.client.shared.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
+import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
+import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
 import com.sinergia.dcargo.server.dao.Dao;
 
 /**

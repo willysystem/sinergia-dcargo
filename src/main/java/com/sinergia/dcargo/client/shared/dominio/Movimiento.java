@@ -1,8 +1,8 @@
-package com.sinergia.dcargo.client.shared;
+package com.sinergia.dcargo.client.shared.dominio;
 
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-
+import javax.persistence.Transient;
 
 /**
  * @generated
@@ -74,6 +74,15 @@ public class Movimiento implements java.io.Serializable {
 	 */
 	@javax.persistence.Transient
 	private Integer nro;
+	
+	@Transient
+	private String nroGuiOrConocimiento;
+	
+	@Transient
+	public String origen;
+	
+	@Transient
+	public String destino;
 
 	/**
 	 * @generated
@@ -260,4 +269,31 @@ public class Movimiento implements java.io.Serializable {
 	public void setNro(Integer nro) {
 		this.nro = nro;
 	}
+
+	public String getNroGuiOrConocimiento() {
+		return nroGuiOrConocimiento;
+	}
+
+	public void setNroGuiOrConocimiento(String nroGuiOrConocimiento) {
+		this.nroGuiOrConocimiento = nroGuiOrConocimiento;
+	}
+
+	public String getOrigen() {
+		return origen;
+	}
+
+	public void setOrigen(String origen) {
+		this.origen = origen;
+	}
+
+	public String getDestino() {
+		return destino;
+	}
+
+	public void setDestino(String destino) {
+		this.destino = destino;
+	}
+	
+	
+	
 }

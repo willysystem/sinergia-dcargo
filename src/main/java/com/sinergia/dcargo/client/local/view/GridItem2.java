@@ -57,12 +57,11 @@ import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioItemCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
-import com.sinergia.dcargo.client.shared.Guia;
-import com.sinergia.dcargo.client.shared.Item;
-import com.sinergia.dcargo.client.shared.Precio;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
-import com.sinergia.dcargo.client.shared.Unidad;
-
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.Item;
+import com.sinergia.dcargo.client.shared.dominio.Precio;
+import com.sinergia.dcargo.client.shared.dominio.Unidad;
 import com.sencha.gxt.widget.core.client.grid.SummaryType.SumSummaryType;
 @Singleton
 public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidget {

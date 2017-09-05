@@ -1,4 +1,4 @@
-package com.sinergia.dcargo.client.local;
+package com.sinergia.dcargo.client.shared.dto;
 
 
 /**

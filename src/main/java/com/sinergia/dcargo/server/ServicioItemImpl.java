@@ -9,9 +9,9 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import com.sinergia.dcargo.client.shared.Guia;
-import com.sinergia.dcargo.client.shared.Item;
 import com.sinergia.dcargo.client.shared.ServicioItem;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.Item;
 import com.sinergia.dcargo.server.dao.Dao;
 import com.sinergia.dcargo.server.util.Utilitario;
 

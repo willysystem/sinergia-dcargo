@@ -29,7 +29,7 @@ import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.presenter.PresentadorTransportistas;
-import com.sinergia.dcargo.client.shared.Transportista;
+import com.sinergia.dcargo.client.shared.dominio.Transportista;
 
 @Singleton
 public class VistaTransportista extends View<Transportista> implements PresentadorTransportistas.Display {

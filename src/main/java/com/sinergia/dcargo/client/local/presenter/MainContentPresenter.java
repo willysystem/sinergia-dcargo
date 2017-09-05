@@ -15,7 +15,7 @@ import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.shared.DateParam;
-import com.sinergia.dcargo.client.shared.Usuario;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Singleton
 public class MainContentPresenter implements Presenter {

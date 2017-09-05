@@ -14,7 +14,7 @@ import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
 import com.sinergia.dcargo.client.shared.DateParam;
-import com.sinergia.dcargo.client.shared.Usuario;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Path("/rest/user")
 public interface ServicioUsuarioCliente extends RestService {

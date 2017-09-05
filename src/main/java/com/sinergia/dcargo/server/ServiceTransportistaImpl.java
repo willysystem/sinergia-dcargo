@@ -11,7 +11,7 @@ import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
 import com.sinergia.dcargo.client.shared.ServicioTransportista;
-import com.sinergia.dcargo.client.shared.Transportista;
+import com.sinergia.dcargo.client.shared.dominio.Transportista;
 import com.sinergia.dcargo.client.shared.Resultado;
 import com.sinergia.dcargo.server.dao.Dao;
 import com.sinergia.dcargo.server.util.Utilitario;

@@ -25,8 +25,8 @@ import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioClienteCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
-import com.sinergia.dcargo.client.shared.Cliente;
 import com.sinergia.dcargo.client.shared.Resultado;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
 
 @Singleton
 public class VistaClienteAccion extends DialogBox {

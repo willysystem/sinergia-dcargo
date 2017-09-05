@@ -27,6 +27,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+
 /**
  * @author willy
  */

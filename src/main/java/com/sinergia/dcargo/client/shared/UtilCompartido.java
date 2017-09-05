@@ -3,8 +3,11 @@ package com.sinergia.dcargo.client.shared;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.sinergia.dcargo.client.local.CuentaEgresoTO;
-import com.sinergia.dcargo.client.local.CuentaIngresoTO;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
+import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
+import com.sinergia.dcargo.client.shared.dto.CuentaEgresoTO;
+import com.sinergia.dcargo.client.shared.dto.CuentaIngresoTO;
 
 public class UtilCompartido {
 	

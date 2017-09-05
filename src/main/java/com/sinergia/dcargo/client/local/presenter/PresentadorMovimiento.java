@@ -19,7 +19,7 @@ import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.shared.Movimiento;
+import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 
 @Singleton
 public class PresentadorMovimiento implements Presenter {

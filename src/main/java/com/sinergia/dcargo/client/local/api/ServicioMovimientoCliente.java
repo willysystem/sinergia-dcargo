@@ -13,8 +13,10 @@ import javax.ws.rs.QueryParam;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
-import com.sinergia.dcargo.client.shared.Movimiento;
-import com.sinergia.dcargo.client.shared.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dominio.Movimiento;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
+import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
 
 @Path("/rest/movimiento")
 public interface ServicioMovimientoCliente extends RestService {
@@ -32,8 +34,14 @@ public interface ServicioMovimientoCliente extends RestService {
 	 @PUT
 	 @Produces("application/json")
 	 @Consumes("application/json")
-	 @Path("/nuevGuia")
-	 void nuevoMovimiento(TipoCuenta tipoCuenta, MethodCallback<Movimiento> call);
+	 @Path("/nuevoMovimientoIngreso")
+	 void nuevoMovimientoIngreso(MethodCallback<MovimientoIngreso> call);
+	 
+	 @PUT
+	 @Produces("application/json")
+	 @Consumes("application/json")
+	 @Path("/nuevoMovimientoEgreso")
+	 void nuevoMovimientoEgreso(MethodCallback<MovimientoEgreso> call);
 	  
 	 @PUT
 	 @Consumes("application/json")

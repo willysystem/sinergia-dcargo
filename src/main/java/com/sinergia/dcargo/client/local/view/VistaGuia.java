@@ -1,15 +1,19 @@
 package com.sinergia.dcargo.client.local.view;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import org.fusesource.restygwt.client.Method;
+import org.fusesource.restygwt.client.MethodCallback;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -21,8 +25,10 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
@@ -32,16 +38,18 @@ import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.view.client.SelectionChangeEvent;
 import com.google.gwt.view.client.SelectionChangeEvent.Handler;
 import com.google.gwt.view.client.SingleSelectionModel;
+import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
+import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
 import com.sinergia.dcargo.client.local.presenter.PresentadorGuia;
-import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.EstadoGuia;
-import com.sinergia.dcargo.client.shared.Guia;
-import com.sinergia.dcargo.client.shared.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
 
 @Singleton
 public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
@@ -55,17 +63,20 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	@Inject
 	private Cargador cargador;
 	
-	@Inject
-	private MensajeExito mensajeExito;
-	
-	@Inject
-	private MensajeAviso mensajeAviso;
+	@Inject	private MensajeExito mensajeExito;
+	@Inject private MensajeAviso mensajeAviso;
+	@Inject private MensajeError mensajeError;
 	
 	@Inject
 	private ServicioGuiaCliente servicioGuia;
 	
 	@Inject
 	private ImprimirPDF imprimirPDF;
+	
+	@Inject
+	private AdminParametros adminParametros;
+	
+	private VistaElegirGuiaDialogBox vistaElegirGuiaDialogBox;
 	
 	private MultiWordSuggestOracle clienteOracle = new MultiWordSuggestOracle();
 	private MultiWordSuggestOracle oficinaOracle = new MultiWordSuggestOracle();
@@ -96,6 +107,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private Button entregaBtn = new Button("Entrega");
 	private Button salirBtn = new Button("Salir");
 	
+	private Button seleccionBtn = new Button("Seleccion");
+	private Button salirSelecionBtn = new Button("Salir");
+	
 	public VistaGuia() {
 		super(10);
 	}
@@ -106,7 +120,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	
 	@SuppressWarnings("deprecation")
 	@Override
-	public void viewIU() {
+	public IsWidget viewIU(boolean esDialogBox) {
 		
 		nroFacturaOrigenTextBox.addValueChangeHandler(new ValueChangeHandler<String>() {
 			@Override
@@ -325,17 +339,36 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		horizontalPanelButton.add(salirBtn);
 		horizontalPanel.add(horizontalPanelButton);
 		
+		/// ACCION para seleccionar
+		HorizontalPanel horizontalPanelSelect = new HorizontalPanel();
+		horizontalPanelSelect.setWidth("100%");
+		horizontalPanelSelect.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		
+		HorizontalPanel horizontalPanelButtonSelect = new HorizontalPanel();
+		horizontalPanelButtonSelect.setSpacing(5);
+		horizontalPanelButtonSelect.add(seleccionBtn);
+		horizontalPanelButtonSelect.add(salirSelecionBtn);
+		horizontalPanelSelect.add(horizontalPanelButtonSelect);
+		
+		// Layout general
 		DockPanel dock = new DockPanel();
 		dock.setWidth("100%");
 		dock.setHeight("100%");
 		dock.add(vpNorte, DockPanel.NORTH);
 		dock.add(vpGrid, DockPanel.CENTER);
-		dock.add(horizontalPanel, DockPanel.SOUTH);
 		
-		mainContentView.getCentralPanel().add(dock);
+		if(esDialogBox) dock.add(horizontalPanelSelect, DockPanel.SOUTH);
+		else            dock.add(horizontalPanel, DockPanel.SOUTH);
 		
 		cargarEstadosListBox();
 		implementarAcciones();
+		
+		if(esDialogBox) {
+			accionPresentador();
+			return dock;
+		} else mainContentView.getCentralPanel().add(dock);
+		
+		return null;
 		
 	}
 	
@@ -467,6 +500,12 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		imprimirBtn.setEnabled(true);
 		entregaBtn.setEnabled(false);
 		
+		
+		salirSelecionBtn.addClickHandler(e -> {
+			vistaElegirGuiaDialogBox.hide();
+		});
+		
+		
 	}
 	
 	private void cargarEstadosListBox() {
@@ -482,6 +521,65 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 				estadoListBox.setSelectedIndex(2);
 			}
 		});
+	}
+	
+	private void accionPresentador() {
+		log.info(this.getClass().getSimpleName() + ".go()" );
+		//viewIU(false);
+		
+		List<Cliente> clientes = adminParametros.getClientes();
+		log.info("clientes.size: " + clientes.size());
+		List<String> palabras = new ArrayList<>();
+		for (Cliente cli : clientes) {
+			palabras.add(cli.getNombre());
+		}
+		fijarOracleParaClientes(palabras);
+		
+		List<Oficina> oficinas = adminParametros.getOficinas();
+		log.info("oficinas.size: " + oficinas.size());
+		List<String> palabras1 = new ArrayList<>();
+		for (Oficina oficina : oficinas) {
+			palabras1.add(oficina.getNombre());
+		}
+		fijarOracleParaOficina(palabras1);
+		
+		buscarBtn.addClickHandler(new ClickHandler() {
+			@Override
+			public void onClick(ClickEvent event) {
+				Guia guia = getParametrosBusqueda();
+				log.info("guia parametro búsqueda: "+ guia);
+				//PresentadorGuia.this.cargador.center();
+				servicioGuia.buscarGuias(guia, new MethodCallback<List<Guia>>() {
+					@Override
+					public void onFailure(Method method, Throwable exception) {
+						log.info("Error al traer Guias: " + exception.getMessage());
+						//cargador.hide();
+						mensajeError.mostrar("Error al traer Guias: ", exception);
+					}
+					@Override
+					public void onSuccess(Method method, List<Guia> response) {
+						log.info("response: " + response);
+						showGuiaData(response);
+						cargador.hide();
+						
+					}
+				});
+			}
+		});
+
+	}
+	
+	int i = 1;
+	private void showGuiaData(List<Guia> guias) {
+		for (Guia guia: guias) {
+			guia.setNro(i++);
+		}
+		i = 1;
+		cargarDataUI(guias);
+	}
+	
+	public void setVistaElegirGuiaDialogBox(VistaElegirGuiaDialogBox vistaElegirGuiaDialogBox) {
+		this.vistaElegirGuiaDialogBox = vistaElegirGuiaDialogBox;
 	}
 	
 }

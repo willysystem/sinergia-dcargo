@@ -28,6 +28,10 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
+import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+
 /**
  * @author willy
  */

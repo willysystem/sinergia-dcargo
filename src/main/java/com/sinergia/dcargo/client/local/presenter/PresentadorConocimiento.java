@@ -17,12 +17,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.ServicioConocimientoCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.shared.Conocimiento;
-import com.sinergia.dcargo.client.shared.Transportista;
+import com.sinergia.dcargo.client.local.view.VistaElegirConocimientoDialogBox;
+import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
+import com.sinergia.dcargo.client.shared.dominio.Transportista;
 
 @Singleton
 public class PresentadorConocimiento implements Presenter {
@@ -46,11 +48,12 @@ public class PresentadorConocimiento implements Presenter {
 	
 	public interface Display {
 		
-		void viewIU();
+		IsWidget viewIU(boolean esDialogBox);
 		HasClickHandlers getBuscarButton();
 		void cargarDataUI(List<Conocimiento> conocimientos);
 		Conocimiento getParametrosBusqueda();
 		void fijarOracleParaTransportistas(List<String> palabras);
+		public void setVistaElegirConocimientoDialogBox(VistaElegirConocimientoDialogBox VistaElegirConocimientoDialogBox);
 		
 	}
 	
@@ -71,7 +74,7 @@ public class PresentadorConocimiento implements Presenter {
 	@Override
 	public void go(HasWidgets container) {
 		log.info(this.getClass().getSimpleName() + ".go()" );
-		display.viewIU();
+		display.viewIU(false);
 		log.info(this.getClass().getSimpleName() + ".go()2" );
 		
 		transportistas = adminParametros.getTransportistas();

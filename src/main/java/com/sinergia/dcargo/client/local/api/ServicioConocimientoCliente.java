@@ -15,10 +15,10 @@ import javax.ws.rs.QueryParam;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
-import com.sinergia.dcargo.client.shared.Conocimiento;
-import com.sinergia.dcargo.client.shared.EstadoGuia;
-import com.sinergia.dcargo.client.shared.Guia;
 import com.sinergia.dcargo.client.shared.Resultado;
+import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
+import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
 
 @Path("/rest/conocimiento")
 public interface ServicioConocimientoCliente extends RestService {

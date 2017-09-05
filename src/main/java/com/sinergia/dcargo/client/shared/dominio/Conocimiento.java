@@ -1,4 +1,4 @@
-package com.sinergia.dcargo.client.shared;
+package com.sinergia.dcargo.client.shared.dominio;
 
 import javax.persistence.TemporalType;
 

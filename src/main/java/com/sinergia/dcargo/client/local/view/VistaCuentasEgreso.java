@@ -36,16 +36,16 @@ import com.sencha.gxt.widget.core.client.selection.SelectionChangedEvent.Selecti
 import com.sencha.gxt.widget.core.client.toolbar.ToolBar;
 import com.sencha.gxt.widget.core.client.treegrid.TreeGrid;
 import com.sinergia.dcargo.client.local.AdminParametros;
-import com.sinergia.dcargo.client.local.CuentaEgresoTO;
-import com.sinergia.dcargo.client.local.CuentaTO;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
-import com.sinergia.dcargo.client.shared.CuentaEgreso;
-import com.sinergia.dcargo.client.shared.TipoCuenta;
 import com.sinergia.dcargo.client.shared.UtilCompartido;
+import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dto.CuentaEgresoTO;
+import com.sinergia.dcargo.client.shared.dto.CuentaTO;
 
 /**
  * 

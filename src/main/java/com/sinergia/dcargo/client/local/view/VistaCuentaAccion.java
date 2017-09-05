@@ -23,18 +23,18 @@ import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HTML;
 import com.sinergia.dcargo.client.local.AdminParametros;
-import com.sinergia.dcargo.client.local.CuentaEgresoTO;
-import com.sinergia.dcargo.client.local.CuentaIngresoTO;
-import com.sinergia.dcargo.client.local.CuentaTO;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
-import com.sinergia.dcargo.client.shared.Cuenta;
-import com.sinergia.dcargo.client.shared.CuentaEgreso;
-import com.sinergia.dcargo.client.shared.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.Resultado;
-import com.sinergia.dcargo.client.shared.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
+import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
+import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
+import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dto.CuentaEgresoTO;
+import com.sinergia.dcargo.client.shared.dto.CuentaIngresoTO;
+import com.sinergia.dcargo.client.shared.dto.CuentaTO;
 
 /**
  * @author Willy

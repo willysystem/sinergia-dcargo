@@ -1,19 +1,12 @@
-package com.sinergia.dcargo.client.shared;
+package com.sinergia.dcargo.client.shared.dominio;
 
-import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
-import com.sencha.gxt.data.shared.TreeStore;
-import com.sencha.gxt.data.shared.TreeStore.TreeNode;
 
 /**
  * @generated
@@ -21,9 +14,6 @@ import com.sencha.gxt.data.shared.TreeStore.TreeNode;
 @Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 @javax.persistence.Entity
 @Table(name="cuenta") 
-//@JsonIdentityInfo(
-//		  generator = ObjectIdGenerators.PropertyGenerator.class, 
-//		  property = "id")
 public class Cuenta implements java.io.Serializable/*, TreeStore.TreeNode<Cuenta>*/ {
 	/**
 	 * @generated

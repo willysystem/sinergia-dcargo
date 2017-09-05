@@ -30,7 +30,7 @@ import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.presenter.PresentadorClientes;
-import com.sinergia.dcargo.client.shared.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
 
 @Singleton
 public class VistaCliente extends View<Cliente> implements PresentadorClientes.Display {

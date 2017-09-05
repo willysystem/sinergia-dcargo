@@ -11,8 +11,8 @@ import javax.ws.rs.Produces;
 import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
-import com.sinergia.dcargo.client.shared.Guia;
-import com.sinergia.dcargo.client.shared.Item;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.Item;
 
 @Path("/rest/item")
 public interface ServicioItemCliente extends RestService {

@@ -26,6 +26,11 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import com.sinergia.dcargo.client.shared.dominio.Movimiento;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
+import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+
 /**
  * @author willy
  */
@@ -41,13 +46,19 @@ public interface ServicioMovimiento {
   @Path("/buscarMovimientos")
   @Produces("application/json")
   @Consumes("application/json")
-  List<Movimiento> buscarMovimientos(Movimiento cliente);
+  List<Movimiento> buscarMovimientos(Movimiento cliente) throws Exception ;
   
   @PUT
   @Produces("application/json")
   @Consumes("application/json")
-  @Path("/nuevGuia")
-  Movimiento nuevoMovimiento(TipoCuenta tipoCuenta) throws Exception;
+  @Path("/nuevoMovimientoIngreso")
+  MovimientoIngreso nuevoMovimientoIngreso() throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Consumes("application/json")
+  @Path("/nuevoMovimientoEgreso")
+  MovimientoEgreso nuevoMovimientoEgreso() throws Exception;
   
   @PUT
   @Consumes("application/json")

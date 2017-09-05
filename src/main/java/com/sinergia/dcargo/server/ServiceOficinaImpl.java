@@ -10,8 +10,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 
-import com.sinergia.dcargo.client.shared.Oficina;
 import com.sinergia.dcargo.client.shared.OficinaServicio;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.server.dao.Dao;
 
 @Stateless

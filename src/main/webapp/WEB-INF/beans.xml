@@ -181,6 +181,7 @@
     <exclude name = "com.sinergia.dcargo.client.local.view.FlexTableForm" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VerticalPanelEx" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaConocimientoAccion$GuiaPropiedad" />
+    <exclude name = "com.sinergia.dcargo.client.local.view.VistaElegirGuiaDialogBox" />
     
     
     <exclude name = "com.sinergia.dcargo.client.local.message.MensajeConfirmacion" />

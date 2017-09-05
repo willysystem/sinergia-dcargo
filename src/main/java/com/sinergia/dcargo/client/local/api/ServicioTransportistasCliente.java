@@ -15,7 +15,7 @@ import org.fusesource.restygwt.client.MethodCallback;
 import org.fusesource.restygwt.client.RestService;
 
 import com.sinergia.dcargo.client.shared.Resultado;
-import com.sinergia.dcargo.client.shared.Transportista;
+import com.sinergia.dcargo.client.shared.dominio.Transportista;
 
 @Path("/rest/transportistas")
 public interface ServicioTransportistasCliente extends RestService {

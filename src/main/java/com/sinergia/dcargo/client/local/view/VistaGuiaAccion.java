@@ -31,10 +31,10 @@ import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
-import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.Guia;
-import com.sinergia.dcargo.client.shared.Item;
-import com.sinergia.dcargo.client.shared.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.Item;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HTML;
 

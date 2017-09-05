@@ -23,14 +23,14 @@ import org.slf4j.Logger;
 
 import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
-import com.sinergia.dcargo.client.shared.Unidad;
-import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.EstadoGuia;
-import com.sinergia.dcargo.client.shared.Guia;
-import com.sinergia.dcargo.client.shared.Item;
-import com.sinergia.dcargo.client.shared.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.Item;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Precio;
+import com.sinergia.dcargo.client.shared.dominio.Unidad;
 import com.sinergia.dcargo.client.shared.OficinaServicio;
-import com.sinergia.dcargo.client.shared.Precio;
 import com.sinergia.dcargo.server.dao.Dao;
 
 /**

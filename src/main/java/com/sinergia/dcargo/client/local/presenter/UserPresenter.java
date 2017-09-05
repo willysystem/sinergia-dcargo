@@ -24,8 +24,8 @@ import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.shared.Oficina;
-import com.sinergia.dcargo.client.shared.Usuario;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Singleton
 public class UserPresenter implements Presenter {

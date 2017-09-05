@@ -8,7 +8,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import com.sinergia.dcargo.client.shared.ServicioUnidad;
-import com.sinergia.dcargo.client.shared.Unidad;
+import com.sinergia.dcargo.client.shared.dominio.Unidad;
 import com.sinergia.dcargo.server.dao.Dao;
 import com.sinergia.dcargo.server.util.Utilitario;
 

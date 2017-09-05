@@ -1,7 +1,4 @@
-package com.sinergia.dcargo.client.shared;
-
-import com.fasterxml.jackson.annotation.JsonIdentityInfo;
-import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+package com.sinergia.dcargo.client.shared.dominio;
 
 /**
  * @generated

@@ -22,8 +22,8 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.sinergia.dcargo.client.local.presenter.UserPresenter;
-import com.sinergia.dcargo.client.shared.Oficina;
-import com.sinergia.dcargo.client.shared.Usuario;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 /**
  * @author willy

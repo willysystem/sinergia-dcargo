@@ -17,13 +17,15 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.shared.Cliente;
-import com.sinergia.dcargo.client.shared.Guia;
-import com.sinergia.dcargo.client.shared.Oficina;
+import com.sinergia.dcargo.client.local.view.VistaElegirGuiaDialogBox;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
 
 @Singleton
 public class PresentadorGuia implements Presenter {
@@ -48,19 +50,18 @@ public class PresentadorGuia implements Presenter {
 
     List<Cliente> clientes = null;
 	List<Oficina> oficinas = null;
-	
-	
+		
 	public interface Display {
 		
-		void viewIU();
+		IsWidget viewIU(boolean esDialogBox);
 		HasClickHandlers getBuscarButton();
 		void cargarDataUI(List<Guia> clientes);
 		Guia getParametrosBusqueda();
 		void fijarOracleParaClientes(List<String> palabras);
 		void fijarOracleParaOficina(List<String> palabras);
-		
+        void setVistaElegirGuiaDialogBox(VistaElegirGuiaDialogBox vistaElegirGuiaDialogBox);
+        
 	}
-	
 	
 	public PresentadorGuia() {
 		GWT.log(this.getClass().getSimpleName() + "()");
@@ -79,7 +80,7 @@ public class PresentadorGuia implements Presenter {
 	@Override
 	public void go(HasWidgets container) {
 		log.info(this.getClass().getSimpleName() + ".go()" );
-		display.viewIU();
+		display.viewIU(false);
 		
 		clientes = adminParametros.getClientes();
 		log.info("clientes.size: " + clientes.size());
