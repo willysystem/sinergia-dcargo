@@ -59,8 +59,7 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
-	private Precio precio;
+	private Double precio;
 	/**
 	 * @generated
 	 */
@@ -230,14 +229,14 @@ public class Item implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	public Precio getPrecio() {
+	public Double getPrecio() {
 		return this.precio;
 	}
 
 	/**
 	 * @generated
 	 */
-	public void setPrecio(Precio precio) {
+	public void setPrecio(Double precio) {
 		this.precio = precio;
 	}
 
@@ -306,6 +305,6 @@ public class Item implements java.io.Serializable {
 				+ " peso=" + peso + " monto=" + monto + " activo=" + activo
 				+ " nro=" + nro + " valido=" + valido + " unidadTitulo="
 				+ unidadTitulo + " precioMonto=" + precioMonto + " total="
-				+ total;
+				+ total + " precio=" + precio;
 	}
 }

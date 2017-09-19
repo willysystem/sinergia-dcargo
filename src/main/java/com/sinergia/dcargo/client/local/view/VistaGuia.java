@@ -14,6 +14,8 @@ import com.google.gwt.core.shared.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.dom.client.DoubleClickEvent;
+import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
@@ -25,7 +27,6 @@ import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.FlexTable.FlexCellFormatter;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.IsWidget;
@@ -55,7 +56,7 @@ import com.sinergia.dcargo.client.shared.dominio.Oficina;
 public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	
 	@Inject
-	private VistaGuiaAccion vistaNuevaGuia;
+	private VistaGuiaAccion vistaGuiaAccion;
 	
 	@Inject
 	private ServicioGuiaCliente servicioGuiaCliente;
@@ -104,6 +105,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private Button modificarBtn = new Button("Modificar");
 	private Button anularBtn = new Button("Anular");
 	private Button imprimirBtn = new Button("Imprimir Búsqueda");
+	private Button imprimirGuiaBtn = new Button("Imprimir Guia");
 	private Button entregaBtn = new Button("Entrega");
 	private Button salirBtn = new Button("Salir");
 	
@@ -243,7 +245,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 				return "";	
  			}
 		};
-		grid.setColumnWidth(fechaRegistroColmun, 15, Unit.PX);
+		grid.setColumnWidth(fechaRegistroColmun, 20, Unit.PX);
 		grid.addColumn(fechaRegistroColmun, "Registro");
 		
 		// Fecha Entrega
@@ -251,7 +253,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			@Override
 			public String getValue(Guia entity) {
 				if(entity.getFechaEntrega() != null){
-					
+					return DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(entity.getFechaEntrega());
 				}
 				return "";
 			}
@@ -273,7 +275,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		TextColumn<Guia> facturaDestinoColmun = new TextColumn<Guia>() {
 			@Override
 			public String getValue(Guia entity) {
-				return ""; //entity.getNroFactura();
+				return entity.getNroFacturaEntrega();
 			}
 		};
 		grid.setColumnWidth(facturaDestinoColmun, 15, Unit.PX);
@@ -294,24 +296,6 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		
 		//grid.setWidth("1000px");
 		grid.setHeight("300px");
-		grid.getSelectionModel().addSelectionChangeHandler(new Handler() {
-			@SuppressWarnings("unchecked")
-			@Override
-			public void onSelectionChange(SelectionChangeEvent event) {
-				Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
-				if(guia != null) {
-					String estado = guia.getEstadoDescripcion();
-					if(estado.charAt(0) == 'A') {
-						anularBtn.setEnabled(false);
-						modificarBtn.setEnabled(false);
-					} else {
-						anularBtn.setEnabled(true);
-						modificarBtn.setEnabled(true);
-					}
-				}
-			}
-		});
-		
 		
 		VerticalPanel vpGrid = new VerticalPanel();
 		vpGrid.setWidth("100%");
@@ -334,6 +318,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		horizontalPanelButton.add(consultarBtn);
 		horizontalPanelButton.add(modificarBtn);
 		horizontalPanelButton.add(anularBtn);
+		//horizontalPanelButton.add(imprimirGuiaBtn);
 		horizontalPanelButton.add(imprimirBtn);
 		horizontalPanelButton.add(entregaBtn);
 		horizontalPanelButton.add(salirBtn);
@@ -359,6 +344,8 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		
 		if(esDialogBox) dock.add(horizontalPanelSelect, DockPanel.SOUTH);
 		else            dock.add(horizontalPanel, DockPanel.SOUTH);
+		
+		//mainContentView.getCentralPanel().add(dock);
 		
 		cargarEstadosListBox();
 		implementarAcciones();
@@ -428,31 +415,52 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		oficinaOracle.addAll(palabras);
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void implementarAcciones() {
+		
+		grid.addDomHandler(new DoubleClickHandler() {
+		    @Override
+		    public void onDoubleClick(DoubleClickEvent event) { 
+		    	consultarGuia();
+		    }    
+		}, DoubleClickEvent.getType());
+		
+		grid.getSelectionModel().addSelectionChangeHandler(new Handler() {
+			@Override
+			public void onSelectionChange(SelectionChangeEvent event) {
+				Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
+				if(guia != null) {
+					String estado = guia.getEstadoDescripcion();
+					if(estado.charAt(0) == 'A') {
+						anularBtn.setEnabled(false);
+						modificarBtn.setEnabled(false);
+						entregaBtn.setEnabled(false);
+					} else {
+						anularBtn.setEnabled(true);
+						modificarBtn.setEnabled(true);
+						if(estado.charAt(0) != 'E') entregaBtn.setEnabled(true);
+					}
+				}
+			}
+		});
+		
 		buscarBtn.addClickHandler(e -> ((SingleSelectionModel<Guia>)grid.getSelectionModel()).clear());
-		nuevoBtn.addClickHandler(e -> vistaNuevaGuia.mostrar(GuiaAccion.NUEVO, null));
+		nuevoBtn.addClickHandler(e -> vistaGuiaAccion.mostrar(GuiaAccion.NUEVO, null));
 		consultarBtn.addClickHandler(e -> {
-			@SuppressWarnings("unchecked")
-			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
-			if(guia == null)
-				mensajeAviso.mostrar("Seleccione la Guia que decea consultar");
-			else 
-				vistaNuevaGuia.mostrar(GuiaAccion.CONSULTAR, guia);
+			consultarGuia();
 		});
 		modificarBtn.addClickHandler(e -> {
-			@SuppressWarnings("unchecked")
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
 			if(guia == null)
 				mensajeAviso.mostrar("Seleccione la Guia que decea consultar");
 			else 
-				vistaNuevaGuia.mostrar(GuiaAccion.MODIFICAR, guia);
+				vistaGuiaAccion.mostrar(GuiaAccion.MODIFICAR, guia);
 		});
 		anularBtn.addClickHandler(e -> {
-			@SuppressWarnings("unchecked")
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
 			if(guia == null)
 				mensajeAviso.mostrar("Seleccione la Guia que decea anular");
-			 else {
+			else {
 				VistaGuia.this.cargador.center();
 				servicioGuia.cambiarEstado(guia.getId(), "Anulado", new LlamadaRemota<Void>("No se pudo anular la Guia", true) {
 					@Override
@@ -464,6 +472,25 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 				});
 			}
 		});
+		entregaBtn.addClickHandler(e -> {
+			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
+			if(guia == null) {
+				mensajeAviso.mostrar("Seleccione la Guia que decea entregar");
+				return ;
+			}
+			
+			vistaGuiaAccion.mostrar(GuiaAccion.ENTREGA, guia);
+			
+		});
+		imprimirGuiaBtn.addClickHandler(e -> {
+			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
+			if(guia == null) {
+				mensajeAviso.mostrar("Seleccione la Guia para imprimir");
+				return ;
+			}
+			vistaGuiaAccion.imprimirGuia(guia);
+		});
+		
 		imprimirBtn.addClickHandler(e -> {
 			log.info("--> imprimir Busqueda Guia: ");
 			List<Guia> guias = dataProvider.getList();
@@ -484,7 +511,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 				guiasImprimir[k][5]  = guia.getOficinaDestino()==null?"":guia.getOficinaDestino().getNombre();
 				guiasImprimir[k][6]  = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(guia.getFechaRegistro());
 				guiasImprimir[k][7]  = "";//guia.getFechaEntrega()+"";
-				guiasImprimir[k][8]  = guia.getNroFactura();
+				guiasImprimir[k][8]  = guia.getNroFactura() == null ? "" : guia.getNroFactura();
 				guiasImprimir[k][9]  = "";
 				guiasImprimir[k][10] = guia.getEstadoDescripcion();
 				k++;
@@ -500,12 +527,18 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		imprimirBtn.setEnabled(true);
 		entregaBtn.setEnabled(false);
 		
-		
 		salirSelecionBtn.addClickHandler(e -> {
 			vistaElegirGuiaDialogBox.hide();
 		});
 		
-		
+		seleccionBtn.addClickHandler(e -> {
+			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
+			if(guia == null) {
+				mensajeAviso.mostrar("Seleccione un Conocimiento");
+				return ;
+			}
+			vistaElegirGuiaDialogBox.setGuiaSeleccionada(guia);
+		});
 	}
 	
 	private void cargarEstadosListBox() {
@@ -582,4 +615,16 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		this.vistaElegirGuiaDialogBox = vistaElegirGuiaDialogBox;
 	}
 	
+	
+	private void consultarGuia() {
+		@SuppressWarnings("unchecked")
+		Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
+		if(guia == null)
+			mensajeAviso.mostrar("Seleccione la Guia que decea consultar");
+		else {
+			//vistaGuiaAccion = new VistaGuiaAccion();
+			vistaGuiaAccion.mostrar(GuiaAccion.CONSULTAR, guia);
+		}
+			
+	}
 }

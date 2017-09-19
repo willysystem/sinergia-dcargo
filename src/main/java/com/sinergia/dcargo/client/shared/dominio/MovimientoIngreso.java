@@ -17,8 +17,8 @@ public class MovimientoIngreso extends Movimiento implements
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
 	@JsonIgnore
+	@javax.persistence.OneToOne(mappedBy = "movimientoIngreso")
 	private Guia guia;
 
 	/**

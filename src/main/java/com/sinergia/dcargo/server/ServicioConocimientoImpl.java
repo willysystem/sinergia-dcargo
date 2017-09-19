@@ -66,7 +66,6 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		nroConocimiento = nroConocimiento == null ? 0: nroConocimiento;
 		
 		Date fechaInicio = conocimiento.getFechaIni();
-		
 		Date fechaFin    = conocimiento.getFechaFin();
 		
 		Transportista propietario  = conocimiento.getTransportistaPropietario();
@@ -88,7 +87,7 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		
 		if(0 != nroConocimiento){
 			where = "c.nroConocimiento = :nroConocimiento AND";
-			parametros.put("nroGuia", nroConocimiento);
+			parametros.put("nroConocimiento", nroConocimiento);
 		} 
 		if(fechaInicio != null){
 			where = "c.fechaRegistro >= :fechaInicio AND";
@@ -392,6 +391,8 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 			oficinaDestino.setNombre(conocimiento.getOficinaDestino().getNombre());
 			cDTO.setOficinaDestino(oficinaDestino);
 		}
+		cDTO.setPagoOrigen(conocimiento.getPagoOrigen());
+		cDTO.setPagoDestino(conocimiento.getPagoDestino());
 		
 		cDTO.setEstado(conocimiento.getEstado());
 		cDTO.setEstadoDescripcion(estados.get(conocimiento.getEstado()));

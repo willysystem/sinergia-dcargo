@@ -26,7 +26,7 @@ public class VistaElegirConocimientoDialogBox extends DialogBox {
 	
 	public void mostrar() {
 		vistaConocimiento.setVistaElegirConocimientoDialogBox(this);
-		clear();
+		clear(); 
 		add(vistaConocimiento.viewIU(true));
 		center();
 	}

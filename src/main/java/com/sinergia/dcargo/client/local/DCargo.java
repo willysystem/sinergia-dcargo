@@ -33,9 +33,6 @@ public class DCargo {
 	@Inject
 	private Logger log;
 	
-	//@Inject
-	//private VistaNuevaGuia vistaNuevaGuia;
-	
 	private HandlerManager eventBus = new HandlerManager(null);
 	
 	public DCargo() {

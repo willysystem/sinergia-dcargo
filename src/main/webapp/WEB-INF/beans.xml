@@ -31,6 +31,11 @@
     <exclude name = "com.sinergia.dcargo.client.local.event.EventoConocimiento" />
     <exclude name = "com.sinergia.dcargo.client.local.event.EventoHandlerTransportista" />
     <exclude name = "com.sinergia.dcargo.client.local.event.EventoTransportista" />
+    <exclude name = "com.sinergia.dcargo.client.local.event.EventoLiquidacionCarga" />
+    <exclude name = "com.sinergia.dcargo.client.local.event.EventoHandlerLiquidacionjCarga" />
+    <exclude name = "com.sinergia.dcargo.client.local.event.EventoDeudasPorCobrar" />
+    <exclude name = "com.sinergia.dcargo.client.local.event.EventoHandlerDeudasPorCobrar" />
+    
     
     <exclude name = "com.sinergia.dcargo.client.local.presenter.LoginPresenter" />
     <exclude name = "com.sinergia.dcargo.client.local.presenter.LoginPresenter$2" />
@@ -61,6 +66,8 @@
     <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorCuentas" />
     <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorCuentas$1" />
     <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorMovimiento" />
+    <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorLiquidacionCarga" />
+    <exclude name = "com.sinergia.dcargo.client.local.presenter.PresentadorDeudasPorCobrar" />
 
 	<exclude name = "com.sinergia.dcargo.client.local.view.Cargador" />    
     <exclude name = "com.sinergia.dcargo.client.local.view.Cargador$AppBundle" />
@@ -182,7 +189,10 @@
     <exclude name = "com.sinergia.dcargo.client.local.view.VerticalPanelEx" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaConocimientoAccion$GuiaPropiedad" />
     <exclude name = "com.sinergia.dcargo.client.local.view.VistaElegirGuiaDialogBox" />
+    <exclude name = "com.sinergia.dcargo.client.local.view.VistaElegirConocimientoDialogBox" />
     
+    <exclude name = "com.sinergia.dcargo.client.local.view.liquidacion.VistaLiquidacionCarga" />
+    <exclude name = "com.sinergia.dcargo.client.local.view.liquidacion.VistaDeudasPorCobrar" />
     
     <exclude name = "com.sinergia.dcargo.client.local.message.MensajeConfirmacion" />
     <exclude name = "com.sinergia.dcargo.client.local.message.MensajeConfirmacion$1" />

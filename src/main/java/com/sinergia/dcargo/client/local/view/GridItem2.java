@@ -99,6 +99,8 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 	private Grid<Item> grid;
 	private ContentPanel panel;
 	
+	private DoubleField precioDoubleField = new DoubleField();
+	
 	//private Widget widget;
 
 	public interface PriceTemplate extends XTemplates {
@@ -135,7 +137,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 
 		ValueProvider<Item, String> unidadTitulo();
 
-		ValueProvider<Item, String> precioMonto();
+		ValueProvider<Item, Double> precio();
 		
 		ValueProvider<Item, Double> total();
 		
@@ -159,7 +161,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			ColumnConfig<Item, String> contenidoColumn = new ColumnConfig<>(properties.contenido(), 350, "Contenido");
 			ColumnConfig<Item, Double> pesoColumn = new ColumnConfig<>(properties.peso(), 50, "Peso");
 			ColumnConfig<Item, String> unidadColumn = new ColumnConfig<>(properties.unidadTitulo(), 65, "Unidad");
-			ColumnConfig<Item, String> precioColumn = new ColumnConfig<>(properties.precioMonto(), 75, "Precio");
+			ColumnConfig<Item, Double> precioColumn = new ColumnConfig<>(properties.precio(), 75, "Precio");
 			ColumnConfig<Item, Double> totalColumn = new ColumnConfig<>(properties.total(), 75, "Total");
 
 //			priceColumn.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -261,60 +263,14 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 				}
 			};
 			
-			// Precio
-			SimpleComboBox<Precio> precioCombo = new SimpleComboBox<>(new StringLabelProvider<Precio>(){
-				@Override
-				  public String getLabel(Precio item) {
-				    return item.getDescripcion();
-				  }
-			});
-			precioCombo.setClearValueOnParseError(false);
-			precioCombo.addSelectionHandler(e->{
-				Precio precio = e.getSelectedItem();
-				GWT.log("event.getSelectedItem(): precio: " + precio);
-				Double precioD = precio.getPrecio();
-				Double pesoD = pesoField.getValue();
-				Double totalD = precioD*pesoD;
-				totalField.setValue(totalD);
-				
-				GWT.log("event.getSelectedItem(): precio: " + precio);
-				itemSeleccionado.setPrecio(precio);
-			});
-			precioCombo.setPropertyEditor(new PropertyEditor<Precio>() {
-				@Override
-				public Precio parse(CharSequence text) throws ParseException {
-					for (Precio unidad: precios) {
-						if(text.equals(unidad.getDescripcion())) return unidad; 
-					}
-					return null;
-				}
-
-				@Override
-				public String render(Precio unidad) {
-					return unidad.getDescripcion();
-				}
-			});
-			precioCombo.setTriggerAction(TriggerAction.ALL);
-			precioCombo.add(precios);
+			// Total = Peso x precio  
+//			pesoField.addChangeHandler(e -> calcularTotal());
+//			precioDoubleField.addChangeHandler(e -> calcularTotal() );
+//			totalField.addChangeHandler(e -> calcularTotal());
 			
-			Converter<String, Precio> precioConverter = new Converter<String, Precio>() {
-				@Override
-				public String convertFieldValue(Precio object) {
-					if(object == null){
-						return "";
-					} else {
-						if(object.getDescripcion() == null) return "";
-						else return object.getDescripcion();
-					}
-				}
-				@Override
-				public Precio convertModelValue(String object) {
-					for (Precio unidad: precios) {
-						if(object.equals(unidad.getDescripcion())) return unidad; 
-					}
-					return null;
-				}
-			};
+			pesoField.addFocusHandler(e -> calcularTotal());
+			precioDoubleField.addFocusHandler(e -> calcularTotal());
+			totalField.addFocusHandler(e -> calcularTotal());
 
 			IntegerField bultosIntegerField = new IntegerField();
 //			bultosIntegerField.addKeyDownHandler(e->{
@@ -325,32 +281,13 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 //				}
 //			});
 			TextField contenidoTextField = new TextField();
-//			contenidoTextField.addKeyDownHandler(e->{
-//				log.info("contenidoTextField.addKeyDownHandler: " + contenidoTextField.getValue() + "-->" + e.getNativeEvent().getKeyCode());
-//				if(e.getNativeEvent().getKeyCode() == 13){
-//					store.commitChanges();
-//					editing.completeEditing();
-//				}
-//			});
-//			totalField.addKeyDownHandler(e->{
-//				log.info("totalField.addKeyDownHandler: " + totalField.getValue() + "-->" + e.getNativeEvent().getKeyCode());
-//				if(e.getNativeEvent().getKeyCode() == 13){
-//					store.commitChanges();
-//					editing.completeEditing();
-//				}
-//			});
-//			totalField.addValueChangeHandler(e ->{
-//				log.info("totalField.addValueChangeHandler: " + totalField.getValue());
-//				store.commitChanges();
-//				editing.completeEditing();
-//			});
 			
 			editing = createGridEditing(grid);
 			editing.addEditor(bultosColumn, bultosIntegerField);
 			editing.addEditor(contenidoColumn, contenidoTextField);
 			editing.addEditor(pesoColumn, pesoField);
 			editing.addEditor(unidadColumn, unidadConverter, unidadCombo);
-			editing.addEditor(precioColumn, precioConverter, precioCombo);
+			editing.addEditor(precioColumn, precioDoubleField);
 			
 			editing.addEditor(totalColumn, totalField);
 		
@@ -486,11 +423,12 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			unidadTemp.setId(itemSelected.getUnidad().getId());
 			itemTemp.setUnidad(unidadTemp);
 		}
-		if(itemSelected.getPrecio() != null) {
-			Precio precioTemp = new Precio();
-			precioTemp.setId(itemSelected.getPrecio().getId());
-			itemTemp.setPrecio(precioTemp);
-		}
+//		if(itemSelected.getPrecio() != null) {
+//			Precio precioTemp = new Precio();
+//			precioTemp.setId(itemSelected.getPrecio().getId());
+//			itemTemp.setPrecio(precioTemp);
+//		}
+		itemTemp.setPrecio(itemSelected.getPrecio());
 		itemTemp.setTotal(itemSelected.getTotal());
 		
 		boolean valido = validarFila(itemTemp);
@@ -533,6 +471,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 									public void onSuccess(Method method, Void response) {
 										guiaSeleccionada.setResumenContenido(resumenTemp);
 										guiaSeleccionada.setTotalGuia(totalTemp);
+										vistaGuiaAccion.setTotalGuia(totalTemp);
 										guiaSeleccionada.setTotalPeso(pesoTotalTemp);
 										guiaSeleccionada.setTotalCantidad(bultosTotalTemp);
 										vistaGuiaAccion.fijarEstadoGuiaCargado();
@@ -551,6 +490,17 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		if(item.getContenido() == null) return false;
 		if(item.getTotal() == null) return false;
 		return true;
+	}
+	
+	private void calcularTotal() {
+		
+		Double precioD = precioDoubleField.getValue();
+		Double pesoD   = pesoField.getValue();
+		Double totalD  = precioD*pesoD;
+		totalField.setValue(totalD);
+		GWT.log("event.getSelectedItem(): precio: " + precioD);
+		itemSeleccionado.setPrecio(precioD);
+		
 	}
 	
 }

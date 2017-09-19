@@ -1,5 +1,7 @@
 package com.sinergia.dcargo.client.shared.dominio;
 
+import javax.persistence.Table;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**

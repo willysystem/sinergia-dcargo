@@ -30,6 +30,10 @@ import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dto.DeudasPorCobrarReporte;
+import com.sinergia.dcargo.client.shared.dto.DeudasReporte;
+import com.sinergia.dcargo.client.shared.dto.LiquidacionCargaReporte;
+import com.sinergia.dcargo.client.shared.dto.LiquidacionReporte;
 
 /**
  * @author willy
@@ -94,5 +98,17 @@ public interface ServicioMovimiento {
   @Consumes("application/json")
   @Path("/cambiarEstado/{idMovimiento}/{estado}")
   void cambiarEstado(@QueryParam("idMovimiento") Long idMovimiento, @QueryParam("estado")String estado) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Produces("application/json")
+  @Path("/reporteLiquidacionCarga/")
+  public LiquidacionCargaReporte reporteLiquidacionCarga(LiquidacionReporte liquidacionReporte) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Produces("application/json")
+  @Path("/reporteDeudasPorCobrar/")
+  public DeudasPorCobrarReporte reporteDeudasPorCobrar(DeudasReporte deudasReporte) throws Exception;
   
 }

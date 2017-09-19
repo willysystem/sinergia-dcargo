@@ -28,12 +28,6 @@ public class Precio implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "precio")
-	private java.util.Set<Item> items = new java.util.HashSet<Item>();
-
-	/**
-	 * @generated
-	 */
 	public Precio() {
 	}
 
@@ -77,36 +71,6 @@ public class Precio implements java.io.Serializable {
 	 */
 	public void setPrecio(Double precio) {
 		this.precio = precio;
-	}
-
-	/**
-	 * @generated
-	 */
-	public java.util.Set<Item> getItems() {
-		return this.items;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setItems(java.util.Set<Item> items) {
-		this.items = items;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void addItems(Item items) {
-		getItems().add(items);
-		items.setPrecio(this);
-	}
-
-	/**
-	 * @generated
-	 */
-	public void removeItems(Item items) {
-		getItems().remove(items);
-		items.setPrecio(null);
 	}
 
 	/**

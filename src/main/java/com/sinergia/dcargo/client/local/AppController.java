@@ -17,7 +17,9 @@ import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
 import com.sinergia.dcargo.client.local.event.EventoCuentas;
+import com.sinergia.dcargo.client.local.event.EventoDeudasPorCobrar;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoLiquidacionCarga;
 import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
@@ -26,7 +28,9 @@ import com.sinergia.dcargo.client.local.presenter.PresentadorCambioContrasenia;
 import com.sinergia.dcargo.client.local.presenter.PresentadorClientes;
 import com.sinergia.dcargo.client.local.presenter.PresentadorConocimiento;
 import com.sinergia.dcargo.client.local.presenter.PresentadorCuentas;
+import com.sinergia.dcargo.client.local.presenter.PresentadorDeudasPorCobrar;
 import com.sinergia.dcargo.client.local.presenter.PresentadorGuia;
+import com.sinergia.dcargo.client.local.presenter.PresentadorLiquidacionCarga;
 import com.sinergia.dcargo.client.local.presenter.PresentadorMovimiento;
 import com.sinergia.dcargo.client.local.presenter.PresentadorTransportistas;
 import com.sinergia.dcargo.client.local.presenter.Presenter;
@@ -59,7 +63,11 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 	private PresentadorCuentas presentadorCuentas;
 	@Inject
 	private PresentadorMovimiento presentadorMovimiento;
-
+	@Inject
+	private PresentadorLiquidacionCarga presentadorLiquidacionCarga;
+	@Inject
+	private PresentadorDeudasPorCobrar presentadorDeudasPorCobrar;
+	
 	private HasWidgets container;
 
 	public AppController() {
@@ -88,6 +96,8 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 		eventBus.addHandler(EventoTransportista.TYPE, e -> History.newItem("transportista"));
 		eventBus.addHandler(EventoCuentas.TYPE, e -> History.newItem("cuentas"));
 		eventBus.addHandler(EventoMovimiento.TYPE, e -> History.newItem("movimientos"));
+		eventBus.addHandler(EventoLiquidacionCarga.TYPE, e -> History.newItem("liquidacionCarga"));
+		eventBus.addHandler(EventoDeudasPorCobrar.TYPE, e -> History.newItem("deudasporcobrar"));
 	}
 
 	public void go(final HasWidgets container) {
@@ -125,8 +135,11 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 				presenter = presentadorCuentas;
 			} else if (token.equals("movimientos")) {
 				presenter = presentadorMovimiento;
+			} else if (token.equals("liquidacionCarga")) {
+				presenter = presentadorLiquidacionCarga;
+			}  else if (token.equals("deudasporcobrar")) {
+				presenter = presentadorDeudasPorCobrar;
 			}
-
 			if (presenter != null) {
 				presenter.go(container);
 			}

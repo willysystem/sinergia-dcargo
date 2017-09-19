@@ -151,9 +151,9 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private DoubleBox multaTextBox = new DoubleBox();
 	private Label multaLabelVale = new Label();
 	
-	private HTML diasLabel = new HTML("<b>Por dia pasado los dias*: </b>");
-	private IntegerBox diasTextBox = new IntegerBox();
-	private Label diasLabelValue = new Label();
+	private HTML       diasLabel      = new HTML("<b>Por dia pasado los dias*: </b>");
+	private IntegerBox diasTextBox    = new IntegerBox();
+	private Label      diasLabelValue = new Label();
 	
 	private HTML observacionesLabel = new HTML("<b>Observaciones: </b>");
 	private TextArea observacionesTextArea = new TextArea();
@@ -198,18 +198,18 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private Conocimiento conocimientoSeleccionado;
 	
 	
-	Widget propietarioValue = null;
-	Widget conductorValue = null;
-	Widget multaValue = null;
-	Widget diasValue = null;
-	Widget destinoValue = null;
+	Widget propietarioValue   = null;
+	Widget conductorValue     = null;
+	Widget multaValue         = null;
+	Widget diasValue          = null;
+	Widget destinoValue       = null;
 	Widget observacionesValue = null;
-	Widget adjuntoValue = null;
-	Widget aclaracionValue = null;
-	Widget fleteValue = null;
-	Widget acuentaValue = null;
-	Widget pagoOrigenValue = null;
-	Widget pagoDestinoValue = null;
+	Widget adjuntoValue       = null;
+	Widget aclaracionValue    = null;
+	Widget fleteValue         = null;
+	Widget acuentaValue       = null;
+	Widget pagoOrigenValue    = null;
+	Widget pagoDestinoValue   = null;
 	//private Button pendienteBtn = new Button("Fijar en pendiente");
 
 	interface GuiaPropiedad extends PropertyAccess<Guia> {
@@ -398,13 +398,15 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 					@Override
 					public void onSuccess(Method method, Conocimiento response) {
 						conocimientoSeleccionado = response;
-						servicioConocimiento.cambiarEstado(conocimientoSeleccionado.getId(), "P", new LlamadaRemota<Void>("No se puede cambiar de estado", true) {
-							@Override
-							public void onSuccess(Method method, Void response) {
-								construirGUI();
-								VistaConocimientoAccion.this.cargador.hide();
-							}
-						});
+//						servicioConocimiento.cambiarEstado(conocimientoSeleccionado.getId(), "P", new LlamadaRemota<Void>("No se puede cambiar de estado", true) {
+//							@Override
+//							public void onSuccess(Method method, Void response) {
+//								construirGUI();
+//								VistaConocimientoAccion.this.cargador.hide();
+//							}
+//						});
+						construirGUI();
+						VistaConocimientoAccion.this.cargador.hide();
 					}
 				});
 				
@@ -645,10 +647,10 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		FlexTable flexTable = new FlexTable();
 		flexTable.setCellSpacing(0);
 		FlexCellFormatter cellFormatter = flexTable.getFlexCellFormatter();
-		flexTable.setHTML(0, 0, "Fecha Inicio: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		flexTable.setWidget(0, 1, fechaIniBusquedaGuia);     cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		flexTable.setHTML(0, 2, "Fecha Fin: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		flexTable.setWidget(0, 3, fechaFinBusquedaGuia);     cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
+//		flexTable.setHTML(0, 0, "Fecha Inicio: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+//		flexTable.setWidget(0, 1, fechaIniBusquedaGuia);     cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
+//		flexTable.setHTML(0, 2, "Fecha Fin: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+//		flexTable.setWidget(0, 3, fechaFinBusquedaGuia);     cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		flexTable.setWidget(0, 4, buscarGuiasButton);
 		return flexTable;
 	}
@@ -874,17 +876,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			});
 		});
 		pagoDestinoDoubleBox.addValueChangeHandler(e -> {
-			Double pagoDestino = pagoDestinoDoubleBox.getValue();
-			GWT.log("pagoDestino: " + pagoDestino);
-			// Guardar
-			fijarEstadoGuiaEspera();
-			servicioConocimiento.guardarPagoDestino(conocimientoSeleccionado.getId(), pagoDestino, new LlamadaRemota<Void>("No se puede guardar pago origen", false) {
-				@Override
-				public void onSuccess(Method method, Void response) {
-					conocimientoSeleccionado.setPagoDestino(pagoDestino);
-					fijarEstadoGuiaCargado();
-				}
-			});
+			guardarPagoDestino();
 		});
 		
 		aceptarBtn.addClickHandler(e -> {
@@ -970,14 +962,15 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		});
 		
 		buscarGuiasButton.addClickHandler(e -> {
-			Date fechaIni = fechaIniBusquedaGuia.getValue();
-			Date fechaFin = fechaFinBusquedaGuia.getValue();
+			// Date fechaIni = fechaIniBusquedaGuia.getValue();
+			// Date fechaFin = fechaFinBusquedaGuia.getValue();
 			
 			// Validate
-			if( fechaIni == null || fechaFin == null){
-				mensajeAviso.mostrar("Necesitar elegir un intervalo de fecha");
-				return;
-			}
+//			if( fechaIni == null || fechaFin == null){
+//				mensajeAviso.mostrar("Necesitar elegir un intervalo de fecha");
+//				return;
+//			}
+			
 			if( destinoSuggestBox.getValue() == null || destinoSuggestBox.getValue().isEmpty()){
 				mensajeAviso.mostrar("Necesitar elegir un destino");
 				return;
@@ -985,8 +978,8 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			
 			
 			Guia guia =  new Guia();
-			guia.setFechaIni(fechaIni);
-			guia.setFechaFin(fechaFin);
+//			guia.setFechaIni(fechaIni);
+//			guia.setFechaFin(fechaFin);
 			guia.setEstadoDescripcion("Remitido");
 			
 			Oficina oficinaOrigen = adminParametros.buscarOficinaPorNombre(origenLabelValue.getText());
@@ -1020,6 +1013,15 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			});
 		});
 		
+		pagoDestinoDoubleBox.addFocusHandler(e -> {
+			Double flete       = fleteDoubleBox.getValue()      == null ? 0.0 : fleteDoubleBox.getValue();
+			Double aCuenta     = acuentaDoubleBox.getValue()    == null ? 0.0 : acuentaDoubleBox.getValue();
+			Double pagoOrigen  = pagoOrigenDoubleBox.getValue() == null ? 0.0 : pagoOrigenDoubleBox.getValue();
+			Double pagoDestino = flete - aCuenta - pagoOrigen;
+			pagoDestinoDoubleBox.setValue(pagoDestino);
+			guardarPagoDestino();
+		});
+		
 	}
 	
 	private boolean validarConocimiento() {
@@ -1042,7 +1044,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		}
 		
 		// Conductor
-		String nombreConductor = conductorSuggestBox.getValue();
+		String nombreConductor = conocimientoSeleccionado.getTransportistaConductor().getNombre();
 		boolean conductorValido = false;
 		for (Transportista c: adminParametros.getTransportistas()) {
 			if(c.getNombre().equals(nombreConductor)) {conductorValido = true; break;} 
@@ -1246,5 +1248,19 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		colorLabelValor.setText(conductor.getColor());
 		placaLabelValor.setText(conductor.getPlaca());
 		brevetLabelValor.setText(conductor.getBrevetCi());
+	}
+	
+	private void guardarPagoDestino() {
+		Double pagoDestino = pagoDestinoDoubleBox.getValue();
+		GWT.log("pagoDestino: " + pagoDestino);
+		// Guardar
+		fijarEstadoGuiaEspera();
+		servicioConocimiento.guardarPagoDestino(conocimientoSeleccionado.getId(), pagoDestino, new LlamadaRemota<Void>("No se puede guardar pago origen", false) {
+			@Override
+			public void onSuccess(Method method, Void response) {
+				conocimientoSeleccionado.setPagoDestino(pagoDestino);
+				fijarEstadoGuiaCargado();
+			}
+		});
 	}
 }

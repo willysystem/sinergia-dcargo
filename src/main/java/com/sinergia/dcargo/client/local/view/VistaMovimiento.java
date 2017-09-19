@@ -10,6 +10,8 @@ import org.fusesource.restygwt.client.Method;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -49,7 +51,6 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	@Inject MensajeConfirmacion           mensageConfirmacion;
 	@Inject MensajeExito                  mensajeExito;
 	@Inject MensajeAviso                  mensajeAviso;
-	@Inject ServicioTransportistasCliente servicioTransportista;
 	@Inject ServicioCuentaCliente         servicioCuenta;
 	@Inject ServicioMovimientoCliente     servicioMovimiento;
 	@Inject AdminParametros               adminParametros;
@@ -78,10 +79,9 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	private Button consultarBtn = new Button("Consultar");
 	private Button nuevoBtn = new Button("Nuevo");
 	private Button modificarBtn = new Button("Modificar");
-	private Button eliminarBtn = new Button("Eliminar");
+	private Button anularBtn = new Button("Anular");
 	private Button salirBtn = new Button("Salir");
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void viewIU() {
 		
@@ -151,15 +151,6 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		TextColumn<Movimiento> guiaConocimientoColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
-//				if(entity instanceof MovimientoIngreso)
-//				   if(((MovimientoIngreso)entity).getGuia() != null){
-//					   return ((MovimientoIngreso)entity).getGuia().getNroGuia() + "";
-//				   }
-//				else {
-//					if(((MovimientoEgreso)entity).getConocimiento() != null){
-//					   return ((MovimientoEgreso)entity).getConocimiento().getNroConocimiento() + "";
-//					}
-//				}
 				return entity.getNroGuiOrConocimiento();
 			}
 		};
@@ -197,9 +188,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		TextColumn<Movimiento> placaColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
-				
-//				return entity.getPlaca();
-				return null;
+				return entity.getOrigen();
 			}
 		};
 		grid.setColumnWidth(placaColmun, 40, Unit.PX);
@@ -209,23 +198,11 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		TextColumn<Movimiento> marcaColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
-//				return entity.getMarca();
-				return null;
+				return entity.getDestino();
 			}
 		};
 		grid.setColumnWidth(marcaColmun, 40, Unit.PX);
 		grid.addColumn(marcaColmun, "Destino");
-		
-//		// Color
-//		TextColumn<Movimiento> colorColmun = new TextColumn<Movimiento>() {
-//			@Override
-//			public String getValue(Movimiento entity) {
-////				return entity.getColor();
-//				return null;
-//			}
-//		};
-//		grid.setColumnWidth(colorColmun, 40, Unit.PX);
-//		grid.addColumn(colorColmun, "Color");
 		
 		// Vecino de
 		TextColumn<Movimiento> vecinoColmun = new TextColumn<Movimiento>() {
@@ -262,7 +239,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		horizontalPanelButton.add(consultarBtn);
 		horizontalPanelButton.add(nuevoBtn);
 		horizontalPanelButton.add(modificarBtn);
-		horizontalPanelButton.add(eliminarBtn);
+		horizontalPanelButton.add(anularBtn);
 		horizontalPanelButton.add(salirBtn);
 		
 		horizontalPanel.add(horizontalPanelButton);
@@ -272,48 +249,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		dock.add(horizontalPanel, DockPanel.SOUTH);
 		mainContentView.getCentralPanel().add(dock);
 		
-		buscarBtn.addClickHandler( e -> ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).clear());
 		
-		consultarBtn.addClickHandler(e -> {
-			Movimiento transportista = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
-			log.info("Transportista: " + transportista);
-			if(transportista == null){
-				mensajeAviso.mostrar("Seleccione un movimiento");
-			} else {
-				//vistaTransportistaAccion.mostrar(TransportistaAccion.CONSULTAR, transportista);
-			}
-		});
-		nuevoBtn.addClickHandler(e->vistaMovimientoAccion.mostrar(MovimientoAccion.NUEVO, null));
-		modificarBtn.addClickHandler(e->{
-			Movimiento Transportista = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
-			log.info("Transportista: " + Transportista);
-			if(Transportista == null){
-				new MensajeAviso("Seleccione un Transportista").show();
-			} else {
-				//vistaTransportistaAccion.mostrar(TransportistaAccion.MODIFICAR, Transportista);
-			}
-		});
-		eliminarBtn.addClickHandler(e->{
-			final Movimiento Transportista = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
-			log.info("Transportista: " + Transportista);
-			if(Transportista == null){
-				new MensajeAviso("Seleccione un Transportista").show();
-			} else {
-//				mensageConfirmacion.mostrar("Decea eliminar al Transportista: " + Transportista.getNombre(), new ClickHandler() {
-//					@Override
-//					public void onClick(ClickEvent event) {
-//						servicioTransportista.borrar(Transportista.getId(), new LlamadaRemota<Void>("No se puede eliminar Transportista", true) {
-//							@Override
-//							public void onSuccess(Method method, Void response) {
-//								VistaMovimiento.this.mensageConfirmacion.hide();
-//								buscarBtn.click();
-//								//mensajeExito.mostrar("Eliminado exitosamente");
-//							}
-//						});
-//					}
-//				});
-			}
-		});
 		salirBtn.addClickHandler(e -> Window.Location.assign(GWT.getHostPageBaseURL()));
 		
 		implementarEscuchadores();
@@ -392,6 +328,49 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 			
 			cargarDatosSubCuentaListBox();
 		});
+		
+		buscarBtn.addClickHandler( e -> ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).clear());
+		
+		consultarBtn.addClickHandler(e -> {
+			Movimiento movimiento = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
+			log.info("Transportista: " + movimiento);
+			if(movimiento == null){
+				mensajeAviso.mostrar("Seleccione un movimiento");
+			} else {
+				vistaMovimientoAccion.mostrar(MovimientoAccion.CONSULTAR, movimiento);
+			}
+		});
+		nuevoBtn.addClickHandler(e->vistaMovimientoAccion.mostrar(MovimientoAccion.NUEVO, null));
+		modificarBtn.addClickHandler(e->{
+			Movimiento movimiento = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
+			log.info("Movimiento: " + movimiento);
+			if(movimiento == null){
+				new MensajeAviso("Seleccione un Movimiento").show();
+			} else {
+				vistaMovimientoAccion.mostrar(MovimientoAccion.MODIFICAR, movimiento);
+			}
+		});
+		anularBtn.addClickHandler(e->{
+			final Movimiento movimiento = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
+			log.info("Transportista: " + movimiento);
+			if(movimiento == null){
+				new MensajeAviso("Seleccione un Movimiento").show();
+			} else {
+				mensageConfirmacion.mostrar("Realmente decea anular este movimiento: " + movimiento.getTipoCuenta().name(), new ClickHandler() {
+					@Override
+					public void onClick(ClickEvent event) { 
+						servicioMovimiento.cambiarEstado(movimiento.getId(), "A", new LlamadaRemota<Void>("No se puede anular Conocimiento", true) {
+							@Override
+							public void onSuccess(Method method, Void response) {
+								VistaMovimiento.this.mensageConfirmacion.hide();
+								buscarBtn.click();
+								//mensajeExito.mostrar("Eliminado exitosamente");
+							}
+						});
+					}
+				});				
+			}
+		});
 	}
 	
 	
@@ -412,6 +391,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 				estadoListBox.clear();
 				estadoListBox.addItem("Todos");
 				response.forEach(e -> estadoListBox.addItem(e));
+				estadoListBox.setSelectedIndex(2);
 			}
 		});
 		

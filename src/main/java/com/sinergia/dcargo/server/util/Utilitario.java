@@ -31,7 +31,7 @@ public class Utilitario {
 			} else if(clazz.equals(Unidad.class)){
 				((Unidad)e).setItems(null);
 			} else if(clazz.equals(Precio.class)){
-				((Precio)e).setItems(null);
+				//((Precio)e).setItems(null);
 			}
 			
 			listaDTO.add(modelMapper.map(e, clazz));

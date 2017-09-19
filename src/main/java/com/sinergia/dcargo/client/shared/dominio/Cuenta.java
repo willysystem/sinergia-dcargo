@@ -65,7 +65,7 @@ public class Cuenta implements java.io.Serializable/*, TreeStore.TreeNode<Cuenta
 	 */
 	@javax.persistence.Transient
 	private String cuentaPadreDescripcion;
-
+	
 	/**
 	 * @generated
 	 */
@@ -224,15 +224,6 @@ public class Cuenta implements java.io.Serializable/*, TreeStore.TreeNode<Cuenta
 	public void setCuentaPadreDescripcion(String cuentaPadreDescripcion) {
 		this.cuentaPadreDescripcion = cuentaPadreDescripcion;
 	}
-
-//	@Override
-//	public List<? extends TreeNode<Cuenta>> getChildren() {
-//		return null;
-//	}
-//
-//	@Override
-//	public Cuenta getData() {
-//		return this;
-//	}
+	
 
 }

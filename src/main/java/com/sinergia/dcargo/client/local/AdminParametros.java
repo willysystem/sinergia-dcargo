@@ -23,7 +23,6 @@ import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Carga;
 import com.sinergia.dcargo.client.local.view.Cargador;
-import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.dominio.Cliente;
 import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
@@ -33,6 +32,7 @@ import com.sinergia.dcargo.client.shared.dominio.Precio;
 import com.sinergia.dcargo.client.shared.dominio.Transportista;
 import com.sinergia.dcargo.client.shared.dominio.Unidad;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
+import com.sinergia.dcargo.client.shared.dto.DateParam;
 
 @Singleton
 public class AdminParametros {

@@ -16,6 +16,7 @@
 
 package com.sinergia.dcargo.client.shared;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -129,6 +130,36 @@ public interface ServicioGuia {
   @Consumes("application/json")
   @Path("/guardarBultosTotal/{idGuia}/{bultosTotal}")
   void guardarBultosTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("bultosTotal") Integer bultosTotal) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarNombreClienteEntrega/{idGuia}/{nombreClienteEntrega}")
+  void guardarNombreClienteEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("nombreClienteEntrega") String nombreClienteEntrega) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarCiEntrega/{idGuia}/{ciEntrega}")
+  void guardarCiEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("ciEntrega") String ciEntrega) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarNroFacturaEntrega/{idGuia}/{nroFacturaEntrega}")
+  void guardarNroFacturaEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("nroFacturaEntrega") String nroFacturaEntrega) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarNotaEntrega/{idGuia}/{notaEntrega}")
+  void guardarNotaEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("notaEntrega") String notaEntrega) throws Exception;
+  
+//  @PUT
+//  @Consumes("application/json")
+//  @Path("/guardarFechaEntrega/{idGuia}/{fechaEntrega}")
+//  void guardarFechaEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("fechaEntrega") DateParam fechaEntrega) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarEntregaConsignatario/{idGuia}/{entregaConsignatario}")
+  void guardarEntregaConsignatario(@QueryParam("idGuia") Long idGuia, @QueryParam("entregaConsignatario") Boolean entregaConsignatario) throws Exception;
   
   @DELETE
   @Path("/{id:[0-9]+}")

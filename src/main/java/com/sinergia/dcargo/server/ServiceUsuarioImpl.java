@@ -18,10 +18,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
-import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.ServicioUsuario;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
+import com.sinergia.dcargo.client.shared.dto.DateParam;
 import com.sinergia.dcargo.server.dao.Dao;
 import com.sinergia.dcargo.server.util.MD5;
 

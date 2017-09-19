@@ -14,8 +14,8 @@ import com.google.gwt.user.client.ui.HasWidgets;
 import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
-import com.sinergia.dcargo.client.shared.DateParam;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
+import com.sinergia.dcargo.client.shared.dto.DateParam;
 
 @Singleton
 public class MainContentPresenter implements Presenter {

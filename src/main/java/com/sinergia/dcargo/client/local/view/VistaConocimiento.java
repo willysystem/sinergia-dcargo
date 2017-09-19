@@ -40,10 +40,8 @@ import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
 import com.sinergia.dcargo.client.local.presenter.PresentadorConocimiento;
-import com.sinergia.dcargo.client.shared.dominio.Cliente;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
-import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.Transportista;
 
@@ -120,7 +118,6 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 	
 	protected VistaConocimiento(int paging) {
 		super(paging);
-		
 	}
 
 	@SuppressWarnings("deprecation")
@@ -304,7 +301,7 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 		if(esDialogBox) dock.add(horizontalPanelSelect, DockPanel.SOUTH);
 		else            dock.add(horizontalPanel, DockPanel.SOUTH);
 		
-		mainContentView.getCentralPanel().add(dock);
+		//mainContentView.getCentralPanel().add(dock);
 		
 		cargarDatosIniciles();
 		implementarAcciones();
@@ -489,11 +486,13 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 		});
 		
 		seleccionBtn.addClickHandler(e -> {
+			@SuppressWarnings("unchecked")
 			Conocimiento guia = ((SingleSelectionModel<Conocimiento>)grid.getSelectionModel()).getSelectedObject();
-			if(guia == null)
-				mensajeAviso.mostrar("Seleccione la Conocimiento");
+			if(guia == null) {
+				mensajeAviso.mostrar("Seleccione un Conocimiento");
+				return ;
+			}
 			vistaElegirConocimientoDialogBox.setConocimientoSeleccionada(guia);
-			
 		});
 		
 		salirSelecionBtn.addClickHandler(e -> {

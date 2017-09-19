@@ -12,6 +12,7 @@ import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.slf4j.Logger;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DialogBox;
@@ -27,13 +28,16 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.client.ui.HTML;
 import com.sinergia.dcargo.client.local.AdminParametros;
+import com.sinergia.dcargo.client.local.UtilDCargo;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
+import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
 import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
@@ -61,6 +65,8 @@ public class VistaMovimientoAccion extends DialogBox {
 	
 	@Inject
 	private AdminParametros adminParametros;
+	@Inject
+	private UtilDCargo utilDCargo;
 	
 	@Inject
 	private Cargador cargador;
@@ -70,8 +76,9 @@ public class VistaMovimientoAccion extends DialogBox {
 	
 	//private TipoCuenta tipoMovimiento;
 	
-	private HTML    tipoMovimientoLabel   = new HTML("<b>Tipo Movimiento: </b>");
-	private ListBox tipoMovimientoListBox = new ListBox();
+	private HTML    tipoMovimientoLabel      = new HTML("<b>Tipo Movimiento: </b>");
+	private ListBox tipoMovimientoListBox    = new ListBox();
+	private Label   tipoMovimientoLabelValue = new Label();
 	
 	private HTML  nroComprobanteLabel  = new HTML("<b>Nro Comprobante: </b>");
 	private Label nroComprobanteValue  = new Label("");
@@ -107,7 +114,7 @@ public class VistaMovimientoAccion extends DialogBox {
 	private Label montoOrigenValue = new Label();
 	
 	private HTML  saldoOrigenLabel = new HTML("<b>Saldo:</b>");
-	private Label saldoOrigenValue = new Label();
+	private Label montoDestinoValue = new Label();
 	
 	private HTML     glosaLabel      = new HTML("<b>Glosa:</b>");
 	private Label    glosaLabelValue = new Label();
@@ -118,6 +125,7 @@ public class VistaMovimientoAccion extends DialogBox {
 	private Button salirBtn    = new Button("Salir");
 	
 	private Widget fechaValue;
+	private Widget tipoMovimientoValue;
 	private Widget cuentaValue;
 	private Widget subCuentaValue;
 	private Widget montoValue;
@@ -148,41 +156,125 @@ public class VistaMovimientoAccion extends DialogBox {
 		setAnimationEnabled(false);
 		setText(movimientoAccion.getTitulo());
 		
+		cargarDatosIniciales();
+		
 		FlexTable layout = new FlexTable();
 		layout.setCellSpacing(6);
 		
 		limpiarCampos();
 		
 		if(movimientoAccion == MovimientoAccion.NUEVO || movimientoAccion == MovimientoAccion.MODIFICAR){
-			fechaValue     = fechaTextBox;	
-			cuentaValue    = cuentaListBox;
-			subCuentaValue = subCuentaListBox;
-			montoValue     = montoDoubleBox;
-			glosaValue     = glosaTextArea;
+			tipoMovimientoValue = tipoMovimientoListBox; 
+			fechaValue          = fechaTextBox;	
+			cuentaValue         = cuentaListBox;
+			subCuentaValue      = subCuentaListBox;
+			montoValue          = montoDoubleBox;
+			glosaValue          = glosaTextArea;
+			
+			tipoMovimientoListBox.setEnabled(true);
+			seleccionarGuiaOrConocimientoBtn.setVisible(true);
 			
 			if(movimientoAccion == MovimientoAccion.MODIFICAR) {
 				fechaTextBox.setValue(movimientoSeleccionado.getFechaRegistro());
-//				if(tipoMovimiento == TipoCuenta.INGRESO){
-//					for(int i = 0; i<cuentaListBox.getItemCount(); i++){
-//						 Long id = Long.valueOf(cuentaListBox.getValue(0));
-//						 if(id == movimientoSeleccionado.getCuenta().getId()){
-//							 cuentaListBox.setItemSelected(i, true);
-//							 break;
-//						 }
-//					}
-//				}
+				log.info("     movimientoSeleccionado.getTipoCuenta(): " + movimientoSeleccionado.getTipoCuenta());
+				
+				tipoMovimientoListBox.setEnabled(false);
+				
+				log.info("   movimientoSeleccionado.getCuenta(): " + movimientoSeleccionado.getCuenta());
+				log.info("   nroCuentaPadre: " + movimientoSeleccionado.getNroCuentaPadre());
+				
+				
+				Integer nroCuentaPadre = movimientoSeleccionado.getNroCuentaPadre();
+				
+				List<? extends CuentaIngreso> cuentas = null;
+				
+				if(movimientoSeleccionado.getTipoCuenta() == TipoCuenta.INGRESO){
+					
+				    tipoMovimientoListBox.setItemSelected(1, true);
+				    seleccionarGuiaOrConocimientoBtn.setTitle("Seleccionar Guia");
+					seleccionarGuiaOrConocimientoBtn.setText("Seleccionar Guia*");
+				    
+				    cuentas = adminParametros.getCuentasIngreso();
+					log.info("  - cuentas.size(): " + cuentas.size());
+				}
+				
+				if(movimientoSeleccionado.getTipoCuenta() == TipoCuenta.EGRESO){
+					
+				    tipoMovimientoListBox.setItemSelected(1, true);
+				    seleccionarGuiaOrConocimientoBtn.setTitle("Seleccionar Conocimiento");
+					seleccionarGuiaOrConocimientoBtn.setText("Seleccionar Conocimiento*");
+				    
+				    cuentas = adminParametros.getCuentasIngreso();
+					log.info("  - cuentas.size(): " + cuentas.size());
+				}
+				
+				cuentaListBox.clear();
+				cuentaListBox.addItem("", "0");
+				int cuentaSelection = 0;
+				int i = 1;
+				for (Cuenta cuenta: cuentas) {
+					log.info("    cuentaIngreso.getNroCuenta(): " + cuenta.getNroCuenta());
+					if(cuenta.getNroCuenta().equals(nroCuentaPadre)) cuentaSelection = i;	
+					cuentaListBox.addItem(cuenta.getNroCuenta() + " - " + cuenta.getDescripcion(), cuenta.getId() + "");
+					i++;
+				}
+				
+				log.info("    cuentaSelection: " + cuentaSelection);
+				cuentaListBox.setItemSelected(cuentaSelection, true);
+				
+				llegarSubCuentas(movimientoSeleccionado.getCuenta().getNroCuenta());
+				
+				nroGuiaOrConocimientoValue.setText(utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getNroGuiOrConocimiento()));
+				origenValue.setText(utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getOrigen()));
+				destinoValue.setText(utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getDestino()));
+				
+				String pagoOrigenS  = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getPagoOrigen());
+				String pagoDestinoS = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getPagoDestino());
+				montoOrigenValue.setText(pagoOrigenS);
+				montoDestinoValue.setText(pagoDestinoS);
+				
+				montoDoubleBox.setValue(movimientoSeleccionado.getMonto());
+				glosaTextArea.setValue(movimientoSeleccionado.getGlosa());
+				
 			}
 		} else if(movimientoAccion == MovimientoAccion.CONSULTAR ) {
-			fechaValue     = fechaLabel;	
-			cuentaValue    = cuentaLabel;
-			subCuentaValue = subCuentaLabel;
-			montoValue     = montoLabel;
-			glosaValue     = glosaLabelValue;
+			
+			tipoMovimientoValue = tipoMovimientoLabelValue;
+			fechaValue          = fechaLabelValue;
+			cuentaValue         = cuentaLabelValue;
+			subCuentaValue      = subCuentaLabelValue;
+			montoValue          = montoLabelValue;
+			glosaValue          = glosaLabelValue;
+			
+			seleccionarGuiaOrConocimientoBtn.setVisible(false);
+			
+	        // Valores	
+			tipoMovimientoLabelValue.setText(movimientoSeleccionado.getTipoCuenta().name());
+			String fechaRegistro = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss").format(movimientoSeleccionado.getFechaRegistro());
+			fechaLabelValue.setText(fechaRegistro);
+			nroComprobanteValue.setText(movimientoSeleccionado.getNroGuiOrConocimiento());
+			cuentaLabelValue.setText(movimientoSeleccionado.getNroCuentaPadre() + " - " + movimientoSeleccionado.getDescripcionPadre());
+			subCuentaLabelValue.setText(movimientoSeleccionado.getCuenta().getNroCuenta() + " - " + movimientoSeleccionado.getCuenta().getDescripcion());
+			nroGuiaOrConocimientoValue.setText(movimientoSeleccionado.getNroGuiOrConocimiento());
+			origenValue.setText(movimientoSeleccionado.getOrigen());
+			destinoValue.setText(movimientoSeleccionado.getDestino());
+				
+			String pagoOrigenS  = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getPagoOrigen());
+			String pagoDestinoS = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getPagoDestino());
+				
+			montoOrigenValue.setText(pagoOrigenS);
+			montoDestinoValue.setText(pagoDestinoS);
+			
+			String monto = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getMonto());
+			montoOrigenValue.setText(monto);
+			
+			glosaLabelValue.setText(movimientoSeleccionado.getGlosa());
+			
 		} else mensajeError.mostrar("Error grave", null); 
 		
 		// Campos
 		layout.setWidget(0,0, tipoMovimientoLabel);
-		layout.setWidget(0,1, tipoMovimientoListBox);
+		layout.setWidget(0,1, tipoMovimientoValue);
 		
 		layout.setWidget(1,0, nroComprobanteLabel);
 		layout.setWidget(1,1, nroComprobanteValue);
@@ -207,7 +299,7 @@ public class VistaMovimientoAccion extends DialogBox {
 		layout.setWidget(4,4, montoOrigenLabel);
 		layout.setWidget(4,5, montoOrigenValue);
 		layout.setWidget(5,4, saldoOrigenLabel);
-		layout.setWidget(5,5, saldoOrigenValue);
+		layout.setWidget(5,5, montoDestinoValue);
 		
 		layout.setWidget(6,0, montoLabel);
 		layout.setWidget(6,1, montoValue);
@@ -250,8 +342,6 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		setWidget(dock);
 		
-		cargarDatosIniciales();
-		
 		agregarEscuchadores();
 		
 		center();
@@ -262,7 +352,7 @@ public class VistaMovimientoAccion extends DialogBox {
 	private void cargarDatosIniciales() {
 		
 		tipoMovimientoListBox.clear();
-		tipoMovimientoListBox.addItem("","");
+		tipoMovimientoListBox.addItem("","0");
 		tipoMovimientoListBox.addItem(TipoCuenta.INGRESO.name(), TipoCuenta.INGRESO.name());
 		tipoMovimientoListBox.addItem(TipoCuenta.EGRESO.name(), TipoCuenta.EGRESO.name());
 		
@@ -276,7 +366,7 @@ public class VistaMovimientoAccion extends DialogBox {
 			log.info("tipoMovimiento: " + tipoMovimiento);
 			limpiarCampos();
 			if(tipoMovimiento == TipoCuenta.INGRESO.name()){
-				log.info("INGRESO");
+				log.info("INGRESO : " + new Date().getTime());
 				seleccionarGuiaOrConocimientoBtn.setTitle("Seleccionar Guia");
 				seleccionarGuiaOrConocimientoBtn.setText("Seleccionar Guia*");
 				servicioMovimiento.nuevoMovimientoIngreso( new LlamadaRemota<MovimientoIngreso>("", true) {
@@ -324,40 +414,12 @@ public class VistaMovimientoAccion extends DialogBox {
 		});
 		
 		cuentaListBox.addChangeHandler(e -> {
-			String tipoMovimiento = tipoMovimientoListBox.getSelectedValue();
-			
-			Long id = Long.parseLong(cuentaListBox.getSelectedValue());
-			
-			if(tipoMovimiento == TipoCuenta.INGRESO.name() && id != 0) {
-				servicioCuenta.getSubCuentasIngreso(id, new LlamadaRemota<List<CuentaIngreso>>("", false) {
-					@Override
-					public void onSuccess(Method method, List<CuentaIngreso> response) {
-						subCuentaListBox.clear();
-						subCuentaListBox.addItem("","0");
-						for (CuentaIngreso cuentaIngreso : response) {
-							subCuentaListBox.addItem(cuentaIngreso.getNroCuenta() + " - " + cuentaIngreso.getDescripcion(), cuentaIngreso.getId() + "");
-						}
-					}
-				});
-			} else if (tipoMovimiento == TipoCuenta.EGRESO.name() && id != 0) {
-				servicioCuenta.getSubCuentasEgreso(id, new LlamadaRemota<List<CuentaEgreso>>("", false) {
-					@Override
-					public void onSuccess(Method method, List<CuentaEgreso> response) {
-						subCuentaListBox.clear();
-						subCuentaListBox.addItem("","0");
-						for (CuentaEgreso cuentaIngreso : response) {
-							subCuentaListBox.addItem(cuentaIngreso.getNroCuenta() + " - " + cuentaIngreso.getDescripcion(), cuentaIngreso.getId() + "");
-						}
-					}
-				});
-			} else if(id == 0) {
-				subCuentaListBox.clear();
-			}
+			llegarSubCuentas(null);
 		});
 		
 		subCuentaListBox.addChangeHandler(e -> { 
 			Long subId = Long.parseLong(subCuentaListBox.getSelectedValue());
-			servicioMovimiento.guardarSubCuenta(movimientoSeleccionado.getId(), subId, movimientoSeleccionado.getTipoCuenta(), new LlamadaRemota<Void>("Error al guardar sub cuenta", true) {
+			servicioMovimiento.guardarSubCuenta(movimientoSeleccionado.getId(), subId, movimientoSeleccionado.getTipoCuenta(), new LlamadaRemotaVacia<Void>("Error al guardar sub cuenta", true) {
 				@Override
 				public void onSuccess(Method method, Void response) {
 					
@@ -379,18 +441,7 @@ public class VistaMovimientoAccion extends DialogBox {
 		); 
 		
 		montoDoubleBox.addValueChangeHandler(e -> {
-					
-			if(movimientoSeleccionado == null) mensajeAviso.mostrar("");
-				
-			Double monto = montoDoubleBox.getValue();
-			//cargador.fijarEstadoGuiaEspera();
-			servicioMovimiento.guardarMonto(movimientoSeleccionado.getId(), monto, movimientoSeleccionado.getTipoCuenta(), new LlamadaRemota<Void>("No se puede guardar Monto", false) {
-				@Override
-				public void onSuccess(Method method, Void response) {
-					//cargador.fijarEstadoGuiaCargado();
-				}
-				
-			});
+			guardarMonto();
 		});
 		
 		glosaTextArea.addValueChangeHandler(e -> {
@@ -408,15 +459,15 @@ public class VistaMovimientoAccion extends DialogBox {
 		});
 		
 		guardarBtn.addClickHandler(e -> {
-			if(!validarCampos()) mensajeAviso.mostrar("Llenar los campos obligatorios (*)");
-			else {
+			
+			if(validarCampos()) {
 				servicioMovimiento.cambiarEstado(movimientoSeleccionado.getId(), "V", new LlamadaRemota<Void>("No se pudo Guardar", false) {
 					@Override
 					public void onSuccess(Method method, Void response) {
 						mensajeAviso.mostrar("Guardado Exitosamente");
+						//VistaMovimientoAccion.this.hide();
 					}
 				});
-				hide(); 
 			}
 		});
 		
@@ -424,7 +475,7 @@ public class VistaMovimientoAccion extends DialogBox {
 				
 		});
 		
-		salirBtn.addClickHandler(e -> this.hide());
+		salirBtn.addClickHandler(e -> VistaMovimientoAccion.this.hide());
 		
 		seleccionarGuiaOrConocimientoBtn.addClickHandler(e -> {
 			if(movimientoSeleccionado == null) {
@@ -447,22 +498,13 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 	}
 	
-	public void mostrar(MovimientoAccion transportistaAccion, final Movimiento transportista){
-		this.movimientoAccion = transportistaAccion;
+	public void mostrar(MovimientoAccion movimientoAccion, final Movimiento transportista){
+		this.movimientoAccion = movimientoAccion;
 		this.movimientoSeleccionado = transportista;
-		GWT.log("TransportistaAccion:" + transportistaAccion);
+		GWT.log("TransportistaAccion:" + movimientoAccion);
 		vistaElegirGuiaDialogBox.setVistaMovimientoAccion(this);
 		vistaElegirConocimientoDialogBox.setVistaMovimientoAccion(this);
 		
-		if(transportistaAccion == MovimientoAccion.NUEVO) {
-//		servicioTransportista.nuevoTransportista(new LlamadaRemota<Transportista>("No se pude crear nueva guia",true) {
-//			@Override
-//			public void onSuccess(Method method, Transportista response) {
-//				log.info("Transportista creado: " + response.getId());
-//				VistaMovimientoAccion.this.transportistaSeleccionado = response;
-//			}
-//		});
-		}
 		construirGUI();
 	}
 	
@@ -477,7 +519,7 @@ public class VistaMovimientoAccion extends DialogBox {
 		montoOrigenValue.setText(montoOrigen);
 			
 		String montoDestino = NumberFormat.getFormat("0.00").format(guiaSeleccionada.getSaldoDestino());
-		saldoOrigenValue.setText(montoDestino);
+		montoDestinoValue.setText(montoDestino);
 			
 		servicioMovimiento.guardarGuia(movimientoSeleccionado.getId(), guiaSeleccionada.getId(), new LlamadaRemota<Void>("", true) {
 			@Override
@@ -485,6 +527,8 @@ public class VistaMovimientoAccion extends DialogBox {
 				Double pagoOrigen = guiaSeleccionada.getPagoOrigen() == null ? 0.0 : guiaSeleccionada.getPagoOrigen();
 				Double saldoDestino = guiaSeleccionada.getSaldoDestino() == null ? 0.0 : guiaSeleccionada.getSaldoDestino();
 				montoDoubleBox.setValue(pagoOrigen + saldoDestino);
+				
+				guardarMonto();
 			}
 		});
 		 
@@ -501,12 +545,16 @@ public class VistaMovimientoAccion extends DialogBox {
 		montoOrigenValue.setText(montoOrigen);
 		
 		String montoDestino = NumberFormat.getFormat("0.00").format(conocimientoSeleccionada.getPagoDestino());
-		saldoOrigenValue.setText(montoDestino);
+		montoDestinoValue.setText(montoDestino);
 		
 		servicioMovimiento.guardarConocimiento(movimientoSeleccionado.getId(), conocimientoSeleccionada.getId(), new LlamadaRemota<Void>("", true) {
 			@Override
 			public void onSuccess(Method method, Void response) {
+				Double pagoOrigen = conocimientoSeleccionada.getPagoOrigen() == null ? 0.0 : conocimientoSeleccionada.getPagoOrigen();
+				Double saldoDestino = conocimientoSeleccionada.getPagoDestino() == null ? 0.0 : conocimientoSeleccionada.getPagoDestino();
+				montoDoubleBox.setValue(pagoOrigen + saldoDestino);
 				
+				guardarMonto();
 			}
 		});
 		
@@ -520,19 +568,119 @@ public class VistaMovimientoAccion extends DialogBox {
 		subCuentaLabelValue.setText(""); subCuentaListBox.clear();
 		montoLabelValue.setText("");     //montoDoubleBox.setValue(null);
 		seleccionarGuiaOrConocimientoBtn.setTitle("");
+		seleccionarGuiaOrConocimientoBtn.setText("");
 		nroGuiaOrConocimientoValue.setText("");
 		origenValue.setText(""); 
 		destinoValue.setText("");
 		montoOrigenValue.setText("");
-		saldoOrigenValue.setText("");
+		montoDestinoValue.setText("");
 		montoDoubleBox.setText(""); montoLabelValue.setText("");
 		glosaTextArea.setText("");
 	}
 	
 	private boolean validarCampos() {
-//		String nombres  = fechaTextBox.getValue();
-//		if(nombres.isEmpty()) return false;
+		
+		boolean isTipoMovimiento = tipoMovimientoListBox.getSelectedValue().equals("0") ? false : true;
+		log.info("isTipoMovimiento: " + isTipoMovimiento);
+		if(!isTipoMovimiento) { 
+			mensajeAviso.mostrar("Debe elegir un Tipo Movimiento"); return false;
+		}
+		
+		boolean isCuenta = ( cuentaListBox.getSelectedValue() == null | cuentaListBox.getSelectedValue().equals("0")) ? false : true;
+		log.info("  isCuenta: " + isCuenta);
+		if(!isCuenta) { 
+			mensajeAviso.mostrar("Debe elegir una  Cuenta"); return false; 
+		}
+		
+		boolean isSubCuenta = subCuentaListBox.getSelectedValue().equals("0") ? false : true;
+		log.info("  isSubCuenta: " + isSubCuenta);
+		if(!isSubCuenta) {
+			mensajeAviso.mostrar("Debe elegir una  Sub Cuenta"); return false;
+		}
+		
+		boolean isFecha = fechaTextBox.getValue() == null ? false : true;
+		log.info("  isFecha: " + isFecha);
+		if(!isFecha) {
+			mensajeAviso.mostrar("Debe elegir una fecha"); return false;
+		}
+		
+//		boolean isNro = nroGuiaOrConocimientoValue.getText().equals("") ? false : true;
+//		log.info("  isNro: " + isNro);
+//		if(!isNro) {
+//			mensajeAviso.mostrar("Debe elegir un Guia o Conocimiento"); return false;
+//		}
+		
+		boolean isMonto = montoDoubleBox.getValue() == null ? false : true;
+		log.info("  isMonto: " + isMonto);
+		if(!isMonto) {
+			mensajeAviso.mostrar("Debe elegir un Monto"); return false;
+		}
+		
 		return true;	
 	}
 	
+	private void llegarSubCuentas(Integer subCuentaSeleccion) {
+		String tipoMovimiento = tipoMovimientoListBox.getSelectedValue();
+		
+		Long id = Long.parseLong(cuentaListBox.getSelectedValue());
+		
+		if(tipoMovimiento == TipoCuenta.INGRESO.name() && id != 0) {
+			servicioCuenta.getSubCuentasIngreso(id, new LlamadaRemota<List<CuentaIngreso>>("", false) {
+				@Override
+				public void onSuccess(Method method, List<CuentaIngreso> response) {
+					subCuentaListBox.clear();
+					subCuentaListBox.addItem("","0");
+					for (CuentaIngreso cuentaIngreso : response) 
+						subCuentaListBox.addItem(cuentaIngreso.getNroCuenta() + " - " + cuentaIngreso.getDescripcion(), cuentaIngreso.getId() + "");
+					
+					// Seleccionar SubCuenta
+					int subCuentaSeleccionado = 0;
+					int i = 1;
+					if(subCuentaSeleccion != null) {
+						for (Cuenta cuentaIngreso : response) 
+							if(cuentaIngreso.getNroCuenta().equals(subCuentaSeleccion)) subCuentaSeleccionado = i;
+						subCuentaListBox.setItemSelected(subCuentaSeleccionado, true);
+					}
+					
+				}
+			});
+		} else if (tipoMovimiento == TipoCuenta.EGRESO.name() && id != 0) {
+			servicioCuenta.getSubCuentasEgreso(id, new LlamadaRemota<List<CuentaEgreso>>("", false) {
+				@Override
+				public void onSuccess(Method method, List<CuentaEgreso> response) {
+					subCuentaListBox.clear();
+					subCuentaListBox.addItem("","0");
+					for (CuentaEgreso cuentaIngreso : response) 
+						subCuentaListBox.addItem(cuentaIngreso.getNroCuenta() + " - " + cuentaIngreso.getDescripcion(), cuentaIngreso.getId() + "");
+					
+					// Seleccionar SubCuenta
+					int subCuentaSeleccionado = 0;
+					int i = 1;
+					if(subCuentaSeleccion != null) {
+						for (Cuenta cuentaIngreso : response) 
+							if(cuentaIngreso.getNroCuenta().equals(subCuentaSeleccion)) subCuentaSeleccionado = i;
+						subCuentaListBox.setItemSelected(subCuentaSeleccionado, true);
+					}
+					
+					
+				}
+			});
+		} else if(id == 0) {
+			subCuentaListBox.clear();
+		}
+	}
+	
+	private void guardarMonto() {
+		if(movimientoSeleccionado == null) mensajeAviso.mostrar("");
+		
+		Double monto = montoDoubleBox.getValue();
+		//cargador.fijarEstadoGuiaEspera();
+		servicioMovimiento.guardarMonto(movimientoSeleccionado.getId(), monto, movimientoSeleccionado.getTipoCuenta(), new LlamadaRemota<Void>("No se puede guardar Monto", false) {
+			@Override
+			public void onSuccess(Method method, Void response) {
+				//cargador.fijarEstadoGuiaCargado();
+			}
+			
+		});
+	}
 }

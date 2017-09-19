@@ -12,6 +12,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
+import com.sinergia.dcargo.client.shared.dto.DateParam;
 
 /**
  * @author willy

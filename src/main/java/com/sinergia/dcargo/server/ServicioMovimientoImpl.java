@@ -1,7 +1,11 @@
 package com.sinergia.dcargo.server;
 
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -13,6 +17,7 @@ import javax.ejb.Stateless;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
 
 import com.sinergia.dcargo.client.shared.ServicioMovimiento;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
@@ -21,7 +26,12 @@ import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
+import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dto.DeudasPorCobrarReporte;
+import com.sinergia.dcargo.client.shared.dto.DeudasReporte;
+import com.sinergia.dcargo.client.shared.dto.LiquidacionCargaReporte;
+import com.sinergia.dcargo.client.shared.dto.LiquidacionReporte;
 
 /**
  * @author willy
@@ -259,7 +269,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		movTO.setId(mov.getId());
 		movTO.setNroComprobante(mov.getNroComprobante());
 		movTO.setFechaRegistro(mov.getFechaRegistro());
-		movTO.setTipoCuenta((mov instanceof MovimientoEgreso) ? TipoCuenta.INGRESO : TipoCuenta.EGRESO);
+		movTO.setTipoCuenta((mov instanceof MovimientoIngreso) ? TipoCuenta.INGRESO : TipoCuenta.EGRESO);
 		movTO.setMonto(mov.getMonto());
 		movTO.setGlosa(mov.getGlosa());
 		movTO.setEstado(mov.getEstado());
@@ -267,65 +277,49 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		
 		if(mov instanceof MovimientoIngreso) {
 			
-			if(((MovimientoIngreso)mov).getGuia() == null)                 throw new Exception("Guia nula"); 
-			if(((MovimientoIngreso)mov).getGuia().getOficinaOrigen() == null) throw new Exception("Guia Origen nulo");             			
-			if(((MovimientoIngreso)mov).getGuia().getOficinaDestino() == null) throw new Exception("Guia Destino nulo");
-			
-			mov.setOrigen(((MovimientoIngreso)mov).getGuia().getOficinaOrigen().getNombre());
-			mov.setDestino(((MovimientoIngreso)mov).getGuia().getOficinaDestino().getNombre());
-		
-//				Guia guia = new Guia();
-//				guia.setId(((MovimientoIngreso)mov).getGuia().getId());
-//				if(((MovimientoIngreso)mov).getGuia().getPagoOrigen() != null) guia.setPagoOrigen(((MovimientoIngreso)mov).getGuia().getPagoOrigen());
-//				if(((MovimientoIngreso)mov).getGuia().getSaldoDestino() != null) guia.setSaldoDestino(((MovimientoIngreso)mov).getGuia().getSaldoDestino());
-//				
-//				if(((MovimientoIngreso)mov).getGuia().getOficinaOrigen() != null) {
-//					Oficina  origen = new Oficina(); 
-//					origen.setId(((MovimientoIngreso)mov).getGuia().getOficinaOrigen().getId());
-//					origen.setNombre(((MovimientoIngreso)mov).getGuia().getOficinaOrigen().getNombre());
-//					guia.setOficinaOrigen(origen);
-//				}
-//				if(((MovimientoIngreso)mov).getGuia().getOficinaDestino() != null) {
-//					Oficina destino = new Oficina();
-//					destino.setId(((MovimientoIngreso)mov).getGuia().getOficinaDestino().getId());
-//					destino.setNombre(((MovimientoIngreso)mov).getGuia().getOficinaDestino().getNombre());
-//					guia.setOficinaOrigen(destino);
-//				}
-//				((MovimientoIngreso)movTO).setGuia(guia);
+			if(((MovimientoIngreso)mov).getGuia() == null) {
+				movTO.setOrigen("");
+				movTO.setDestino("");
+			} else {
+				if(((MovimientoIngreso)mov).getGuia().getOficinaOrigen() == null) {
+					movTO.setOrigen("");
+				} else if(((MovimientoIngreso)mov).getGuia().getOficinaDestino() == null) {
+					movTO.setDestino("");
+				} else {
+					movTO.setOrigen(((MovimientoIngreso)mov).getGuia().getOficinaOrigen().getNombre());
+					movTO.setDestino(((MovimientoIngreso)mov).getGuia().getOficinaDestino().getNombre());
+				}
+			}
 
+			if(((MovimientoIngreso)mov).getGuia() != null) {
+				movTO.setPagoOrigen(((MovimientoIngreso)mov).getGuia().getPagoOrigen());
+			    movTO.setPagoDestino(((MovimientoIngreso)mov).getGuia().getSaldoDestino());
+			}
 			
 			if(((MovimientoIngreso) mov).getGuia() != null) 
 				movTO.setNroGuiOrConocimiento(((MovimientoIngreso) mov).getGuia().getNroGuia()+"");
 			
 		} else {
 			
-			if(((MovimientoEgreso)mov).getConocimiento() == null)                 throw new Exception("Conocimiento nula"); 
-			if(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen() == null) throw new Exception("Conocimiento Origen nulo");             			
-			if(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino() == null) throw new Exception("Conocimiento Destino nulo");
+			if(((MovimientoEgreso)mov).getConocimiento() == null) {
+				movTO.setOrigen("");
+				movTO.setDestino("");
+			} else {
+				if(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen() == null) {
+					movTO.setOrigen("");             			
+				} else if(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino() == null) {
+					movTO.setDestino("");
+				} else {
+					movTO.setOrigen(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen().getNombre());
+					movTO.setDestino(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino().getNombre());
+				}
+			}
 			
-			mov.setOrigen(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen().getNombre());
-			mov.setDestino(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino().getNombre());
-			
-//			if(((MovimientoEgreso)mov).getConocimiento() != null){
-//				Conocimiento con = new Conocimiento();
-//				con.setId(((MovimientoEgreso)mov).getConocimiento().getId());
-//				if(((MovimientoEgreso)mov).getConocimiento().getPagoOrigen() != null) con.setPagoOrigen(((MovimientoEgreso)mov).getConocimiento().getPagoOrigen());
-//				if(((MovimientoEgreso)mov).getConocimiento().getPagoDestino() != null) con.setPagoDestino(((MovimientoEgreso)mov).getConocimiento().getPagoDestino());
-//				
-//				if(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen() != null) {
-//					Oficina  origen = new Oficina(); 
-//					origen.setId(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen().getId());
-//					origen.setNombre(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen().getNombre());
-//					con.setOficinaOrigen(origen);
-//				}
-//				if(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino() != null) {
-//					Oficina destino = new Oficina();
-//					destino.setId(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino().getId());
-//					destino.setNombre(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino().getNombre());
-//					con.setOficinaOrigen(destino);
-//				}
-//				((MovimientoEgreso)movTO).setConocimiento(con);
-//			}
+			if(((MovimientoEgreso)mov).getConocimiento() != null) {
+				movTO.setPagoOrigen(((MovimientoEgreso)mov).getConocimiento().getPagoOrigen());
+			    movTO.setPagoDestino(((MovimientoEgreso)mov).getConocimiento().getPagoDestino());
+			}
+		    
 			if(((MovimientoEgreso) mov).getConocimiento() != null) 
 				movTO.setNroGuiOrConocimiento(((MovimientoEgreso) mov).getConocimiento().getNroConocimiento()+"");
 		}
@@ -336,7 +330,15 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			cuenta.setNroCuenta(mov.getCuenta().getNroCuenta());
 			cuenta.setDescripcion(mov.getCuenta().getDescripcion());
 			movTO.setCuenta(cuenta);
+			
+	         
+	        movTO.setNroCuentaPadre(mov.getCuenta().getCuenta().getNroCuenta());
+	        movTO.setDescripcionPadre(mov.getCuenta().getCuenta().getDescripcion());
+	         
 		}
+		
+		
+		
 		return movTO;
 	}
 	
@@ -348,4 +350,209 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		return movP;
 	}
 
+	@Override
+	public LiquidacionCargaReporte reporteLiquidacionCarga(LiquidacionReporte liquidacionReporte) throws Exception {
+		
+		SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		
+		Date fechaInicio = liquidacionReporte.getFechaInicioBusqueda();
+		Date fechaFin = liquidacionReporte.getFechaDestinoBusqueda();
+		
+		System.out.println("fechaInicio: " + dt1.format(fechaInicio));
+		System.out.println("fechaFin: " + dt1.format(fechaFin));
+		
+		Date fechaInicio1 = new Date();
+		fechaInicio1.setYear(fechaInicio.getYear());
+		fechaInicio1.setMonth(fechaInicio.getMonth());
+		fechaInicio1.setDate(fechaInicio.getDate());
+		fechaInicio1.setHours(0);
+		fechaInicio1.setMinutes(0);
+		fechaInicio1.setSeconds(0);
+		
+		Date fechaFin1 = new Date();
+		fechaFin1.setYear(fechaFin.getYear());
+		fechaFin1.setMonth(fechaFin.getMonth());
+		fechaFin1.setDate(fechaFin.getDate());
+		fechaFin1.setHours(23);
+		fechaFin1.setMinutes(59);
+		fechaFin1.setSeconds(59);
+		
+		System.out.println("fechaInicio1: " + dt1.format(fechaInicio1));
+		System.out.println("fechaFin1: " + dt1.format(fechaFin1));
+		
+		Calendar calIni = new GregorianCalendar(fechaInicio.getYear() - 1900, fechaInicio.getMonth()+1, fechaInicio.getDate());
+		Calendar calFin = new GregorianCalendar(fechaFin.getYear() - 1900, fechaFin.getMonth()+1, fechaFin.getDate());
+		
+		System.out.println("Ini - year: " + calIni.getTime().getYear() + " month: " + calIni.getTime().getMonth() + " date: " + calIni.getTime().getDate());
+		System.out.println("Fin - year: " + calFin.getTime().getYear() + " month: " + calFin.getTime().getMonth() + " date: " + calFin.getTime().getDate());
+		
+		
+		
+		
+		Long idOficinaOrigen  = liquidacionReporte.getIdOrigenBusqueda() == null ? 0 : liquidacionReporte.getIdOrigenBusqueda(); 
+		Long idOficinaDestino = liquidacionReporte.getIddDestinoBusqueda() == null ? 0 : liquidacionReporte.getIddDestinoBusqueda();
+		
+		
+		Integer porcentajeDestino = liquidacionReporte.getPorcentajeDestinoBusqueda();
+		
+		//String sql = "SELECT c FROM Conocimiento c WHERE c.fechaRegistro >= :fechaInicio AND c.fechaRegistro <= :fechaFin  AND " +
+		String sql = "SELECT c FROM Conocimiento c WHERE c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND " + 
+				     "c.oficinaOrigen.id = :idOficinaOrigen AND c.oficinaDestino.id = :idOficinaDestino ORDER BY c.fechaRegistro ASC";
+		Query query = em.createQuery(sql);
+		query.setParameter("fechaInicio", fechaInicio1, TemporalType.TIMESTAMP);
+		query.setParameter("fechaFin", fechaFin1, TemporalType.TIMESTAMP);
+		query.setParameter("idOficinaOrigen", idOficinaOrigen);
+		query.setParameter("idOficinaDestino", idOficinaDestino);
+		//query.setParameter("estado", 'V');
+		@SuppressWarnings("unchecked")
+		List<Conocimiento> csP = query.getResultList();
+
+		DecimalFormat df = new DecimalFormat( "#,###,###,##0.00" );
+		SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
+		
+		LiquidacionCargaReporte liquidacionCargaReporte = new LiquidacionCargaReporte();
+		List<LiquidacionReporte> ls =  new ArrayList<LiquidacionReporte>();
+		int nro = 1;
+		Double sumaCobroOrigen  = 0.0;
+		Double sumaCobroDestino = 0.0;
+		Double sumaFleteDestino = 0.0;
+		for (Conocimiento cP: csP) {
+			int jg = 1;
+			for (Guia gP: cP.getGuias()) {
+				LiquidacionReporte lr;
+				Double pagoDestinoConocimiento = cP.getPagoDestino() == null ? 0.0 : cP.getPagoDestino();
+				if(jg++ == 1) {
+					lr = new LiquidacionReporte();
+					lr.setFecha(dt.format(cP.getFechaRegistro()));
+					lr.setNroConocimiento(cP.getNroConocimiento()+"");
+					lr.setFleteDestino(df.format(pagoDestinoConocimiento));
+					sumaFleteDestino = sumaFleteDestino + pagoDestinoConocimiento;
+				} else {
+					lr = new LiquidacionReporte();
+					lr.setFecha("");
+					lr.setNroConocimiento("");
+					lr.setFleteDestino("");
+				}
+				
+				lr.setNro(nro++);
+				lr.setNroGuia(gP.getNroGuia()+"");
+				lr.setCobroOrigen(df.format(gP.getPagoOrigen()));
+				sumaCobroOrigen = sumaCobroOrigen + gP.getPagoOrigen();
+				lr.setCobroDestino(df.format(gP.getSaldoDestino()));
+				sumaCobroDestino = sumaCobroDestino + gP.getSaldoDestino();
+				ls.add(lr);
+			}
+		}
+		liquidacionCargaReporte.setLiquidacionesReporte(ls);
+		liquidacionCargaReporte.setNroTotalConocimientos(csP.size()+"");
+		liquidacionCargaReporte.setNroTotalGuia((nro-1)+"");
+		liquidacionCargaReporte.setTotalCobroOrigen(df.format(sumaCobroOrigen));
+		liquidacionCargaReporte.setTotalCobroDestino(df.format(sumaCobroDestino));
+		liquidacionCargaReporte.setTotalFleteDestino(df.format(sumaFleteDestino));
+		
+		return liquidacionCargaReporte;
+		
+	}
+	
+	@Override
+	public DeudasPorCobrarReporte reporteDeudasPorCobrar(DeudasReporte deudasReporte) throws Exception {
+		
+		SimpleDateFormat dt1 = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+		
+		Date fechaInicio = deudasReporte.getFechaInicioBusqueda();
+		Date fechaFin = deudasReporte.getFechaDestinoBusqueda();
+		
+		System.out.println("fechaInicio: " + dt1.format(fechaInicio));
+		System.out.println("fechaFin: " + dt1.format(fechaFin));
+		
+		Date fechaInicio1 = new Date();
+		fechaInicio1.setYear(fechaInicio.getYear());
+		fechaInicio1.setMonth(fechaInicio.getMonth());
+		fechaInicio1.setDate(fechaInicio.getDate());
+		fechaInicio1.setHours(0);
+		fechaInicio1.setMinutes(0);
+		fechaInicio1.setSeconds(0);
+		
+		Date fechaFin1 = new Date();
+		fechaFin1.setYear(fechaFin.getYear());
+		fechaFin1.setMonth(fechaFin.getMonth());
+		fechaFin1.setDate(fechaFin.getDate());
+		fechaFin1.setHours(23);
+		fechaFin1.setMinutes(59);
+		fechaFin1.setSeconds(59);
+		
+		System.out.println("fechaInicio1: " + dt1.format(fechaInicio1));
+		System.out.println("fechaFin1: " + dt1.format(fechaFin1));
+		
+		Calendar calIni = new GregorianCalendar(fechaInicio.getYear() - 1900, fechaInicio.getMonth()+1, fechaInicio.getDate());
+		Calendar calFin = new GregorianCalendar(fechaFin.getYear() - 1900, fechaFin.getMonth()+1, fechaFin.getDate());
+		
+		System.out.println("Ini - year: " + calIni.getTime().getYear() + " month: " + calIni.getTime().getMonth() + " date: " + calIni.getTime().getDate());
+		System.out.println("Fin - year: " + calFin.getTime().getYear() + " month: " + calFin.getTime().getMonth() + " date: " + calFin.getTime().getDate());
+		
+		
+		Long idOficinaOrigen  = deudasReporte.getIdOrigenBusqueda() == null ? 0 : deudasReporte.getIdOrigenBusqueda(); 
+		Long idOficinaDestino = deudasReporte.getIddDestinoBusqueda() == null ? 0 : deudasReporte.getIddDestinoBusqueda();
+		
+		
+		Long idCliente = deudasReporte.getIdCliente();
+		
+		//String sql = "SELECT c FROM Conocimiento c WHERE c.fechaRegistro >= :fechaInicio AND c.fechaRegistro <= :fechaFin  AND " +
+		String sql = "SELECT c FROM Guia c WHERE c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND " + 
+				     "c.oficinaOrigen.id = :idOficinaOrigen AND c.oficinaDestino.id = :idOficinaDestino AND " +
+				     "(c.remitente.id = :idCliente OR c.consignatario.id = :idCliente) " +
+				     " ORDER BY c.fechaRegistro ASC";
+		Query query = em.createQuery(sql);
+		query.setParameter("fechaInicio", fechaInicio1, TemporalType.TIMESTAMP);
+		query.setParameter("fechaFin", fechaFin1, TemporalType.TIMESTAMP);
+		query.setParameter("idOficinaOrigen", idOficinaOrigen);
+		query.setParameter("idOficinaDestino", idOficinaDestino);
+		query.setParameter("idCliente", idCliente);
+		//query.setParameter("estado", 'V');
+		@SuppressWarnings("unchecked")
+		List<Guia> csP = query.getResultList();
+
+		DecimalFormat df = new DecimalFormat( "#,###,###,##0.00" );
+		SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
+		
+		DeudasPorCobrarReporte deudasPorCobrarReporte = new DeudasPorCobrarReporte();
+		List<LiquidacionReporte> ls =  new ArrayList<LiquidacionReporte>();
+		int nro = 1;
+		Double totalDeudasMonto    = 0.0;
+		Double totalIngresoAcuenta = 0.0;
+		for (Guia gP: csP) {
+			DeudasReporte d = new DeudasReporte();
+			d.setId(gP.getId());
+			d.setNro(nro++);
+			d.setFecha(dt.format(gP.getFechaRegistro()));
+			d.setNroGuia(gP.getNroGuia()+"");
+			d.setOrigen(gP.getOficinaOrigen()==null ? "":gP.getOficinaOrigen().getNombre());
+			d.setDestino(gP.getOficinaDestino()==null ? "":gP.getOficinaDestino().getNombre());
+			String remitente = gP.getRemitente() == null ? "" : gP.getRemitente().getNombre();
+			String consignatario = gP.getConsignatario() == null ? "" : gP.getConsignatario().getNombre();
+			String clientes = remitente + "\n" + consignatario; 
+			d.setDeudasClientes(clientes);
+			d.setDeudasMonto(df.format(gP.getTotalGuia() == null ? 0.0 : gP.getTotalGuia()));
+			if(gP.getMovimientoIngreso() != null) {
+				d.setIngresosFecha(df.format(gP.getMovimientoIngreso().getFechaRegistro()));
+				d.setIngresosNroComprobante(gP.getMovimientoIngreso().getNroGuiOrConocimiento());
+				d.setIngresosAcuenta(df.format(gP.getMovimientoIngreso().getMonto()));
+				d.setIngresosSaldo("");
+			} else {
+				d.setIngresosFecha("");
+				d.setIngresosNroComprobante("");
+				d.setIngresosAcuenta(df.format(""));
+				d.setIngresosSaldo("");
+			}
+		}
+		deudasPorCobrarReporte.setMontoTotalDeudas(df.format(totalDeudasMonto));
+		deudasPorCobrarReporte.setMontoTotalAcuenta(df.format(totalIngresoAcuenta));
+		
+		return deudasPorCobrarReporte;
+		
+	}
+	
+	
+	
+	
 }

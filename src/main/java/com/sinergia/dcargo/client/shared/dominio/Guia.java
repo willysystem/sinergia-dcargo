@@ -66,7 +66,7 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	private String novedadEntrega;
+	private String nombreClienteEntrega;
 	/**
 	 * @generated
 	 */
@@ -154,8 +154,13 @@ public class Guia implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.OneToMany(mappedBy = "guia")
-	private java.util.Set<MovimientoIngreso> movimientosIngreso = new java.util.HashSet<MovimientoIngreso>();
+	@javax.persistence.OneToOne
+	private MovimientoIngreso movimientoIngreso;
+	
+	
+	private String nroFacturaEntrega;
+	
+	private Boolean entregaConsignatario;
 
 	/**
 	 * @generated
@@ -331,18 +336,12 @@ public class Guia implements java.io.Serializable {
 		this.tipoPago = tipoPago;
 	}
 
-	/**
-	 * @generated
-	 */
-	public String getNovedadEntrega() {
-		return this.novedadEntrega;
+	public String getNombreClienteEntrega() {
+		return nombreClienteEntrega;
 	}
 
-	/**
-	 * @generated
-	 */
-	public void setNovedadEntrega(String novedadEntrega) {
-		this.novedadEntrega = novedadEntrega;
+	public void setNombreClienteEntrega(String nombreClienteEntrega) {
+		this.nombreClienteEntrega = nombreClienteEntrega;
 	}
 
 	/**
@@ -622,7 +621,7 @@ public class Guia implements java.io.Serializable {
 				+ adjunto + " nroFactura=" + nroFactura + " fechaRegistro="
 				+ fechaRegistro + " totalMinimo=" + totalMinimo
 				+ " fechaEntrega=" + fechaEntrega + " ciEntrega=" + ciEntrega
-				+ " novedadEntrega=" + novedadEntrega + " resumenContenido="
+				+ " novedadEntrega=" + nombreClienteEntrega + " resumenContenido="
 				+ resumenContenido + " saldoDestino=" + saldoDestino
 				+ " pagoOrigen=" + pagoOrigen + " fecha=" + fecha
 				+ " totalGuia=" + totalGuia + " notaEntrega=" + notaEntrega
@@ -631,34 +630,28 @@ public class Guia implements java.io.Serializable {
 				+ fechaFin;
 	}
 
-	/**
-	 * @generated
-	 */
-	public java.util.Set<MovimientoIngreso> getMovimientosIngreso() {
-		return this.movimientosIngreso;
+	public String getNroFacturaEntrega() {
+		return nroFacturaEntrega;
 	}
 
-	/**
-	 * @generated
-	 */
-	public void setMovimientosIngreso(
-			java.util.Set<MovimientoIngreso> movimientosIngreso) {
-		this.movimientosIngreso = movimientosIngreso;
+	public void setNroFacturaEntrega(String nroFacturaEntrega) {
+		this.nroFacturaEntrega = nroFacturaEntrega;
 	}
 
-	/**
-	 * @generated
-	 */
-	public void addMovimientosIngreso(MovimientoIngreso movimientosIngreso) {
-		getMovimientosIngreso().add(movimientosIngreso);
-		movimientosIngreso.setGuia(this);
+	public Boolean getEntregaConsignatario() {
+		return entregaConsignatario;
 	}
 
-	/**
-	 * @generated
-	 */
-	public void removeMovimientosIngreso(MovimientoIngreso movimientosIngreso) {
-		getMovimientosIngreso().remove(movimientosIngreso);
-		movimientosIngreso.setGuia(null);
+	public void setEntregaConsignatario(Boolean entregaConsignatario) {
+		this.entregaConsignatario = entregaConsignatario;
 	}
+
+	public MovimientoIngreso getMovimientoIngreso() {
+		return movimientoIngreso;
+	}
+
+	public void setMovimientoIngreso(MovimientoIngreso movimientoIngreso) {
+		this.movimientoIngreso = movimientoIngreso;
+	}
+	
 }

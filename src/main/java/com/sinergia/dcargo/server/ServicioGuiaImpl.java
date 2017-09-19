@@ -24,11 +24,11 @@ import org.slf4j.Logger;
 import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
 import com.sinergia.dcargo.client.shared.dominio.Cliente;
+import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Item;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
-import com.sinergia.dcargo.client.shared.dominio.Precio;
 import com.sinergia.dcargo.client.shared.dominio.Unidad;
 import com.sinergia.dcargo.client.shared.OficinaServicio;
 import com.sinergia.dcargo.server.dao.Dao;
@@ -96,7 +96,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		} 
 		if(!"".equals(remite)){
 			List<Cliente> clientes = serviceCliente.buscarClientesPorNombre(remite);
-			if(!clientes.isEmpty()){
+			if(!clientes.isEmpty()) {
 				where = where + " c.remitente.id = :remitenteId AND";
 				parametros.put("remitenteId", clientes.get(0).getId());
 			} 
@@ -185,12 +185,15 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setTotalGuia(guiaP.getTotalGuia());
 		gDTO.setTotalCantidad(guiaP.getTotalCantidad());
 		gDTO.setResumenContenido(guiaP.getResumenContenido());
+		gDTO.setFechaEntrega(guiaP.getFechaEntrega());
+		gDTO.setNroFacturaEntrega(guiaP.getNroFacturaEntrega());
 		
 		Cliente remite1 = null;
 		if(guiaP.getRemitente() != null) {
 			remite1 = new Cliente();
 			remite1.setId(guiaP.getRemitente().getId());
 			remite1.setNombre(guiaP.getRemitente().getNombre());
+			remite1.setTelefono(guiaP.getRemitente().getTelefono());
 			gDTO.setRemitente(remite1);
 		}
 		
@@ -199,6 +202,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			consignatario1 = new Cliente();
 			consignatario1.setId(guiaP.getConsignatario().getId());
 			consignatario1.setNombre(guiaP.getConsignatario().getNombre());
+			consignatario1.setTelefono(guiaP.getConsignatario().getTelefono());
 			gDTO.setConsignatario(consignatario1);
 		}
 		
@@ -216,6 +220,13 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			destino1.setId(guiaP.getOficinaDestino().getId());
 			destino1.setNombre(guiaP.getOficinaDestino().getNombre());
 			gDTO.setOficinaDestino(destino1);
+		}
+		
+		Conocimiento conocimiento = null;
+		if(guiaP.getConocimiento() != null) {
+			conocimiento = new Conocimiento();
+			conocimiento.setNroConocimiento(guiaP.getConocimiento().getNroConocimiento());
+			gDTO.setConocimiento(conocimiento);
 		}
 		
 		return gDTO;
@@ -336,6 +347,16 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setSaldoDestino(guiaP.getSaldoDestino());
 		gDTO.setTotalGuia(guiaP.getTotalGuia());
 		
+		if(guiaP.getEntregaConsignatario() != null) {
+			if(guiaP.getEntregaConsignatario()) {
+				gDTO.setNombreClienteEntrega(guiaP.getConsignatario().getNombre());
+				gDTO.setCiEntrega(guiaP.getConsignatario().getNit());
+			} else {
+				gDTO.setNombreClienteEntrega(guiaP.getNombreClienteEntrega());
+				gDTO.setCiEntrega(guiaP.getCiEntrega());
+			}
+		}
+		
 		List<Item> items = new ArrayList<>();
 		for (Item itemP: guiaP.getItems()) {
 			Item iDTO = new Item();
@@ -352,14 +373,15 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 				iDTO.setUnidad(uDTO);
 			} else iDTO.setUnidadTitulo("");
 			
-			if(itemP.getPrecio() != null){
-				Precio pDTO = new Precio();
-				pDTO.setId(itemP.getPrecio().getId());
-				pDTO.setPrecio(itemP.getPrecio().getPrecio());
-				pDTO.setDescripcion(itemP.getPrecio().getDescripcion());
-				iDTO.setPrecioMonto(itemP.getPrecio().getDescripcion());
-				iDTO.setPrecio(pDTO);
-			} else iDTO.setPrecioMonto("");
+//			if(itemP.getPrecio() != null){
+//				Precio pDTO = new Precio();
+//				pDTO.setId(itemP.getPrecio().getId());
+//				pDTO.setPrecio(itemP.getPrecio().getPrecio());
+//				pDTO.setDescripcion(itemP.getPrecio().getDescripcion());
+//				iDTO.setPrecioMonto(itemP.getPrecio().getDescripcion());
+//				iDTO.setPrecio(pDTO);
+//			} else iDTO.setPrecioMonto("");
+			iDTO.setPrecio(itemP.getPrecio());
 			
 			iDTO.setTotal(itemP.getTotal());
 			
@@ -406,6 +428,9 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	public void cambiarEstado(Long idGuia, String estadoDescripcion) throws Exception {
 		Guia guia = buscarPorId(idGuia);
 		guia.setEstado(getEstado(estadoDescripcion));
+
+		if(estadoDescripcion.equals("E"))
+			guia.setFechaEntrega(new Date());
 		em.merge(guia);
 	}
 
@@ -420,6 +445,48 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	public void guardarBultosTotal(Long idGuia, Integer bultosTotal) throws Exception {
 		Guia guia = buscarPorId(idGuia);
 		guia.setTotalCantidad(bultosTotal);
+		em.merge(guia);
+	}
+
+	@Override
+	public void guardarNombreClienteEntrega(Long idGuia, String nombreClienteEntrega) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setNombreClienteEntrega(nombreClienteEntrega);
+		em.merge(guia);
+	}
+
+	@Override
+	public void guardarCiEntrega(Long idGuia, String ciEntrega) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setCiEntrega(ciEntrega);
+		em.merge(guia);
+	}
+
+	@Override
+	public void guardarNroFacturaEntrega(Long idGuia, String nroFacturaEntrega) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setNroFacturaEntrega(nroFacturaEntrega);
+		em.merge(guia);
+	}
+
+	@Override
+	public void guardarNotaEntrega(Long idGuia, String notaEntrega) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setNotaEntrega(notaEntrega);
+		em.merge(guia);
+	}
+
+//	@Override
+//	public void guardarFechaEntrega(Long idGuia, DateParam fechaEntrega) throws Exception {
+//		Guia guia = buscarPorId(idGuia);
+//		guia.setFechaEntrega(fechaEntrega.getDate());
+//		em.merge(guia);
+//	}
+
+	@Override
+	public void guardarEntregaConsignatario(Long idGuia, Boolean entregaConsignatario) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setEntregaConsignatario(entregaConsignatario);
 		em.merge(guia);
 	}
 	

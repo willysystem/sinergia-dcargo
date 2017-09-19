@@ -46,6 +46,7 @@ public class ServicioCuentaImpl extends Dao<Cuenta> implements ServicioCuenta {
 	         c.setId(cP1.getId());
 	         c.setNroCuenta(cP1.getNroCuenta());
 	         c.setDescripcion(cP1.getDescripcion());
+	         
 //	         for (Cuenta cP2 : cP1.getSubCuentas()) {
 //	             Cuenta c2 = tipoCuenta == TipoCuenta.INGRESO ? new CuentaIngreso() : new CuentaEgreso();
 //	             c2.setId(cP2.getId());

@@ -2,6 +2,7 @@ package com.sinergia.dcargo.client.shared.dominio;
 
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
+import javax.persistence.Table;
 import javax.persistence.Transient;
 
 /**
@@ -9,6 +10,7 @@ import javax.persistence.Transient;
  */
 @Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 @javax.persistence.Entity
+@Table(name="movimiento") 
 public class Movimiento implements java.io.Serializable {
 	/**
 	 * @generated
@@ -84,6 +86,18 @@ public class Movimiento implements java.io.Serializable {
 	@Transient
 	public String destino;
 
+	@javax.persistence.Transient
+	private Integer nroCuentaPadre;
+	
+	@javax.persistence.Transient
+	private String descripcionPadre;
+	
+	@javax.persistence.Transient
+	private Double pagoOrigen;
+	
+	@javax.persistence.Transient
+	private Double pagoDestino;
+	
 	/**
 	 * @generated
 	 */
@@ -293,7 +307,38 @@ public class Movimiento implements java.io.Serializable {
 	public void setDestino(String destino) {
 		this.destino = destino;
 	}
-	
+
+	public Integer getNroCuentaPadre() {
+		return nroCuentaPadre;
+	}
+
+	public void setNroCuentaPadre(Integer nroCuentaPadre) {
+		this.nroCuentaPadre = nroCuentaPadre;
+	}
+
+	public String getDescripcionPadre() {
+		return descripcionPadre;
+	}
+
+	public void setDescripcionPadre(String descripcionPadre) {
+		this.descripcionPadre = descripcionPadre;
+	}
+
+	public Double getPagoOrigen() {
+		return pagoOrigen;
+	}
+
+	public void setPagoOrigen(Double pagoOrigen) {
+		this.pagoOrigen = pagoOrigen;
+	}
+
+	public Double getPagoDestino() {
+		return pagoDestino;
+	}
+
+	public void setPagoDestino(Double pagoDestino) {
+		this.pagoDestino = pagoDestino;
+	}
 	
 	
 }

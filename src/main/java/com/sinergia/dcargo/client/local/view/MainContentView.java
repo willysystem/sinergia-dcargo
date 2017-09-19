@@ -30,7 +30,9 @@ import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
 import com.sinergia.dcargo.client.local.event.EventoCuentas;
+import com.sinergia.dcargo.client.local.event.EventoDeudasPorCobrar;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoLiquidacionCarga;
 import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
@@ -122,8 +124,19 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    menu.addItem(conocimientoMenuBar);
 	    
 	    // Liquidaciones
-	    MenuItem cargaLiquidacion = new MenuItem("Liquidación de carga", menuCommand);
-	    MenuItem deudasLiquidacion = new MenuItem("Deudas por cobrar", menuCommand);
+	    MenuItem cargaLiquidacion = new MenuItem("Liquidación de carga", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoLiquidacionCarga());
+			}
+		});
+	    
+	    MenuItem deudasLiquidacion = new MenuItem("Deudas por cobrar", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoDeudasPorCobrar());
+			}
+		});
 	    //MenuItem actualizarNotaEntregaLiquidacion = new MenuItem("Actualizar nota de entrega", menuCommand);
 	    
 	    MenuBar liquidacionesMenuBar = new MenuBar(true);
