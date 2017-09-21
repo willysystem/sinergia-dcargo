@@ -43,6 +43,7 @@ public class MainContentPresenter implements Presenter {
 		HasWidgets getCentralPanel();
 		void setCurrentUser(Usuario user);
 		void setCurrentDate(String date);
+		void renderMenu();
 	}
 
 	public MainContentPresenter() {
@@ -77,6 +78,7 @@ public class MainContentPresenter implements Presenter {
 				usuario = response;
 				adminParametros.setUsuario(usuario);
 				display.setCurrentUser(response);
+				display.renderMenu();
 			}
 			@Override
 			public void onFailure(Method method, Throwable exception) {

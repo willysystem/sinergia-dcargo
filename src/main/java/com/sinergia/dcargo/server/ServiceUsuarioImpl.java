@@ -19,7 +19,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Root;
 
 import com.sinergia.dcargo.client.shared.ServicioUsuario;
+import com.sinergia.dcargo.client.shared.dominio.Aplicacion;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
+import com.sinergia.dcargo.client.shared.dominio.Rol;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
 import com.sinergia.dcargo.client.shared.dto.DateParam;
 import com.sinergia.dcargo.server.dao.Dao;
@@ -111,18 +113,48 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		Root<Usuario> c = q.from(Usuario.class);
 		q.select(c).where(cb.equal(c.get("nombreUsuario"), userName));
 		TypedQuery<Usuario> tq = em.createQuery(q);
-		Usuario user = tq.getSingleResult();
+		Usuario userP = tq.getSingleResult();
 		  
 //		Query query = em.createQuery("SELECT u FROM Usuario u WHERE u.user = " + userName, Usuario.class);
 //		Usuario user = (Usuario)query.getSingleResult();
 		
+		Usuario user = new Usuario();
 		Oficina office =  new Oficina();
-		office.setId(user.getOffice().getId());
-		office.setNombre(user.getOffice().getNombre());
+		office.setId(userP.getOffice().getId());
+		office.setNombre(userP.getOffice().getNombre());
+		office.setUsers(null);
+		user.setNombreUsuario(userP.getNombreUsuario());
+		user.setNombres(userP.getNombres());
 		user.setOffice(office);
 		user.setConocimientos(null);
 		user.setGuiasEntrega(null);
 		user.setGuiasRegistro(null);
+		//user.setRol(null);
+		
+		// Permisos
+		Rol rolP = null;
+		if(userP.getAdministrador()) rolP = getRolPorNombre("Administrador");  
+		else rolP = getRolPorNombre("Operador");
+		
+		Rol rol = new Rol();
+		rol.setNombre(rolP.getNombre());
+		
+		for (Aplicacion app: rolP.getAplicaciones()) {
+			Aplicacion appDTO = new Aplicacion();
+			appDTO.setNombre(app.getNombre());
+			appDTO.setTitulo(app.getTitulo());
+			appDTO.setSubAplicaciones(null);
+			rol.getAplicaciones().add(appDTO);
+			if(app.getAplicacion1() != null) {
+				Aplicacion appDTOPadre = new Aplicacion();
+				appDTOPadre.setNombre(app.getAplicacion1().getNombre());
+				appDTOPadre.setTitulo(app.getAplicacion1().getTitulo());
+				appDTOPadre.setSubAplicaciones(null);
+				appDTO.setAplicacion1(appDTOPadre);
+				
+			}
+		}
+		user.setRol(rol);
 		
 		return user;
 	}
@@ -159,6 +191,24 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 			throw new Exception("La última contraseña guardada no coincide");
 		} 
 	}
+	
+	private Rol getRolPorNombre(String nombre) {
+		CriteriaBuilder cb = em.getCriteriaBuilder();
+    	CriteriaQuery<Rol> q = cb.createQuery(Rol.class);
+		Root<Rol> c = q.from(Rol.class);
+		q.select(c).where(cb.equal(c.get("nombre"), nombre));
+		TypedQuery<Rol> tq = em.createQuery(q);
+		Rol rolP = tq.getSingleResult();
+		return rolP;
+	}
+	
+//	public List<Aplicacion> getAplicacionesPermitidas(){
+//		String userName = sctx.getCallerPrincipal().getName();
+//		Query query = em.createQuery("SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombreUsuario ", Usuario.class);
+//		Usuario usuario = (Usuario)query.getSingleResult();
+//		
+//		
+//	}
 	
 //	private String getDescripcionEstado(Character estado) {
 //		if(estado == 'A') return "Activo";

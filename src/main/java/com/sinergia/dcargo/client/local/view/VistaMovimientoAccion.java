@@ -344,6 +344,8 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		agregarEscuchadores();
 		
+		setVisibleFormularioGuiaOrConocimiento(false);
+		
 		center();
 		
 		
@@ -576,17 +578,20 @@ public class VistaMovimientoAccion extends DialogBox {
 		montoDestinoValue.setText("");
 		montoDoubleBox.setText(""); montoLabelValue.setText("");
 		glosaTextArea.setText("");
+		setVisibleFormularioGuiaOrConocimiento(false);
 	}
 	
 	private boolean validarCampos() {
 		
 		boolean isTipoMovimiento = tipoMovimientoListBox.getSelectedValue().equals("0") ? false : true;
 		log.info("isTipoMovimiento: " + isTipoMovimiento);
+		//String tipoMovimientoListBox.getSelectedValue().e
 		if(!isTipoMovimiento) { 
 			mensajeAviso.mostrar("Debe elegir un Tipo Movimiento"); return false;
 		}
 		
 		boolean isCuenta = ( cuentaListBox.getSelectedValue() == null | cuentaListBox.getSelectedValue().equals("0")) ? false : true;
+		//cuentaListBox.getSelectedItemText().contains("1000")
 		log.info("  isCuenta: " + isCuenta);
 		if(!isCuenta) { 
 			mensajeAviso.mostrar("Debe elegir una  Cuenta"); return false; 
@@ -641,9 +646,13 @@ public class VistaMovimientoAccion extends DialogBox {
 							if(cuentaIngreso.getNroCuenta().equals(subCuentaSeleccion)) subCuentaSeleccionado = i;
 						subCuentaListBox.setItemSelected(subCuentaSeleccionado, true);
 					}
-					
 				}
 			});
+			
+			if(cuentaListBox.getSelectedItemText().contains("1000")) 
+				setVisibleFormularioGuiaOrConocimiento(true);
+			else
+				setVisibleFormularioGuiaOrConocimiento(false);
 		} else if (tipoMovimiento == TipoCuenta.EGRESO.name() && id != 0) {
 			servicioCuenta.getSubCuentasEgreso(id, new LlamadaRemota<List<CuentaEgreso>>("", false) {
 				@Override
@@ -665,6 +674,10 @@ public class VistaMovimientoAccion extends DialogBox {
 					
 				}
 			});
+			if(cuentaListBox.getSelectedItemText().contains("2000")) 
+				setVisibleFormularioGuiaOrConocimiento(true);
+			else
+				setVisibleFormularioGuiaOrConocimiento(false);
 		} else if(id == 0) {
 			subCuentaListBox.clear();
 		}
@@ -682,5 +695,20 @@ public class VistaMovimientoAccion extends DialogBox {
 			}
 			
 		});
+	}
+	
+	private void setVisibleFormularioGuiaOrConocimiento(boolean visible) {
+		nroGuiaOrConocimientoLabel.setVisible(visible);
+		nroGuiaOrConocimientoValue.setVisible(visible);
+		seleccionarGuiaOrConocimientoBtn.setVisible(visible);
+		origenLabel.setVisible(visible);
+		origenValue.setVisible(visible);
+		destinoLabel.setVisible(visible);
+		destinoValue.setVisible(visible);
+	    montoOrigenLabel.setVisible(visible);
+		montoOrigenValue.setVisible(visible);
+		saldoOrigenLabel.setVisible(visible);
+		montoDestinoValue.setVisible(visible);
+		
 	}
 }

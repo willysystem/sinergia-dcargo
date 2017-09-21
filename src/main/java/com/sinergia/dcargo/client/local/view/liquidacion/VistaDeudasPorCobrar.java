@@ -139,7 +139,7 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 				return entity.getNroGuia();
 			}
 		};
-		grid.setColumnWidth(direccionColmun, 80, Unit.PX);
+		grid.setColumnWidth(direccionColmun, 30, Unit.PX);
 		grid.addColumn(direccionColmun, "Nro Guia");
 		
 		// Origen
@@ -169,7 +169,7 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 				return entity.getDeudasClientes();
 			}
 		};
-		grid.setColumnWidth(placaColmun, 40, Unit.PX);
+		grid.setColumnWidth(placaColmun, 80, Unit.PX);
 		grid.addColumn(placaColmun, "Deudas Cliente");
 		
 		// Deudas - Monto

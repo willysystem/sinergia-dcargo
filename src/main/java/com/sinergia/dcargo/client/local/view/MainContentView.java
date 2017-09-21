@@ -1,5 +1,7 @@
 package com.sinergia.dcargo.client.local.view;
 
+import java.util.HashMap;
+
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -19,6 +21,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -26,6 +29,8 @@ import com.google.gwt.user.client.ui.ResizeComposite;
 import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
+import com.sinergia.dcargo.client.local.AdminParametros;
+import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
@@ -37,6 +42,7 @@ import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
 import com.sinergia.dcargo.client.local.event.EventoUsuario;
 import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
+import com.sinergia.dcargo.client.shared.dominio.Aplicacion;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 /**
@@ -52,6 +58,13 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	@Inject
 	private Logger log;
 	
+	@Inject
+	private ServicioUnidadCliente servicioUsuario;
+	
+	@Inject
+	private AdminParametros adminParametros;
+	
+	
 	private SimplePanel panelCentral;
 	
 	private DockPanel mainContainer = new DockPanel();
@@ -60,6 +73,8 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	private Label placeLabelValue = new Label();
 	private Label dateLabelValue = new Label();
 	private Label fullNameLabelValue = new Label();
+	
+	private HashMap<String, MenuItem> menus = new HashMap<>();
 	
 	public MainContentView() {
 		GWT.log(MainContentView.class.getSimpleName() + "()");
@@ -91,19 +106,13 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	}
 	
 	private MenuBar getMainMenu() {
-		
-	    Command menuCommand = new Command() {
-		      public void execute() {
-		    	  
-		      }
-		};
 		 
 		MenuBar menu = new MenuBar();
 	    menu.setAutoOpen(true);
 	    menu.setAnimationEnabled(true);
 	   
-	    MenuBar guiasMenuBar = new MenuBar(true);
-	    guiasMenuBar.setAnimationEnabled(true);
+//	    MenuBar guiasMenuBar = new MenuBar(true);
+//	    guiasMenuBar.setAnimationEnabled(true);
 	   
 	    // Guías
 	    MenuItem menuGuia = new MenuItem("Guías", new Command() {
@@ -113,6 +122,8 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 			}
 		});
 	    menu.addItem(menuGuia);
+	    menuGuia.setVisible(false);
+	    menus.put("guia", menuGuia);
 	    
 	    // Conocimiento
 	    MenuItem conocimientoMenuBar =  new MenuItem("Conocimiento", new Command() {
@@ -122,6 +133,8 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 			}
 		});
 	    menu.addItem(conocimientoMenuBar);
+	    conocimientoMenuBar.setVisible(false);
+	    menus.put("conocimiento", conocimientoMenuBar);
 	    
 	    // Liquidaciones
 	    MenuItem cargaLiquidacion = new MenuItem("Liquidación de carga", new Command() {
@@ -130,6 +143,8 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoLiquidacionCarga());
 			}
 		});
+	    cargaLiquidacion.setVisible(false);
+	    menus.put("liquidacionCarga", cargaLiquidacion);
 	    
 	    MenuItem deudasLiquidacion = new MenuItem("Deudas por cobrar", new Command() {
 			@Override
@@ -137,6 +152,9 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoDeudasPorCobrar());
 			}
 		});
+	    deudasLiquidacion.setVisible(false);
+	    menus.put("liquidacionDeudasCobrar", deudasLiquidacion);
+	    
 	    //MenuItem actualizarNotaEntregaLiquidacion = new MenuItem("Actualizar nota de entrega", menuCommand);
 	    
 	    MenuBar liquidacionesMenuBar = new MenuBar(true);
@@ -144,7 +162,12 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    liquidacionesMenuBar.addItem(cargaLiquidacion);
 	    liquidacionesMenuBar.addItem(deudasLiquidacion);
 	    //liquidacionesMenuBar.addItem(actualizarNotaEntregaLiquidacion);
-	    menu.addItem(new MenuItem("Liquidaciones", liquidacionesMenuBar));
+	    MenuItem menuLiquidaciones = new MenuItem("Liquidaciones", liquidacionesMenuBar);
+	    menuLiquidaciones.setVisible(false);
+	    menus.put("liquidacion", menuLiquidaciones);
+	    menu.addItem(menuLiquidaciones);
+	    //liquidacionesMenuBar.setVisible(false);
+	    //menus.put("liquidacionDeudasCobrar", liquidacionesMenuBar);
 	    
 	    // Caja
 	    MenuItem cajaMenuBar =  new MenuItem("Caja", new Command() {
@@ -154,6 +177,8 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 			}
 		});
 	    menu.addItem(cajaMenuBar);
+	    cajaMenuBar.setVisible(false);
+	    menus.put("caja", cajaMenuBar);
 	    
 	    // Registro de Datos
 	    MenuBar registroDatosMenuBar = new MenuBar(true);
@@ -163,52 +188,68 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoCliente());
 			}
 		});
+	    clientesRegistroDatos.setVisible(false);
+	    menus.put("registroCliente", clientesRegistroDatos);
 	    MenuItem transportistasRegistroDatos = new MenuItem("Transportistas",  new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoTransportista());
 			}
 		});
+	    transportistasRegistroDatos.setVisible(false);
+	    menus.put("registroTransportistas", transportistasRegistroDatos);
 	    MenuItem cuentasIngresoRegistroDatos = new MenuItem("Cuentas de ingreso y egreso", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoCuentas());
 			}
 		});
+	    cuentasIngresoRegistroDatos.setVisible(false);
+	    menus.put("registroCuentas", cuentasIngresoRegistroDatos);
 	    
 	    registroDatosMenuBar.setAnimationEnabled(true);
 	    registroDatosMenuBar.addItem(clientesRegistroDatos);
 	    registroDatosMenuBar.addItem(transportistasRegistroDatos);
 	    registroDatosMenuBar.addItem(cuentasIngresoRegistroDatos);
-	    menu.addItem(new MenuItem("Registro de Datos", registroDatosMenuBar));
+	    MenuItem menuRegistro = new MenuItem("Registro de Datos", registroDatosMenuBar);
+	    menu.addItem(menuRegistro);
+	    menuRegistro.setVisible(false);
+	    menus.put("registro", menuRegistro);
 	    
 	    // Administración
 	    MenuBar admMenuBar = new MenuBar(true);
-	    
 	    MenuItem usuariosAdministracion = new MenuItem("Usuarios", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoUsuario());
 			}
 		});
-	    //MenuItem fechaAdministracion = new MenuItem("Actualizar fecha del sistema", menuCommand);
+	    usuariosAdministracion.setVisible(false);
+	    menus.put("admUsuarios", usuariosAdministracion);
 	    MenuItem contrasenaAdministracion = new MenuItem("Cambio de contraseña", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoCambiarContrasenia());
 			}
 		});
+	    contrasenaAdministracion.setVisible(false);
+	    menus.put("admContrasena", contrasenaAdministracion);
 	    MenuItem salirAdministracion = new MenuItem("Salir", new Command() {
 		      													  public void execute() {
 		      														 Window.open("logout", "_self", null);
 		      													  }
 															  });
+	    salirAdministracion.setVisible(false);
+	    menus.put("admSalir", salirAdministracion);
+	    
 	    admMenuBar.setAnimationEnabled(true);
 	    admMenuBar.addItem(usuariosAdministracion);
-	    //admMenuBar.addItem(fechaAdministracion);
 	    admMenuBar.addItem(contrasenaAdministracion);
 	    admMenuBar.addItem(salirAdministracion);
-	    menu.addItem(new MenuItem("Administración", admMenuBar));
+	    MenuItem admItem = new MenuItem("Administración", admMenuBar);
+	    admItem.setVisible(false);
+	    menus.put("adm", admItem);
+	    menu.addItem(admItem);
 	    
 	    return menu;
 	}
@@ -326,6 +367,32 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	public void setCurrentDate(String date) {
 		dateLabelValue.setText(date);
 		
+	}
+	
+	@Override
+	public void renderMenu() {
+		log.info("renderMenu()");
+		Usuario usuario = adminParametros.getUsuario();
+		log.info("    usuario: " + usuario);
+		log.info("    usuario.getRol(): " + usuario.getRol());
+		log.info("    usuario.getRol().getAplicaciones(): " + usuario.getRol().getAplicaciones().size());
+		for (Aplicacion	app : usuario.getRol().getAplicaciones()) {
+			log.info("    app.getNombre(): " + app.getNombre());
+			Object obj = menus.get(app.getNombre());
+			log.info("    obj: " + (obj == null));
+			if(obj instanceof MenuBar)  ((MenuBar)obj).setVisible(true);
+			if(obj instanceof MenuItem) ((MenuItem)obj).setVisible(true);
+			log.info("    app.getAplicacion1(): " + app.getAplicacion1());
+			if(app.getAplicacion1() != null) {
+				Object objPadre = menus.get(app.getAplicacion1().getNombre());
+				log.info("         app.getAplicacion1().getNombre(): " + app.getAplicacion1().getNombre());
+				log.info("         objPadre: " + (objPadre == null));
+				if(obj instanceof MenuBar)  ((MenuBar)objPadre).setVisible(true);
+				if(obj instanceof MenuItem) ((MenuItem)objPadre).setVisible(true);
+			}
+		}
+		
+		menus.get("admSalir").setVisible(true);
 	}
 	
 }

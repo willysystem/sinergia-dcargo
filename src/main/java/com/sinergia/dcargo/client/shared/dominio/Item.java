@@ -296,15 +296,5 @@ public class Item implements java.io.Serializable {
 		this.total = total;
 	}
 
-	/**
-	 * @generated
-	 */
-	public String toString() {
-		return "Item" + " id=" + id + " nroSecuencial=" + nroSecuencial
-				+ " cantidad=" + cantidad + " contenido=" + contenido
-				+ " peso=" + peso + " monto=" + monto + " activo=" + activo
-				+ " nro=" + nro + " valido=" + valido + " unidadTitulo="
-				+ unidadTitulo + " precioMonto=" + precioMonto + " total="
-				+ total + " precio=" + precio;
-	}
+	
 }

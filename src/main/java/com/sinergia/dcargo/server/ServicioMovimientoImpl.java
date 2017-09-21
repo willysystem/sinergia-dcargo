@@ -73,14 +73,27 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		Date fechaInicio = mov.getFechaRegistroIni();
 		Date fechaFin = mov.getFechaRegistroFin();
 		
+		if(fechaInicio != null) {
+			fechaInicio.setHours(0);
+			fechaInicio.setMinutes(0);
+			fechaInicio.setSeconds(0);
+		}
+		if(fechaFin != null) {
+			fechaFin.setHours(23);
+			fechaFin.setMinutes(59);
+			fechaFin.setSeconds(59);
+		}
+		
 		Long idGuia = null; 
 		Long idConocimiento = null;
 		if(mov.getTipoCuenta() == TipoCuenta.INGRESO) {
-			if(((MovimientoIngreso)mov).getGuia() != null)
-				idGuia = ((MovimientoIngreso)mov).getGuia().getId();
+//			if(((MovimientoIngreso)mov).getGuia() != null)
+//				idGuia = ((MovimientoIngreso)mov).getGuia().getId();
+			idGuia = mov.getIdGuia();
 		} else if(mov.getTipoCuenta() == TipoCuenta.EGRESO) {
-			if(((MovimientoEgreso)mov).getConocimiento() != null)
-				idConocimiento = ((MovimientoEgreso)mov).getConocimiento().getId();
+//			if(((MovimientoEgreso)mov).getConocimiento() != null)
+//				idConocimiento = ((MovimientoEgreso)mov).getConocimiento().getId();
+			idConocimiento = mov.getIdConocimiento();
 		} else {
 			
 		}
@@ -96,17 +109,18 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		String where = "";
 		
 		if(0 != nroComprobante){
-			where = "c.nroComprobante = :nroComprobante AND";
+			where = "c.nroComprobante = :nroComprobante AND ";
 			parametros.put("nroComprobante", nroComprobante);
 		}
-		if(fechaInicio != null){
-			where = "c.fechaRegistro >= :fechaInicio AND";
+		if(fechaInicio != null && fechaFin != null){
+			where = "c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND ";
 			parametros.put("fechaInicio", fechaInicio);
-		}
-		if(fechaFin != null){
-			where = "c.fechaRegistro <= :fechaFin AND";
 			parametros.put("fechaFin", fechaFin);
 		}
+//		if(fechaFin != null){
+//			where = "c.fechaRegistro <= :fechaFin AND";
+//			parametros.put("fechaFin", fechaFin);
+//		}
 		if(idGuia != null)
 			if(idGuia != 0){
 				where = "c.guia.id = :idGuia AND";
@@ -148,7 +162,12 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		}
 		
 		Query q = em.createQuery(query);
-		for (Entry<String, Object> e: parametros.entrySet()) q.setParameter(e.getKey(), e.getValue());
+		for (Entry<String, Object> e: parametros.entrySet()) {
+			if(e.getValue() instanceof Date) 
+				q.setParameter(e.getKey(), (Date)e.getValue(), TemporalType.TIMESTAMP);
+			else 
+				q.setParameter(e.getKey(), e.getValue());
+		}
 		
 		System.out.println("-> query: " + query);
 		@SuppressWarnings("unchecked")
@@ -497,18 +516,23 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		
 		Long idCliente = deudasReporte.getIdCliente();
 		
+		String queryAddCliente = "";
+		if(idCliente != null) 
+			queryAddCliente = " AND (c.remitente.id = :idCliente OR c.consignatario.id = :idCliente) ";
+		
 		//String sql = "SELECT c FROM Conocimiento c WHERE c.fechaRegistro >= :fechaInicio AND c.fechaRegistro <= :fechaFin  AND " +
 		String sql = "SELECT c FROM Guia c WHERE c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND " + 
-				     "c.oficinaOrigen.id = :idOficinaOrigen AND c.oficinaDestino.id = :idOficinaDestino AND " +
-				     "(c.remitente.id = :idCliente OR c.consignatario.id = :idCliente) " +
+				     "c.oficinaOrigen.id = :idOficinaOrigen AND c.oficinaDestino.id = :idOficinaDestino " +
+				     queryAddCliente +
 				     " ORDER BY c.fechaRegistro ASC";
 		Query query = em.createQuery(sql);
 		query.setParameter("fechaInicio", fechaInicio1, TemporalType.TIMESTAMP);
 		query.setParameter("fechaFin", fechaFin1, TemporalType.TIMESTAMP);
 		query.setParameter("idOficinaOrigen", idOficinaOrigen);
 		query.setParameter("idOficinaDestino", idOficinaDestino);
-		query.setParameter("idCliente", idCliente);
-		//query.setParameter("estado", 'V');
+		if(idCliente != null)
+		   query.setParameter("idCliente", idCliente);
+		
 		@SuppressWarnings("unchecked")
 		List<Guia> csP = query.getResultList();
 
@@ -516,7 +540,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
 		
 		DeudasPorCobrarReporte deudasPorCobrarReporte = new DeudasPorCobrarReporte();
-		List<LiquidacionReporte> ls =  new ArrayList<LiquidacionReporte>();
+		//List<LiquidacionReporte> ls =  new ArrayList<LiquidacionReporte>();
 		int nro = 1;
 		Double totalDeudasMonto    = 0.0;
 		Double totalIngresoAcuenta = 0.0;
@@ -530,7 +554,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			d.setDestino(gP.getOficinaDestino()==null ? "":gP.getOficinaDestino().getNombre());
 			String remitente = gP.getRemitente() == null ? "" : gP.getRemitente().getNombre();
 			String consignatario = gP.getConsignatario() == null ? "" : gP.getConsignatario().getNombre();
-			String clientes = remitente + "\n" + consignatario; 
+			String clientes = "R:" + remitente + "\n" + " C:" + consignatario; 
 			d.setDeudasClientes(clientes);
 			d.setDeudasMonto(df.format(gP.getTotalGuia() == null ? 0.0 : gP.getTotalGuia()));
 			if(gP.getMovimientoIngreso() != null) {
@@ -541,9 +565,10 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			} else {
 				d.setIngresosFecha("");
 				d.setIngresosNroComprobante("");
-				d.setIngresosAcuenta(df.format(""));
+				d.setIngresosAcuenta("");
 				d.setIngresosSaldo("");
 			}
+			deudasPorCobrarReporte.getDeudasReporte().add(d);
 		}
 		deudasPorCobrarReporte.setMontoTotalDeudas(df.format(totalDeudasMonto));
 		deudasPorCobrarReporte.setMontoTotalAcuenta(df.format(totalIngresoAcuenta));

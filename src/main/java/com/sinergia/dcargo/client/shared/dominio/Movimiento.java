@@ -98,6 +98,12 @@ public class Movimiento implements java.io.Serializable {
 	@javax.persistence.Transient
 	private Double pagoDestino;
 	
+	@javax.persistence.Transient
+	private Long idGuia;
+	
+	@javax.persistence.Transient
+	private Long idConocimiento;
+	
 	/**
 	 * @generated
 	 */
@@ -338,6 +344,22 @@ public class Movimiento implements java.io.Serializable {
 
 	public void setPagoDestino(Double pagoDestino) {
 		this.pagoDestino = pagoDestino;
+	}
+
+	public Long getIdGuia() {
+		return idGuia;
+	}
+
+	public void setIdGuia(Long idGuia) {
+		this.idGuia = idGuia;
+	}
+
+	public Long getIdConocimiento() {
+		return idConocimiento;
+	}
+
+	public void setIdConocimiento(Long idConocimiento) {
+		this.idConocimiento = idConocimiento;
 	}
 	
 	

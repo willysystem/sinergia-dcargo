@@ -8,6 +8,7 @@ import javax.inject.Singleton;
 import org.fusesource.restygwt.client.Method;
 
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.event.dom.client.ClickEvent;
@@ -15,6 +16,9 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.safehtml.shared.SafeHtmlUtils;
+import com.google.gwt.user.cellview.client.Header;
+import com.google.gwt.user.cellview.client.SafeHtmlHeader;
 import com.google.gwt.user.cellview.client.TextColumn;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
@@ -37,6 +41,7 @@ import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.presenter.PresentadorMovimiento;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
 import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Movimiento;
@@ -66,10 +71,10 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	private DateBox fechaIniDateBox = new DateBox();
 	private DateBox fechaFinDateBox = new DateBox();
 	
-	private HTML       cuentaLabel               = new HTML("<b>Cuenta: </b>");
-	private IntegerBox nroGuiaIntegerBox         = new IntegerBox();
-	private IntegerBox nroConocimientoIntegerBox = new IntegerBox();
-	private Widget     nroIntegerBox             = nroGuiaIntegerBox;
+	private HTML       cuentaLabel               = new HTML("<b>Nro Comprobante: </b>");
+	private IntegerBox nroComprobanteIntegerBox         = new IntegerBox();
+	//private IntegerBox nroConocimientoIntegerBox = new IntegerBox();
+	private Widget     nroIntegerBox             = nroComprobanteIntegerBox;
 	
 	
 	private ListBox estadoListBox = new ListBox();
@@ -181,8 +186,27 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 				return formatted;
 			}
 		};
+		Header<String> ageFooter = new Header<String>(new TextCell()) {
+		      @Override
+		      public String getValue() {
+		        List<Movimiento> items = grid.getVisibleItems();
+		        if (items.size() == 0) {
+		          return "";
+		        } else {
+		          int totalAge = 0;
+		          for (Movimiento item : items) {
+		        	  if(item.getTipoCuenta() == TipoCuenta.INGRESO)
+		        		  totalAge += item.getMonto();
+		              if(item.getTipoCuenta() == TipoCuenta.EGRESO)
+		            	  totalAge -= item.getMonto();
+		          }
+		          return "Total: " + totalAge;
+		        }
+		      }
+		};
 		grid.setColumnWidth(telefonoColmun, 40, Unit.PX);
-		grid.addColumn(telefonoColmun, "Monto");
+		grid.addColumn(telefonoColmun, new SafeHtmlHeader(SafeHtmlUtils.fromSafeConstant("Monto")), ageFooter);
+		//grid.addColumn(telefonoColmun, "Monto");
 		
 		// Origen
 		TextColumn<Movimiento> placaColmun = new TextColumn<Movimiento>() {
@@ -215,6 +239,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		};
 		grid.setColumnWidth(vecinoColmun, 40, Unit.PX);
 		grid.addColumn(vecinoColmun, "Estado");
+		
 		
 		grid.setWidth("1000px");
 		grid.setHeight("350px");
@@ -281,16 +306,27 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	public Movimiento getParametrosBusqueda() {
 		log.info("getParametrosBusqueda()");
 		
+		TipoCuenta tipoCuenta = null;
+		if(!tipoCuentaListBox.getSelectedValue().equals("Todos")) 
+			tipoCuenta = tipoCuentaListBox.getSelectedValue().equals(TipoCuenta.INGRESO.name())?TipoCuenta.INGRESO:TipoCuenta.EGRESO;
+		
+		Long idCuenta = Long.parseLong(subCuentaListBox.getSelectedValue());
+		Cuenta cuenta = null;
+		if(idCuenta != 0L) {
+			cuenta = new Cuenta();
+			cuenta.setId(idCuenta);
+		}
+		Integer nroComprobante = null;
+		if(nroComprobanteIntegerBox.getValue() != null)
+			nroComprobante = nroComprobanteIntegerBox.getValue();
+		
 		Movimiento t = new Movimiento();
-//		t.setNombre(nombresTextField.getValue());
-//		t.setDireccion(direccionTextField.getValue());
-//		t.setTelefono(telefonoTextField.getValue());
-//		t.setMarca(marcaTextField.getValue());
-//		t.setPlaca(placaTextField.getValue());
-//		t.setColor(colorTextField.getValue());
-//		t.setVecino_de(vecinoTextField.getValue());
-//		t.setCi(ciTextField.getValue());
+		t.setTipoCuenta(tipoCuenta);
+		t.setCuenta(cuenta);
+		t.setNroComprobante(nroComprobante);
 		t.setEstado(estadoListBox.getSelectedValue().equals("Todos")?null:estadoListBox.getSelectedValue().charAt(0));
+		t.setFechaRegistroIni(fechaIniDateBox.getValue());
+		t.setFechaRegistroFin(fechaFinDateBox.getValue());
 		
 		return t;
 	}
@@ -314,9 +350,9 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 				return ;
 			}
 				
-			if(tipoCuentaListBox.getSelectedValue().equals(TipoCuenta.INGRESO.name())) 
+			if(tipoCuentaListBox.getSelectedValue().equals(TipoCuenta.INGRESO.name())) {
 				cargarDatosCuentaIngresoListBox();
-			else
+			} else
 				cargarDatosCuentaEgresoListBox();
 			
 			subCuentaListBox.clear();

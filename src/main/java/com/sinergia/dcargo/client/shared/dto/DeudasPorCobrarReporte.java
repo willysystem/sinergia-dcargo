@@ -1,13 +1,14 @@
 package com.sinergia.dcargo.client.shared.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DeudasPorCobrarReporte implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
-	private List<DeudasReporte> deudasReporte;
+	private List<DeudasReporte> deudasReporte = new ArrayList<>();
 	
 	private String montoTotalDeudas;
 	

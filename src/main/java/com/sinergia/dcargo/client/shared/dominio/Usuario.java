@@ -62,6 +62,9 @@ public class Usuario extends Persona implements java.io.Serializable {
 	@javax.persistence.Transient
 	private Boolean activo;
 
+	@javax.persistence.ManyToOne
+	private Rol rol;
+	
 	/**
 	 * @generated
 	 */
@@ -268,6 +271,14 @@ public class Usuario extends Persona implements java.io.Serializable {
 	 */
 	public void setActivo(Boolean activo) {
 		this.activo = activo;
+	}
+
+	public Rol getRol() {
+		return rol;
+	}
+
+	public void setRol(Rol rol) {
+		this.rol = rol;
 	}
 
 	/**
