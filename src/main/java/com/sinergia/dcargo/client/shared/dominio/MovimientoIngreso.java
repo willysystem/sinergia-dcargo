@@ -18,8 +18,12 @@ public class MovimientoIngreso extends Movimiento implements
 	 * @generated
 	 */
 	@JsonIgnore
-	@javax.persistence.OneToOne(mappedBy = "movimientoIngreso")
-	private Guia guia;
+	@javax.persistence.OneToOne(mappedBy = "movimientoIngresoOrigen")
+	private Guia guiaPagoOrigen;
+
+	@JsonIgnore
+	@javax.persistence.OneToOne(mappedBy = "movimientoIngresoDestino")
+	private Guia guiaPagoDestino;
 
 	/**
 	 * @generated
@@ -34,17 +38,22 @@ public class MovimientoIngreso extends Movimiento implements
 		return "MovimientoIngreso";
 	}
 
-	/**
-	 * @generated
-	 */
-	public Guia getGuia() {
-		return this.guia;
+	public Guia getGuiaPagoOrigen() {
+		return guiaPagoOrigen;
 	}
 
-	/**
-	 * @generated
-	 */
-	public void setGuia(Guia guia) {
-		this.guia = guia;
+	public void setGuiaPagoOrigen(Guia guiaPagoOrigen) {
+		this.guiaPagoOrigen = guiaPagoOrigen;
 	}
+
+	public Guia getGuiaPagoDestino() {
+		return guiaPagoDestino;
+	}
+
+	public void setGuiaPagoDestino(Guia guiaPagoDestino) {
+		this.guiaPagoDestino = guiaPagoDestino;
+	}
+
+	
+	
 }

@@ -15,6 +15,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.CheckBox;
 import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockPanel;
@@ -169,6 +170,9 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	private HTML  nroConocimientoLabel      = new HTML("<b>Nro Conocimiento:</b>");
 	private Label nroConocimientoLabelValue = new Label("");
 	
+	private CheckBox pagadoOrigenCheckBox = new CheckBox();
+	private CheckBox pagadoDestinoCheckBox = new CheckBox();
+	
 	private Button remitirBtn = new Button("Remitir");
 	private Button imprimirBtn = new Button("Imprimir");
 	private Button entregaBtn = new Button("Entregar");
@@ -191,9 +195,12 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		log.info("@AfterInitialization: " + this.getClass().getSimpleName());
 	}
 
+	DockPanel                        dock = null;
+	HorizontalPanel horizontalPanelButton = null;
+	
 	private void construirGUI() {
-		clear();
-		setWidget(null);
+ 
+		horizontalPanelButton = new HorizontalPanel();
 		
 		log.info("  remitirBtn.isVisible():" + remitirBtn.isVisible());
 		
@@ -201,14 +208,11 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		setAnimationEnabled(false);
 		setText(guiaAccion.getTitulo());
 
+		nroGuiaValorLabel.setText(guiaSeleccionada.getNroGuia()+"");
+		
 		if(guiaAccion == GuiaAccion.NUEVO)
 			guiaSeleccionada.setFechaRegistro(adminParametros.getDateParam().getDate());
 		fechaValorLabel.setText(DateTimeFormat.getFormat("yyyy-MM-dd H:mm:ss").format(guiaSeleccionada.getFechaRegistro()));
-		
-//		if(guiaAccion == GuiaAccion.MODIFICAR || guiaAccion == GuiaAccion.CONSULTAR || guiaAccion == GuiaAccion.ENTREGA ) {
-//			DateTimeFormat.getFormat("yyyy-MM-dd H:mm:ss").format(guiaSeleccionada.getFechaRegistro());
-//			guiaSeleccionada.setFechaRegistro();
-//		}
 		
 
 		/// 1. DATOS GENERALES
@@ -251,6 +255,9 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		layout.setWidget(4, 0, direccionLabel);             cellFormatter.setHorizontalAlignment(4, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 		layout.setWidget(4, 1, direccionValorLabel);        cellFormatter.setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_LEFT); 
 		
+		pagadoOrigenCheckBox.setValue(guiaSeleccionada.getPagadoOrigen());
+		pagadoDestinoCheckBox.setValue(guiaSeleccionada.getPagadoDestino());
+		
 		if(guiaAccion == GuiaAccion.NUEVO || guiaAccion == GuiaAccion.MODIFICAR){
 			layout.setWidget(1, 3, nroFacturaTextBox); nroFacturaTextBox.setValue("");
 			layout.setWidget(2, 1, remiteSuggestBox);  remiteSuggestBox.setValue(""); 
@@ -260,7 +267,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			layout.setWidget(3, 5, destinoSuggestBox);       destinoSuggestBox.setValue("");   
 			layout.setWidget(5, 1, nuevoClienteButton);
 			guardarOrigen();
-			
+			pagadoOrigenCheckBox.setEnabled(true);
+			pagadoDestinoCheckBox.setEnabled(true);
 		} 
 		if(guiaAccion == GuiaAccion.CONSULTAR || guiaAccion == GuiaAccion.ENTREGA ) {
 			layout.setWidget(1, 3, nroFacturaLabelValue);
@@ -277,8 +285,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			
 			layout.setWidget(3, 5, destinoLabelValue);
 			
-			telefonoRemiteValorLabel.setText(guiaSeleccionada.getRemitente().getTelefono());
-			telefonoConsignaValorLabel.setText(guiaSeleccionada.getConsignatario().getTelefono());
+			telefonoRemiteValorLabel.setText(guiaSeleccionada.getRemitente() == null ? "" : guiaSeleccionada.getRemitente().getTelefono());
+			telefonoConsignaValorLabel.setText(guiaSeleccionada.getConsignatario() == null ? "" : guiaSeleccionada.getConsignatario().getTelefono());
 			
 			layout.setWidget(4, 2, estadoLabel);
 			layout.setWidget(4, 3, estadoLabelValue);
@@ -288,8 +296,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			layout.setWidget(4, 5, nroConocimientoLabelValue);
 			nroConocimientoLabelValue.setText(guiaSeleccionada.getConocimiento() == null ? "" : guiaSeleccionada.getConocimiento().getNroConocimiento()+"");
 			
-			
-			
+			pagadoOrigenCheckBox.setEnabled(false);
+			pagadoDestinoCheckBox.setEnabled(false);
 		}
 		if(guiaAccion == GuiaAccion.MODIFICAR) {
 			nroFacturaTextBox.setValue(guiaSeleccionada.getNroFactura());
@@ -329,6 +337,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		layout2.setWidget(1, 6, pagoTotalLabel);
 		layout2.setWidget(2, 6, pagoOrigenLabel);
 		layout2.setWidget(3, 6, pagoDestinoLabel);
+		layout2.setWidget(2, 8, pagadoOrigenCheckBox);  pagadoOrigenCheckBox.setText("PagadoO?");//        cellFormatter.setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		layout2.setWidget(3, 8, pagadoDestinoCheckBox); pagadoDestinoCheckBox.setText("PagadoD?");
 		
 		if(guiaAccion == GuiaAccion.NUEVO || guiaAccion == GuiaAccion.MODIFICAR){
 			layout2.setWidget(1, 1, adjuntoTextBox);     adjuntoTextBox.setValue("");
@@ -370,7 +380,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		horizontalPanel.setWidth("100%");
 		horizontalPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 
-		HorizontalPanel horizontalPanelButton = new HorizontalPanel();
+		horizontalPanelButton = new HorizontalPanel();
 		horizontalPanelButton.setSpacing(5);
 		
 		horizontalPanelButton.clear();
@@ -438,7 +448,9 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		surPanel.add(horizontalPanel);
 		surPanel.add(estadoHTML);
 		
-		DockPanel dock = new DockPanel();
+		if(dock == null) agregarEscuchadores();
+		
+		dock = new DockPanel();
 		dock.setWidth("100%");
 		dock.setHeight("100%");
 		dock.add(vpNorte, DockPanel.NORTH);
@@ -448,7 +460,6 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		setWidget(dock);
 		
 		cargarOracles();
-		agregarEscuchadores();
 		center();
 		
 		gridItem2.setVistaGuiaAccion(this);
@@ -523,7 +534,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	}
 	
 	void agregarEscuchadores(){
-		nroGuiaValorLabel.setText(guiaSeleccionada.getNroGuia()+"");
+		
 		nroFacturaTextBox.addValueChangeHandler(e->{
 			String nroFactura = e.getValue();	
 			guiaSeleccionada.setNroFactura(nroFactura);
@@ -721,7 +732,22 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			}
 		});
 		
+		imprimirBtn.ensureDebugId("imprimir1123");
+		
+//		imprimirBtn.addClickHandler(new ClickHandler() {
+//			@Override
+//			public void onClick(ClickEvent e) {
+//				log.info("e.getClass().getSimpleName(): " + e.getClass().getSimpleName());
+//				log.info("e.getSource(): " + ((Button)e.getSource()));
+//				log.info("horizontalPanelButton.getWidgetCount(): " + horizontalPanelButton.getWidgetCount());
+//				imprimirGuia(guiaSeleccionada);
+//			}
+//		});
+//		
 		imprimirBtn.addClickHandler(e->{
+			log.info("e.getClass().getSimpleName(): " + e.getClass().getSimpleName());
+			log.info("e.getSource(): " + ((Button)e.getSource()));
+			log.info("horizontalPanelButton.getWidgetCount(): " + horizontalPanelButton.getWidgetCount());
 			imprimirGuia(guiaSeleccionada);
 		});
 		
@@ -813,6 +839,38 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			vistaClienteAccion.mostrar(ClienteAccion.NUEVO_DESDE_GUIA, null);
 		});
 		
+		pagadoOrigenCheckBox.addValueChangeHandler(e -> {
+			if(e.getValue())
+				servicioGuia.pagarOrigen(guiaSeleccionada.getId(), pagoOrigenTextBox.getValue(), "Pago Guia en el origen, Nro Guia:" + guiaSeleccionada.getNroGuia() , new LlamadaRemota<Void>("No se pude pagar guia en el origen", false) {
+					@Override
+					public void onSuccess(Method method, Void response) {
+						mensajeAviso.mostrar("Exitosamente pagado en el origen");	
+					}
+				});
+			else 
+				servicioGuia.quitarPagoOrigen(guiaSeleccionada.getId(), new LlamadaRemota<Void>("No se pude pagar guia en el origen", false) {
+					@Override
+					public void onSuccess(Method method, Void response) {
+						mensajeAviso.mostrar("Exitosamente quitado el pago en el origen");	
+					}
+				});
+		});
+		pagadoDestinoCheckBox.addValueChangeHandler(e -> {
+			if(e.getValue())
+				servicioGuia.pagarDestino(guiaSeleccionada.getId(), pagoDestinoTextBox.getValue(), "Pago Guia en el origen, Nro Guia:" + guiaSeleccionada.getNroGuia() , new LlamadaRemota<Void>("No se pude pagar guia en el origen", false) {
+					@Override
+					public void onSuccess(Method method, Void response) {
+						mensajeAviso.mostrar("Exitosamente pagado en el destino");	
+					}
+				});
+			else 
+				servicioGuia.quitarPagoDestino(guiaSeleccionada.getId(), new LlamadaRemota<Void>("No se pude pagar guia en el destino", false) {
+					@Override
+					public void onSuccess(Method method, Void response) {
+						mensajeAviso.mostrar("Exitosamente quitado el pago en el destino");	
+					}
+				});
+		});
 	}
 	
 	public void setResumen(String resumen){
@@ -908,14 +966,14 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	
 	public void imprimirGuia(Guia guiaSelecciondaPrint) {
 		
-		GWT.log("--> imprimir Guia: " + guiaSelecciondaPrint);
-		GWT.log("--> imprimir Guia.getItems(): " + guiaSelecciondaPrint.getItems());
-		GWT.log("guiaSelecciondaPrint.getItems(): " + guiaSelecciondaPrint.getItems().size());
+		GWT.log("--> imprimir Guia: " + guiaSelecciondaPrint.getId());
+		GWT.log("--> imprimir Guia.getItems(): " + guiaSelecciondaPrint.getItems().size());
+		
 		String items[][] = new String[7][guiaSelecciondaPrint.getItems().size()];
 		int k = 0;
 		int bultos = 0;
 		Double peso = 0D;
-		Double total = 0D;
+		//Double total = pagoTotalTextBox.getValue();
 		
 		for (Item i: guiaSelecciondaPrint.getItems()) {
 			items[k][0] = Integer.toString(k+1);
@@ -929,7 +987,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			
 			bultos = bultos + (i.getCantidad() == null ? 0 : i.getCantidad());
 			peso = peso + (i.getPeso() == null ? 0.0 : i.getPeso());
-			total = i.getTotal();
+			//total = i.getTotal();
 			
 		}
 		
@@ -955,7 +1013,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		
 		String nroBultos   = utilDCargo.validarNullParaMostrar(bultos); 
 		String pesoTotal   = utilDCargo.validarNullParaMostrar(peso);
-		String totalPrecio = utilDCargo.validarNullParaMostrar(total);
+		String totalPrecio = utilDCargo.validarNullParaMostrar(guiaSelecciondaPrint.getTotalGuia());
 		
 		imprimirPDF.generarPDFGuia(ciudad, direccion, telefono, fechaRegistro,  nroGuia,
 				remitente, telefonoRemite, origen, consignatario, telefonoConsig, destino, 

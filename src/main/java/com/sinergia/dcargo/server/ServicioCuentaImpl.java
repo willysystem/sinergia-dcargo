@@ -202,6 +202,16 @@ public class ServicioCuentaImpl extends Dao<Cuenta> implements ServicioCuenta {
 		return (List<CuentaEgreso>) getSubCuentas(cuenta, TipoCuenta.EGRESO);
 	}
 	
+	@Override
+	public Cuenta getCuentaIngresoPorNroCuenta(Integer nroCuenta) throws Exception {
+		String sql = "SELECT c FROM CuentaIngreso c WHERE c.nroCuenta = :nroCuenta ";
+		Query q = em.createQuery(sql);
+		q.setParameter("nroCuenta", nroCuenta);
+		Cuenta cuenta = (Cuenta)q.getSingleResult();
+		return cuenta;
+	}
+	
+	
 
 //	@Override
 //	public List<CuentaIngreso> getTodasCuentasIngresoPadre() throws Exception {

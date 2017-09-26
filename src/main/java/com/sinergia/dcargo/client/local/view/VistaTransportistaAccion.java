@@ -55,10 +55,10 @@ public class VistaTransportistaAccion extends DialogBox {
 	private Cargador cargador;
 	
 	//@Inject
-	private VistaGuiaAccion vistaGuiaAccion;
+	private VistaConocimientoAccion vistaConocimientoAccion;
 	
-	public void setVistaGuiaAccion(VistaGuiaAccion vistaGuiaAccion) {
-		this.vistaGuiaAccion = vistaGuiaAccion;
+	public void setVistaConocimentoAccion(VistaConocimientoAccion vistaConocimientoAccion) {
+		this.vistaConocimientoAccion = vistaConocimientoAccion;
 	}
 
 	private TransportistaAccion transportistaAccion;
@@ -148,7 +148,7 @@ public class VistaTransportistaAccion extends DialogBox {
 		marcaLabelValue.setText("");    marcaTextBox.setValue("");
 		colorLabelValue.setText("");    colorTextBox.setValue("");
 		vecinoDeLabelValue.setText(""); vecinoDeTextBox.setValue("");
-		if(transportistaAccion == TransportistaAccion.NUEVO || transportistaAccion == TransportistaAccion.MODIFICAR){
+		if(transportistaAccion == TransportistaAccion.NUEVO || transportistaAccion == TransportistaAccion.MODIFICAR || transportistaAccion == TransportistaAccion.NUEVO_DESDE_CONOCIMIENTO){
 			nombreValue    = nombresTextBox;	
 			brevetValue    = brevetTextBox;
 			ciValue        = ciTextBox;
@@ -337,8 +337,16 @@ public class VistaTransportistaAccion extends DialogBox {
 		});
 		
 		guardarBtn.addClickHandler(e -> {
-			if(!validarCampos()) mensajeAviso.mostrar("Llenar los campos obligatorios (*)");
-			else hide(); 
+			if(!validarCampos()) { 
+				mensajeAviso.mostrar("Llenar los campos obligatorios (*)") ;
+				return; 
+			}
+			hide();
+			if(transportistaAccion == TransportistaAccion.NUEVO_DESDE_CONOCIMIENTO) {
+				log.info("  vistaConocimientoAccion:" + vistaConocimientoAccion);
+				VistaTransportistaAccion.this.adminParametros.poblarTransportistas(vistaConocimientoAccion);
+			}
+			
 		});
 		cancelarBtn.addClickHandler(e -> servicioTransportista.borrar(transportistaSeleccionado.getId(), new LlamadaRemota<Void>("Error al borrar Transportista", false){
 			@Override

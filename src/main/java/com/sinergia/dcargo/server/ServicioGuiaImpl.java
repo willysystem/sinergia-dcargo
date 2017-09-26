@@ -22,12 +22,16 @@ import javax.persistence.TemporalType;
 import org.slf4j.Logger;
 
 import com.sinergia.dcargo.client.shared.ServicioCliente;
+import com.sinergia.dcargo.client.shared.ServicioCuenta;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
+import com.sinergia.dcargo.client.shared.ServicioMovimiento;
 import com.sinergia.dcargo.client.shared.dominio.Cliente;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Item;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.Unidad;
 import com.sinergia.dcargo.client.shared.OficinaServicio;
@@ -50,6 +54,12 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	
 	@EJB
 	private OficinaServicio oficinaServicio;
+	
+	@EJB
+	private ServicioMovimiento servicioMovimiento;
+	
+	@EJB
+	private ServicioCuenta servicioCuenta;
 	
 	@Inject 
 	private Logger log;
@@ -346,6 +356,8 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setPagoOrigen(guiaP.getPagoOrigen());
 		gDTO.setSaldoDestino(guiaP.getSaldoDestino());
 		gDTO.setTotalGuia(guiaP.getTotalGuia());
+		gDTO.setPagadoOrigen(guiaP.getPagadoOrigen());
+		gDTO.setPagadoDestino(guiaP.getPagadoDestino());
 		
 		if(guiaP.getEntregaConsignatario() != null) {
 			if(guiaP.getEntregaConsignatario()) {
@@ -489,5 +501,66 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		guia.setEntregaConsignatario(entregaConsignatario);
 		em.merge(guia);
 	}
+
+	@Override
+	public void pagarOrigen(Long idGuia, Double monto, String glosa) throws Exception {
+		Cuenta cuenta = servicioCuenta.getCuentaIngresoPorNroCuenta(1000);
+		Guia guia = buscarPorId(idGuia);
+		guia.setPagadoOrigen(true);
+		guia = merge(guia);
+		MovimientoIngreso miP = servicioMovimiento.nuevoMovimientoIngreso();
+		miP = em.find(MovimientoIngreso.class, miP.getId());
+		miP.setFechaRegistro(new Date());
+		miP.setMonto(monto);
+		miP.setGuiaPagoOrigen(guia);
+		miP.setGlosa(glosa);
+		miP.setCuenta(cuenta);
+		miP.setEstado("V".charAt(0));
+		guia.setMovimientoIngresoOrigen(miP);
+		em.merge(miP);
+	}
 	
+	@Override
+	public void quitarPagoOrigen(Long idGuia) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		MovimientoIngreso movIngreso = guia.getMovimientoIngresoOrigen();
+		MovimientoIngreso movIngresoP = em.find(MovimientoIngreso.class, movIngreso.getId());
+		movIngresoP.setGuiaPagoOrigen(null);
+		guia.setPagadoOrigen(false);
+		guia.setMovimientoIngresoOrigen(null);
+		em.merge(guia);
+		movIngresoP = em.merge(movIngresoP);
+		em.remove(movIngresoP);
+	}
+	
+	@Override
+	public void pagarDestino(Long idGuia, Double monto, String glosa) throws Exception {
+		Cuenta cuenta = servicioCuenta.getCuentaIngresoPorNroCuenta(1000);
+		Guia guia = buscarPorId(idGuia);
+		guia.setPagadoDestino(true);
+		guia = merge(guia);
+		MovimientoIngreso miP = servicioMovimiento.nuevoMovimientoIngreso();
+		miP = em.find(MovimientoIngreso.class, miP.getId());
+		miP.setFechaRegistro(new Date());
+		miP.setMonto(monto);
+		miP.setGuiaPagoDestino(guia);
+		miP.setGlosa(glosa);
+		miP.setCuenta(cuenta);
+		miP.setEstado("V".charAt(0));
+		guia.setMovimientoIngresoDestino(miP);
+		em.merge(miP);
+	}
+	
+	@Override
+	public void quitarPagoDestino(Long idGuia) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		MovimientoIngreso movIngreso = guia.getMovimientoIngresoDestino();
+		MovimientoIngreso movIngresoP = em.find(MovimientoIngreso.class, movIngreso.getId());
+		movIngresoP.setGuiaPagoDestino(null);
+		guia.setPagadoDestino(false);
+		guia.setMovimientoIngresoDestino(null);
+		em.merge(guia);
+		movIngresoP = em.merge(movIngresoP);
+		em.remove(movIngresoP);
+	}
 }

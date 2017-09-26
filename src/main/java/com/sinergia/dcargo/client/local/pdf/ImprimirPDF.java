@@ -71,7 +71,7 @@ public class ImprimirPDF {
 
 		// 6. Firma
 		doc.myText("Recibi Conforme", { align : "center"}, 0, doc.autoTable.previous.finalY + 190);
-		doc.myText(remite, { align : "center" }, 0, doc.autoTable.previous.finalY + 210);
+		doc.myText(consignatario, { align : "center" }, 0, doc.autoTable.previous.finalY + 210);
 		doc.myText(ciRemitente, { align : "center" }, 0, doc.autoTable.previous.finalY + 230);
 		doc.text(35, doc.autoTable.previous.finalY + 400, "Nota.: Esta guia no tiene validez fiscal");
 		
@@ -86,8 +86,8 @@ public class ImprimirPDF {
 		//doc.text(220, doc.autoTable.previous.finalY + 150, "Remiti Conforme");
 		//doc.text(220, doc.autoTable.previous.finalY + 180, remite);
 
-		//doc.save("table.pdf");
-		doc.autoPrint();
+		//doc.save("guia-" + nroGuia + "_" + fecha + ".pdf");
+		//doc.autoPrint();
 		doc.output('dataurlnewwindow');
 
 	}-*/;
@@ -121,7 +121,8 @@ public class ImprimirPDF {
 		});
 
 		//doc.save("table.pdf");
-		doc.autoPrint();
+		//doc.autoPrint();
+		
 		doc.output('dataurlnewwindow');
 
 	}-*/;
@@ -206,7 +207,7 @@ public class ImprimirPDF {
 
 		doc.myText("V.B.", { align : "center" }, 0, doc.autoTable.previous.finalY + 340);
 
-		doc.autoPrint();
+		//doc.autoPrint();
 		//alert("3");
 		doc.output('dataurlnewwindow');
 		//alert("4");
@@ -239,7 +240,7 @@ public class ImprimirPDF {
 		});
 
 		//doc.save("table.pdf");
-		doc.autoPrint();
+		//doc.autoPrint();
 		doc.output('dataurlnewwindow');
 
 	}-*/;
@@ -283,7 +284,7 @@ public class ImprimirPDF {
 		
 		
 		
-		doc.autoPrint();
+		//doc.autoPrint();
 		doc.output('dataurlnewwindow');
 				
 	}-*/;
@@ -323,7 +324,7 @@ public class ImprimirPDF {
 		
 		
 		
-		doc.autoPrint();
+		//doc.autoPrint();
 		doc.output('dataurlnewwindow');
 				
 	}-*/;

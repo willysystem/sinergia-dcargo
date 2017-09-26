@@ -1,6 +1,5 @@
 package com.sinergia.dcargo.client.local.api;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -17,7 +16,6 @@ import org.fusesource.restygwt.client.RestService;
 
 import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
-import com.sinergia.dcargo.client.shared.dto.DateParam;
 
 @Path("/rest/guia")
 public interface ServicioGuiaCliente extends RestService {
@@ -150,5 +148,25 @@ public interface ServicioGuiaCliente extends RestService {
 	  @DELETE
 	  @Path("/{id:[0-9]+}")
 	  void borrar(@PathParam("id") Long id,  MethodCallback<Boolean> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/pagarOrigen/{idGuia}/{monto}/{glosa}")
+	  void pagarOrigen(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa, MethodCallback<Void> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/quitarPagoOrigen/{idGuia}")
+	  void quitarPagoOrigen(Long idGuia, MethodCallback<Void> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/pagarDestino/{idGuia}/{monto}/{glosa}")
+	  void pagarDestino(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa, MethodCallback<Void> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/quitarPagoDestino/{idGuia}")
+	  void quitarPagoDestino(Long idGuia, MethodCallback<Void> call);
 	  
 }

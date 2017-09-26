@@ -443,7 +443,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		Double pesoTotal = 0.0D;
 		Integer bultosTotal = 0;
 		for (Item i: store.getAll()) {
-			resumen = resumen + i.getContenido() + ",";
+			resumen = resumen + i.getCantidad() + " " + i.getContenido() + ",";
 			total = total + i.getTotal();
 			pesoTotal = pesoTotal + (i.getPeso()==null?0:i.getPeso());
 			bultosTotal = bultosTotal + i.getCantidad();

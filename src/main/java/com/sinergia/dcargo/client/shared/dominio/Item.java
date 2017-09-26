@@ -295,6 +295,10 @@ public class Item implements java.io.Serializable {
 	public void setTotal(Double total) {
 		this.total = total;
 	}
+	
+	public String toString() {
+		return "";
+	}
 
 	
 }

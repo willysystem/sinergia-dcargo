@@ -84,6 +84,19 @@ public class AdminParametros {
 		log.info("@AfterInitialization: " + this.getClass().getSimpleName());
 	}
 	
+	public void poblarTransportistas(final Carga carga) {
+		cargador.center();
+		servicioTransportista.getTodos(new LlamadaRemota<List<Transportista>>("Error al obtener los transportista",true) {
+			@Override
+			public void onSuccess(Method method, List<Transportista> response) {
+				transportistas = response;
+				log.info("transportistas.size" + transportistas.size() );
+				AdminParametros.this.cargador.hide();
+				carga.cargarOracles();
+			}
+		});
+	}
+	
 	public void poblarParametros(final Carga carga) {
 		
 		cargador.center();
@@ -243,6 +256,7 @@ public class AdminParametros {
 	
 	public Transportista buscarTransportistaPorNombre(String nombre){
 		for (Transportista transportista : transportistas) {
+			if(transportista.getNombre() == null ) continue;
 			if(transportista.getNombre().equals(nombre))
 				return transportista;
 		}

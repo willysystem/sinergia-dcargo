@@ -193,14 +193,14 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		        if (items.size() == 0) {
 		          return "";
 		        } else {
-		          int totalAge = 0;
+		          int total = 0;
 		          for (Movimiento item : items) {
 		        	  if(item.getTipoCuenta() == TipoCuenta.INGRESO)
-		        		  totalAge += item.getMonto();
+		        		  total += item.getMonto() == null ? 0 : item.getMonto();
 		              if(item.getTipoCuenta() == TipoCuenta.EGRESO)
-		            	  totalAge -= item.getMonto();
+		            	  total -= item.getMonto();
 		          }
-		          return "Total: " + totalAge;
+		          return "Total: " + total;
 		        }
 		      }
 		};

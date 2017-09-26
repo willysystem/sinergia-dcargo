@@ -16,7 +16,6 @@
 
 package com.sinergia.dcargo.client.shared;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -165,6 +164,26 @@ public interface ServicioGuia {
   @Path("/{id:[0-9]+}")
   Boolean borrar(@PathParam("id") Long id);
 
+  @PUT
+  @Consumes("application/json")
+  @Path("/pagarOrigen/{idGuia}/{monto}/{glosa}")
+  public void pagarOrigen(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/quitarPagoOrigen/{idGuia}")
+  public void quitarPagoOrigen(Long idGuia) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/pagarDestino/{idGuia}/{monto}/{glosa}")
+  public void pagarDestino(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Path("/quitarPagoDestino/{idGuia}")
+  public void quitarPagoDestino(Long idGuia) throws Exception;
+  
   public Guia serializarParaBusqueda(Guia guiaP);
  
   

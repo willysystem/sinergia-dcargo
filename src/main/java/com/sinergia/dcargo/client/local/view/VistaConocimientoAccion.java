@@ -43,6 +43,7 @@ import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
+import com.sinergia.dcargo.client.shared.dominio.Cliente;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
@@ -84,14 +85,14 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private ImprimirPDF imprimirPDF;
 	
 	@Inject
-	private VistaClienteAccion vistaClienteAccion;
-	
-	@Inject
 	private ServicioGuiaCliente servicioGuia;
 	
 	@Inject
 	private ServicioConocimientoCliente servicioConocimiento;
 
+	@Inject
+	private VistaTransportistaAccion vistaTransportistaAccion;
+	
 	private ConocimientoAccion conocimientoAccion;
 	
 	private MultiWordSuggestOracle oficinaOracle       = new MultiWordSuggestOracle();
@@ -143,7 +144,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private HTML brevetLabel = new HTML("<b>Brevet Nro.: </b>");
 	private Label brevetLabelValor = new Label();
 
-	private Button nuevoTransportistaButton = new Button("Nuevo Transportista");
+	//private Button nuevoTransportistaButton = new Button("Nuevo Transportista");
 	private Button nuevoOficinaButtonOne = new Button("Nuevo");
 	private Button nuevoOficinaButtonTwo = new Button("Nuevo");
 	
@@ -252,6 +253,8 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	public void cargarDataUI() {
 		log.info("@AfterInitialization: " + this.getClass().getSimpleName());		 
 	}
+	
+	DockPanel dock = null;
 
 	private void construirGUI() {
 
@@ -350,7 +353,9 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		surPanel.add(horizontalPanel);
 		surPanel.add(estadoHTML);
 		
-		DockPanel dock = new DockPanel();
+		if(dock == null) agregarEscuchadores();
+		
+		dock = new DockPanel();
 		dock.setWidth("100%");
 		dock.setHeight("100%");
 		dock.add(vpNorte, DockPanel.NORTH);
@@ -360,7 +365,6 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		setWidget(dock);
 		
 		cargarOracles();
-		agregarEscuchadores();
 		datosIniciales();
 		center();
 		
@@ -470,9 +474,10 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			}
 			
 		} else if(conocimientoAccion == ConocimientoAccion.CONSULTAR) {
-			propietarioLabelValue.setText(conocimientoSeleccionado.getTransportistaPropietario().getNombre());
+			
+			propietarioLabelValue.setText(conocimientoSeleccionado.getTransportistaPropietario()== null ? "" : conocimientoSeleccionado.getTransportistaPropietario().getNombre());
 			propietarioValue = propietarioLabelValue;
-			conductorLabelValue.setText(conocimientoSeleccionado.getTransportistaConductor().getNombre());
+			conductorLabelValue.setText(conocimientoSeleccionado.getTransportistaConductor() == null ? "" : conocimientoSeleccionado.getTransportistaConductor().getNombre());
 			conductorValue = conductorLabelValue;
 			llenarDatosConductor();
 			multaLabelVale.setText(conocimientoSeleccionado.getMulta()+"");
@@ -707,9 +712,6 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			if(cliente.getNombre() != null)
 				transportistaOracle.add(cliente.getNombre());
 		}
-		for (Oficina oficina: adminParametros.getOficinas()) {
-			oficinaOracle.add(oficina.getNombre());
-		}
 	}
 	
 	void agregarEscuchadores(){
@@ -747,7 +749,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			});
 			
 			// Actualizar datos
-			Transportista transportista = getTransportistaPorNombre(nombreConductor);
+			Transportista transportista = adminParametros.buscarTransportistaPorNombre(nombreConductor);//getTransportistaPorNombre(nombreConductor);
 			vecinoLabelValor.setText(transportista.getVecino_de());
 			ciLabelValor.setText(transportista.getCi());
 			domicilioLabelValue.setText(transportista.getDireccion());
@@ -956,9 +958,15 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			hide();
 		});
 		
-		nuevoTransportistaButton.addClickHandler(e -> {
-			//vistaClienteAccion.setVistaGuiaAccion(this);
-			vistaClienteAccion.mostrar(ClienteAccion.NUEVO_DESDE_GUIA, null);
+		nuevoOficinaButtonOne.addClickHandler(e -> {
+			vistaTransportistaAccion.setVistaConocimentoAccion(this);
+			log.info("nuevoOficinaButtonOne");
+			vistaTransportistaAccion.mostrar(TransportistaAccion.NUEVO_DESDE_CONOCIMIENTO, null);
+		});
+		nuevoOficinaButtonTwo.addClickHandler(e -> {
+			vistaTransportistaAccion.setVistaConocimentoAccion(this);
+			log.info("nuevoOficinaButtonTwo");
+			vistaTransportistaAccion.mostrar(TransportistaAccion.NUEVO_DESDE_CONOCIMIENTO, null);
 		});
 		
 		buscarGuiasButton.addClickHandler(e -> {
@@ -1032,11 +1040,15 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			return false;
 		}
 		String nombrePropietario = conocimientoSeleccionado.getTransportistaPropietario().getNombre();
+		log.info("  nombrePropietario: "+ nombrePropietario);
 		
 		boolean propietarioValido = false;
-		for (Transportista c: adminParametros.getTransportistas()) {
-			if(c.getNombre().equals(nombrePropietario)) {propietarioValido = true; break;} 
-		}
+		Transportista transportista = adminParametros.buscarTransportistaPorNombre(nombrePropietario);
+		if(transportista != null) propietarioValido = true;
+		
+//		for (Transportista c: adminParametros.getTransportistas()) {
+//			if(c.getNombre().equals(nombrePropietario)) {propietarioValido = true; break;} 
+//		}
 		log.info("--> nombrePropietario:" + nombrePropietario + ": " + propietarioValido);
 		if(!propietarioValido) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("El propietario no es valido");
@@ -1046,9 +1058,11 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		// Conductor
 		String nombreConductor = conocimientoSeleccionado.getTransportistaConductor().getNombre();
 		boolean conductorValido = false;
-		for (Transportista c: adminParametros.getTransportistas()) {
-			if(c.getNombre().equals(nombreConductor)) {conductorValido = true; break;} 
-		}
+		Transportista conductor = adminParametros.buscarTransportistaPorNombre(nombreConductor);
+		if(conductor != null) conductorValido = true;
+//		for (Transportista c: adminParametros.getTransportistas()) {
+//			if(c.getNombre().equals(nombreConductor)) {conductorValido = true; break;} 
+//		}
 		log.info("--> nombreConductor:" + nombreConductor  + ": " + conductorValido);
 		if(!conductorValido) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("El conductor no es valido");
@@ -1240,6 +1254,8 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	
 	private void llenarDatosConductor(){
 		Transportista conductor = conocimientoSeleccionado.getTransportistaConductor();
+		if(conductor == null) return;
+		
 		vecinoLabelValor.setText(conductor.getVecino_de());
 		ciLabelValor.setText(conductor.getCi());
 		domicilioLabelValue.setText(conductor.getDireccion());

@@ -483,6 +483,8 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			
 		});
 		imprimirGuiaBtn.addClickHandler(e -> {
+			log.info("e.getClass().getSimpleName()" + e.getClass().getSimpleName());
+			
 			Guia guia = ((SingleSelectionModel<Guia>)grid.getSelectionModel()).getSelectedObject();
 			if(guia == null) {
 				mensajeAviso.mostrar("Seleccione la Guia para imprimir");

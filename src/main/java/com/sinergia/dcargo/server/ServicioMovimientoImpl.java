@@ -261,7 +261,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	public void guardarGuia(Long idMovimiento, Long idGuia) throws Exception {
 		MovimientoIngreso movP = em.find(MovimientoIngreso.class, idMovimiento);
 		Guia guia = em.find(Guia.class, idGuia);
-		movP.setGuia(guia);
+		//movP.setGuia(guia);
 		em.merge(guia);
 		
 	}
@@ -296,47 +296,54 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		
 		if(mov instanceof MovimientoIngreso) {
 			
-			if(((MovimientoIngreso)mov).getGuia() == null) {
+			MovimientoIngreso movIngreso = ((MovimientoIngreso)mov);
+			Guia guia = null;
+			if(movIngreso.getGuiaPagoOrigen() != null) guia = movIngreso.getGuiaPagoOrigen(); 
+			else guia = movIngreso.getGuiaPagoDestino();        
+			
+			if(guia == null) {
 				movTO.setOrigen("");
 				movTO.setDestino("");
 			} else {
-				if(((MovimientoIngreso)mov).getGuia().getOficinaOrigen() == null) {
+				if(guia.getOficinaOrigen() == null) {
 					movTO.setOrigen("");
-				} else if(((MovimientoIngreso)mov).getGuia().getOficinaDestino() == null) {
+				} else if(guia.getOficinaDestino() == null) {
 					movTO.setDestino("");
 				} else {
-					movTO.setOrigen(((MovimientoIngreso)mov).getGuia().getOficinaOrigen().getNombre());
-					movTO.setDestino(((MovimientoIngreso)mov).getGuia().getOficinaDestino().getNombre());
+					movTO.setOrigen(guia.getOficinaOrigen().getNombre());
+					movTO.setDestino(guia.getOficinaDestino().getNombre());
 				}
 			}
 
-			if(((MovimientoIngreso)mov).getGuia() != null) {
-				movTO.setPagoOrigen(((MovimientoIngreso)mov).getGuia().getPagoOrigen());
-			    movTO.setPagoDestino(((MovimientoIngreso)mov).getGuia().getSaldoDestino());
+			if(guia != null) {
+				movTO.setPagoOrigen(guia.getPagoOrigen());
+			    movTO.setPagoDestino(guia.getSaldoDestino());
 			}
 			
-			if(((MovimientoIngreso) mov).getGuia() != null) 
-				movTO.setNroGuiOrConocimiento(((MovimientoIngreso) mov).getGuia().getNroGuia()+"");
+			if(guia != null) 
+				movTO.setNroGuiOrConocimiento(guia.getNroGuia()+"");
 			
 		} else {
 			
-			if(((MovimientoEgreso)mov).getConocimiento() == null) {
+			MovimientoEgreso movEgreso = (MovimientoEgreso)mov; 
+			
+			if(movEgreso.getConocimiento() == null) {
 				movTO.setOrigen("");
 				movTO.setDestino("");
 			} else {
-				if(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen() == null) {
+				if(movEgreso.getConocimiento().getOficinaOrigen() == null) {
 					movTO.setOrigen("");             			
-				} else if(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino() == null) {
+				} else if(movEgreso.getConocimiento().getOficinaDestino() == null) {
 					movTO.setDestino("");
 				} else {
-					movTO.setOrigen(((MovimientoEgreso)mov).getConocimiento().getOficinaOrigen().getNombre());
-					movTO.setDestino(((MovimientoEgreso)mov).getConocimiento().getOficinaDestino().getNombre());
+					movTO.setOrigen(movEgreso.getConocimiento().getOficinaOrigen().getNombre());
+					movTO.setDestino(movEgreso.getConocimiento().getOficinaDestino().getNombre());
 				}
 			}
 			
 			if(((MovimientoEgreso)mov).getConocimiento() != null) {
-				movTO.setPagoOrigen(((MovimientoEgreso)mov).getConocimiento().getPagoOrigen());
-			    movTO.setPagoDestino(((MovimientoEgreso)mov).getConocimiento().getPagoDestino());
+				movTO.setPagoOrigen(movEgreso.getConocimiento().getPagoOrigen());
+			    movTO.setPagoDestino(movEgreso.getConocimiento().getPagoDestino());
 			}
 		    
 			if(((MovimientoEgreso) mov).getConocimiento() != null) 
@@ -350,9 +357,14 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			cuenta.setDescripcion(mov.getCuenta().getDescripcion());
 			movTO.setCuenta(cuenta);
 			
-	         
-	        movTO.setNroCuentaPadre(mov.getCuenta().getCuenta().getNroCuenta());
-	        movTO.setDescripcionPadre(mov.getCuenta().getCuenta().getDescripcion());
+	        if(mov.getCuenta().getCuenta() == null) {
+	        	movTO.setNroCuentaPadre(mov.getCuenta().getNroCuenta());
+		        movTO.setDescripcionPadre(mov.getCuenta().getDescripcion());
+	        } else {
+	        	movTO.setNroCuentaPadre(mov.getCuenta().getCuenta().getNroCuenta());
+		        movTO.setDescripcionPadre(mov.getCuenta().getCuenta().getDescripcion());
+	        }
+	        
 	         
 		}
 		
@@ -557,10 +569,15 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			String clientes = "R:" + remitente + "\n" + " C:" + consignatario; 
 			d.setDeudasClientes(clientes);
 			d.setDeudasMonto(df.format(gP.getTotalGuia() == null ? 0.0 : gP.getTotalGuia()));
-			if(gP.getMovimientoIngreso() != null) {
-				d.setIngresosFecha(df.format(gP.getMovimientoIngreso().getFechaRegistro()));
-				d.setIngresosNroComprobante(gP.getMovimientoIngreso().getNroGuiOrConocimiento());
-				d.setIngresosAcuenta(df.format(gP.getMovimientoIngreso().getMonto()));
+			
+			MovimientoIngreso movIngreso = null;
+			if(gP.getMovimientoIngresoOrigen() != null) movIngreso = gP.getMovimientoIngresoOrigen(); 
+			else movIngreso = gP.getMovimientoIngresoDestino();	
+			
+			if(movIngreso != null) {
+				d.setIngresosFecha(df.format(movIngreso.getFechaRegistro()));
+				d.setIngresosNroComprobante(movIngreso.getNroGuiOrConocimiento());
+				d.setIngresosAcuenta(df.format(movIngreso.getMonto()));
 				d.setIngresosSaldo("");
 			} else {
 				d.setIngresosFecha("");

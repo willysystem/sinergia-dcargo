@@ -26,6 +26,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
 import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
@@ -107,5 +108,7 @@ public interface ServicioCuenta {
   @Consumes("application/json")
   @Path("/esUnicoNroCuentaCon/{type}/{nroCuenta}")
   public Resultado esUnicoNroCuentaCon(@QueryParam("type") TipoCuenta type, @QueryParam("nroCuenta") Integer nroCuenta) throws Exception;
+  
+  public Cuenta getCuentaIngresoPorNroCuenta(Integer nroCuenta) throws Exception;
   
 }

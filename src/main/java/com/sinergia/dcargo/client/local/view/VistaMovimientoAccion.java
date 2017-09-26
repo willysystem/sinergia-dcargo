@@ -150,6 +150,8 @@ public class VistaMovimientoAccion extends DialogBox {
 		log.info("@AfterInitialization: " + this.getClass().getSimpleName());
 	}
 	
+	DockPanel dock = null;
+	
 	private void construirGUI() {
 		
 		setGlassEnabled(true);
@@ -333,7 +335,9 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		horizontalPanel.add(horizontalPanelButton);
 		
-		DockPanel dock = new DockPanel();
+		if(dock == null) agregarEscuchadores();
+		
+		dock = new DockPanel();
 		dock.setWidth("100%");
 		dock.setHeight("100%");
 		dock.add(layout, DockPanel.CENTER);
@@ -512,7 +516,7 @@ public class VistaMovimientoAccion extends DialogBox {
 	
 	public void mostrarGuiaSeleccionada(Guia guiaSeleccionada) {
 		log.info("movimientoSeleccionado.getTipoCuenta(): " + movimientoSeleccionado.getTipoCuenta());
-    	((MovimientoIngreso)movimientoSeleccionado).setGuia(guiaSeleccionada);
+    	//((MovimientoIngreso)movimientoSeleccionado).setGuia(guiaSeleccionada);
 		nroGuiaOrConocimientoValue.setText(guiaSeleccionada.getNroGuia()+"");
 		origenValue.setText(guiaSeleccionada.getOficinaOrigen().getNombre());
 		destinoValue.setText(guiaSeleccionada.getOficinaDestino().getNombre());

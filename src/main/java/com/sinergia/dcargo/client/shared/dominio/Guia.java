@@ -151,12 +151,15 @@ public class Guia implements java.io.Serializable {
 	@javax.persistence.Transient
 	private java.util.Date fechaFin;
 
-	/**
-	 * @generated
-	 */
 	@javax.persistence.OneToOne
-	private MovimientoIngreso movimientoIngreso;
+	private MovimientoIngreso movimientoIngresoOrigen;
 	
+	@javax.persistence.OneToOne
+	private MovimientoIngreso movimientoIngresoDestino;
+	
+	private Boolean pagadoOrigen;
+	
+	private Boolean pagadoDestino;
 	
 	private String nroFacturaEntrega;
 	
@@ -646,12 +649,36 @@ public class Guia implements java.io.Serializable {
 		this.entregaConsignatario = entregaConsignatario;
 	}
 
-	public MovimientoIngreso getMovimientoIngreso() {
-		return movimientoIngreso;
+	public Boolean getPagadoOrigen() {
+		return pagadoOrigen;
 	}
 
-	public void setMovimientoIngreso(MovimientoIngreso movimientoIngreso) {
-		this.movimientoIngreso = movimientoIngreso;
+	public void setPagadoOrigen(Boolean pagadoOrigen) {
+		this.pagadoOrigen = pagadoOrigen;
+	}
+
+	public Boolean getPagadoDestino() {
+		return pagadoDestino;
+	}
+
+	public void setPagadoDestino(Boolean pagadoDestino) {
+		this.pagadoDestino = pagadoDestino;
+	}
+
+	public MovimientoIngreso getMovimientoIngresoOrigen() {
+		return movimientoIngresoOrigen;
+	}
+
+	public void setMovimientoIngresoOrigen(MovimientoIngreso movimientoIngresoOrigen) {
+		this.movimientoIngresoOrigen = movimientoIngresoOrigen;
+	}
+
+	public MovimientoIngreso getMovimientoIngresoDestino() {
+		return movimientoIngresoDestino;
+	}
+
+	public void setMovimientoIngresoDestino(MovimientoIngreso movimientoIngresoDestino) {
+		this.movimientoIngresoDestino = movimientoIngresoDestino;
 	}
 	
 }

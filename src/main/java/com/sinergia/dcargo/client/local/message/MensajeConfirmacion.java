@@ -63,7 +63,7 @@ public class MensajeConfirmacion extends DialogBox {
 		//center();
 	} 
 	
-	public void mostrar(String mensaje, ClickHandler clickHandlerAceptar){
+	public void mostrar(String mensaje, ClickHandler clickHandlerAceptar, ClickHandler clickHandlerCancelar) {
 		setGlassEnabled(true);
 		setAnimationEnabled(false);
 		setText("Mensaje");
@@ -88,18 +88,26 @@ public class MensajeConfirmacion extends DialogBox {
 		horizontalPanel2.add(aceptarButton);
 		
 		Button cancelarButton = new Button("Cancelar");
-		cancelarButton.addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				MensajeConfirmacion.this.hide();
-			}
-		});
+		if(clickHandlerCancelar == null) 
+			cancelarButton.addClickHandler(new ClickHandler() {
+				@Override
+				public void onClick(ClickEvent event) {
+					MensajeConfirmacion.this.hide();
+				}
+			});
+		else
+			cancelarButton.addClickHandler(clickHandlerCancelar);
+			
 		horizontalPanel2.add(cancelarButton);
 		
 		verticalPanel.add(horizontalPanel2);
 		
 		setWidget(verticalPanel);
 		center();
+	}
+	
+	public void mostrar(String mensaje, ClickHandler clickHandlerAceptar) {
+		mostrar(mensaje, clickHandlerAceptar, null);
 	}
 	
 }
