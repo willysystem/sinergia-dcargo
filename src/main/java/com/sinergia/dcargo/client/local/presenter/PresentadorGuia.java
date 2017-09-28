@@ -108,7 +108,7 @@ public class PresentadorGuia implements Presenter {
 			@Override
 			public void onClick(ClickEvent event) {
 				Guia guia = display.getParametrosBusqueda();
-				log.info("guia parametro búsqueda: "+ guia);
+				log.info("guia parametro búsqueda 2: "+ guia);
 				//PresentadorGuia.this.cargador.center();
 				servicioGuia.buscarGuias(guia, new MethodCallback<List<Guia>>() {
 					@Override

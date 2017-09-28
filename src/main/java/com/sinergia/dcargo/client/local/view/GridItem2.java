@@ -503,4 +503,8 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		
 	}
 	
+	public void setEnable(boolean enabled) {
+		grid.setEnabled(enabled);
+	}
+	
 }

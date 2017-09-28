@@ -92,6 +92,7 @@ public interface ServicioGuiaCliente extends RestService {
 	  @GET 
 	  @Path("/getEstados")
 	  @Produces("application/json")
+	  @Consumes("application/json")
 	  public void getEstados(MethodCallback<List<EstadoGuia>> call);
 	  
 	  @PUT
@@ -168,5 +169,10 @@ public interface ServicioGuiaCliente extends RestService {
 	  @Consumes("application/json")
 	  @Path("/quitarPagoDestino/{idGuia}")
 	  void quitarPagoDestino(Long idGuia, MethodCallback<Void> call);
+	  
+	  @PUT
+	  @Produces("application/json")
+	  @Path("/generarNroGuia/{idGuia}/")
+	  void generarNroGuia(@QueryParam("idGuia") Long idGuia, MethodCallback<Integer> call);
 	  
 }

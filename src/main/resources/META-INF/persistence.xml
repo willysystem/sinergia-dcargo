@@ -1,24 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
          http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd"
-         version="2.1">
-	
-	<persistence-unit name="dCargoUnit"  transaction-type="JTA">
+	version="2.1">
+
+	<persistence-unit name="dCargoUnit" transaction-type="JTA">
 		<provider>org.hibernate.ejb.HibernatePersistence</provider>
 		<jta-data-source>java:jboss/datasources/DCargoDS</jta-data-source>
 		<non-jta-data-source>java:jboss/datasources/DCargoDS</non-jta-data-source>
-<!-- 	<class>com.sinergia.dcargo.client.shared.Person</class> -->
-<!-- 	<class>com.sinergia.dcargo.client.shared.User</class> -->
-		<!-- to change DB dialect use for Oracle: org.hibernate.dialect.OracleDialect, for Mysql5: org.hibernate.dialect.MySQL5Dialect -->
+		<!-- <class>com.sinergia.dcargo.client.shared.Person</class> -->
+		<!-- <class>com.sinergia.dcargo.client.shared.User</class> -->
+		<!-- to change DB dialect use for Oracle: org.hibernate.dialect.OracleDialect, 
+			for Mysql5: org.hibernate.dialect.MySQL5Dialect -->
 		<exclude-unlisted-classes>false</exclude-unlisted-classes>
 		<properties>
 			<property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5Dialect" />
 			<property name="hibernate.show_sql" value="true" />
-			<property name="hibernate.transaction.auto_close_session" value="true"/>
-<!-- 			<property name="hibernate.hbm2ddl.auto" value="update" /> -->
+			<property name="hibernate.transaction.auto_close_session"
+				value="true" />
+			<!-- <property name="hibernate.hbm2ddl.auto" value="update" /> -->
+<!-- 			<property name="hibernate.ejb.event.post-insert" -->
+<!-- 				value="org.hibernate.ejb.event.EJB3PostInsertEventListener,org.hibernate.envers.event.AuditEventListener" /> -->
+<!-- 			<property name="hibernate.ejb.event.post-update" -->
+<!-- 				value="org.hibernate.ejb.event.EJB3PostUpdateEventListener,org.hibernate.envers.event.AuditEventListener" /> -->
+<!-- 			<property name="hibernate.ejb.event.post-delete" -->
+<!-- 				value="org.hibernate.ejb.event.EJB3PostDeleteEventListener,org.hibernate.envers.event.AuditEventListener" /> -->
+<!-- 			<property name="hibernate.ejb.event.pre-collection-update" -->
+<!-- 				value="org.hibernate.envers.event.AuditEventListener" /> -->
+<!-- 			<property name="hibernate.ejb.event.pre-collection-remove" -->
+<!-- 				value="org.hibernate.envers.event.AuditEventListener" /> -->
+<!-- 			<property name="hibernate.ejb.event.post-collection-recreate" -->
+<!-- 				value="org.hibernate.envers.event.AuditEventListener" /> -->
 		</properties>
 	</persistence-unit>
-	
+
 </persistence> 

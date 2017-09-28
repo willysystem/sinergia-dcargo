@@ -44,6 +44,7 @@ public interface ServicioGuia {
   @GET 
   @Path("/getEstados")
   @Produces("application/json")
+  @Consumes("application/json")
   public List<EstadoGuia> getEstados() throws Exception;
   
   @PUT
@@ -183,6 +184,11 @@ public interface ServicioGuia {
   @Consumes("application/json")
   @Path("/quitarPagoDestino/{idGuia}")
   public void quitarPagoDestino(Long idGuia) throws Exception;
+
+  @PUT
+  @Produces("application/json")
+  @Path("/generarNroGuia/{idGuia}")
+  public Integer generarNroGuia(@QueryParam("idGuia") Long idGuia) throws Exception;
   
   public Guia serializarParaBusqueda(Guia guiaP);
  

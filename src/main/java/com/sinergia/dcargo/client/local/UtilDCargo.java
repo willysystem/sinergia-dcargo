@@ -43,7 +43,7 @@ public class UtilDCargo {
 
 	DateTimeFormat dtfSmall  = DateTimeFormat.getFormat("yyyy-MM-dd");
 	DateTimeFormat dtfMedium = DateTimeFormat.getFormat("yyyy-MM-dd HH:mm:ss");
-	NumberFormat   dff       = NumberFormat.getFormat("00.00");
+	NumberFormat   dff       = NumberFormat.getFormat("0.00");
 	
 	public String validarNullParaMostrarSmall(Date valor) {
 		return valor == null ? "" : dtfSmall.format(valor); 

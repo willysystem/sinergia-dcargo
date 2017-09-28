@@ -1,6 +1,5 @@
 package com.sinergia.dcargo.client.shared.dominio;
 
-
 /**
  * @generated
  */

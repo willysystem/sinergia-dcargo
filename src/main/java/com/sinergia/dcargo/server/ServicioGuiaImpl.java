@@ -68,7 +68,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	
 	public ServicioGuiaImpl() {
 		super(Guia.class);
-		estados.put('P', "Pendiente");
+		//estados.put('P', "Pendiente");
 		estados.put('R', "Remitido");
 		estados.put('E', "Entregado");
 		estados.put('A', "Anulado");
@@ -99,7 +99,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		Character estado = getEstado(guia.getEstadoDescripcion()); 
 		
 		HashMap<String, Object> parametros = new HashMap<>(); 
-		String where = "";
+		String where = " c.estado <> :estadoPendiente AND";
 		if(0 != nroGuia){
 			where = "c.nroGuia = :nroGuia AND";
 			parametros.put("nroGuia", nroGuia);
@@ -132,13 +132,20 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 				parametros.put("oficinaDestinoId", ofis.get(0).getId());
 			}
 		}
-		if(guia.getFechaIni() != null){
-			where = where + " c.fechaRegistro >= :fechaIni AND";
+		if(guia.getFechaIni() != null && guia.getFechaFin() != null) {
+			guia.getFechaIni().setHours(0);
+			guia.getFechaIni().setMinutes(0);
+			guia.getFechaIni().setSeconds(0);
+			guia.getFechaFin().setHours(23);
+			guia.getFechaFin().setMinutes(59);
+			guia.getFechaFin().setSeconds(59);
+			where = where + "  c.fechaRegistro BETWEEN :fechaIni AND :fechaFin AND";
 			parametros.put("fechaIni", guia.getFechaIni());
+			parametros.put("fechaFin", guia.getFechaFin());
 		}
 		if(guia.getFechaFin() != null){
-			where = where + " c.fechaRegistro <= :fechaFin AND";
-			parametros.put("fechaFin", guia.getFechaFin());
+			
+			
 		}
 		if(!"".equals(nroFactura)){
 			where = where + " c.nroFactura = :nroFactura AND";
@@ -162,12 +169,14 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		Query q = em.createQuery(query);
 		for (Entry<String, Object> e: parametros.entrySet()) {
 			if(e.getValue() instanceof Date){
-				q.setParameter(e.getKey(), (Date)e.getValue(), TemporalType.DATE);
+				q.setParameter(e.getKey(), (Date)e.getValue(), TemporalType.TIMESTAMP);
 			} else {
 				q.setParameter(e.getKey(), e.getValue());
 			}
 			log.info("->" + e.getKey() + ": " + e.getValue());
 		}
+		q.setParameter("estadoPendiente", 'P');
+		
 		
 		@SuppressWarnings("unchecked")
 		List<Guia> guias = q.getResultList();
@@ -213,6 +222,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			consignatario1.setId(guiaP.getConsignatario().getId());
 			consignatario1.setNombre(guiaP.getConsignatario().getNombre());
 			consignatario1.setTelefono(guiaP.getConsignatario().getTelefono());
+			consignatario1.setCi(guiaP.getConsignatario().getCi());
 			gDTO.setConsignatario(consignatario1);
 		}
 		
@@ -245,14 +255,10 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	
 	@Override
 	public Guia nuevaGuia() throws Exception {
-		Query query = em.createQuery("SELECT MAX(g.nroGuia) FROM Guia g");
-		Object object = query.getSingleResult();
-		String numero = "0";
-		if(object != null) numero = object.toString();
-		Integer nroGuia = Integer.valueOf(numero) + 1;
 		
 		Guia guia = new Guia();
-		guia.setNroGuia(nroGuia);
+		//guia.setNroGuia(generarNroGuia());
+		//guia.setNroGuia();
 		guia.setFechaRegistro(new Date());
 		guia.setEstado('P');
 		
@@ -358,6 +364,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setTotalGuia(guiaP.getTotalGuia());
 		gDTO.setPagadoOrigen(guiaP.getPagadoOrigen());
 		gDTO.setPagadoDestino(guiaP.getPagadoDestino());
+		gDTO.setEntregaConsignatario(guiaP.getEntregaConsignatario());
 		
 		if(guiaP.getEntregaConsignatario() != null) {
 			if(guiaP.getEntregaConsignatario()) {
@@ -441,8 +448,10 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		Guia guia = buscarPorId(idGuia);
 		guia.setEstado(getEstado(estadoDescripcion));
 
-		if(estadoDescripcion.equals("E"))
+		if(estadoDescripcion.charAt(0) == 'E')
 			guia.setFechaEntrega(new Date());
+		
+		
 		em.merge(guia);
 	}
 
@@ -562,5 +571,18 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		em.merge(guia);
 		movIngresoP = em.merge(movIngresoP);
 		em.remove(movIngresoP);
+	}
+	
+	@Override
+	public Integer generarNroGuia(Long idGuia) {
+		Query query = em.createQuery("SELECT MAX(g.nroGuia) FROM Guia g");
+		Object object = query.getSingleResult();
+		String numero = "0";
+		if(object != null) numero = object.toString();
+		Integer nroGuia = Integer.valueOf(numero) + 1;
+		Guia guia = buscarPorId(idGuia);
+		guia.setNroGuia(nroGuia);
+		merge(guia);
+		return nroGuia;
 	}
 }

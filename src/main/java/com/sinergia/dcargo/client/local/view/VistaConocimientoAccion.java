@@ -43,7 +43,6 @@ import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
-import com.sinergia.dcargo.client.shared.dominio.Cliente;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
@@ -185,7 +184,8 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private Label pagoDestinoLabelValue = new Label();
 	
 	private Button aceptarBtn = new Button("Aceptar");
-	private Button imprimirBtn = new Button("Imprimir");
+	private Button imprimirInternoBtn = new Button("Imprimir Interno");
+	private Button imprimirExternoBtn = new Button("Imprimir Externo");
 	private Button salirBtn = new Button("Salir");
 	private HTML estadoHTML  = new HTML();
 	
@@ -261,6 +261,8 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		setGlassEnabled(true);
 		setAnimationEnabled(false);
 		setText(conocimientoAccion.getTitulo());
+		
+		nroConocimientoValorLabel.setText(conocimientoSeleccionado.getNroConocimiento() + "");
 		
 		// config
 		prepararComponentes();
@@ -340,11 +342,13 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		
 		if(conocimientoAccion == ConocimientoAccion.NUEVO || conocimientoAccion == ConocimientoAccion.MODIFICAR) {
 			horizontalPanelButton.add(aceptarBtn);
-			horizontalPanelButton.add(imprimirBtn);
+			horizontalPanelButton.add(imprimirInternoBtn);
+			horizontalPanelButton.add(imprimirExternoBtn);
 			horizontalPanelButton.add(salirBtn);
 		} 
 		if(conocimientoAccion == ConocimientoAccion.CONSULTAR) {
-			horizontalPanelButton.add(imprimirBtn);
+			horizontalPanelButton.add(imprimirInternoBtn);
+			horizontalPanelButton.add(imprimirExternoBtn);
 			horizontalPanelButton.add(salirBtn);
 		}
 		
@@ -712,12 +716,13 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			if(cliente.getNombre() != null)
 				transportistaOracle.add(cliente.getNombre());
 		}
+		for (Oficina of: adminParametros.getOficinas()) {
+			if(of.getNombre() != null)
+				oficinaOracle.add(of.getNombre());
+		}
 	}
 	
 	void agregarEscuchadores(){
-		
-		nroConocimientoValorLabel.setText(conocimientoSeleccionado.getNroConocimiento() + "");
-		
 		
 		propietarioSuggestBox.addSelectionHandler(e->{
 			String nombrePropietario = e.getSelectedItem().getReplacementString();
@@ -897,9 +902,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 //			}
 		});
 		
-		imprimirBtn.addClickHandler(e -> {
-			
-//			validarConocimiento();
+		imprimirInternoBtn.addClickHandler(e -> {
 			
 			if(!validarConocimiento()) {
 				return ;

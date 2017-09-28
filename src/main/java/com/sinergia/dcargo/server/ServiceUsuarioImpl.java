@@ -125,10 +125,12 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		office.setUsers(null);
 		user.setNombreUsuario(userP.getNombreUsuario());
 		user.setNombres(userP.getNombres());
+		user.setApellidos(userP.getApellidos());
 		user.setOffice(office);
 		user.setConocimientos(null);
 		user.setGuiasEntrega(null);
 		user.setGuiasRegistro(null);
+		user.setAdministrador(userP.getAdministrador());
 		//user.setRol(null);
 		
 		// Permisos

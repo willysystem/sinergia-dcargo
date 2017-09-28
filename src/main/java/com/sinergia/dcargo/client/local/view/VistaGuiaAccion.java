@@ -157,7 +157,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	private TextBox nroFacturaEntregaTextBox    = new TextBox();
 	private Label   nroFacturaEntregaLabelValue = new Label("");
 	
-	private HTML     notaEntregaLabel      = new HTML("<b>Nota Entrega:</b>");
+	private HTML     notaEntregaLabel      = new HTML("<b>Comentario:</b>");
 	private TextArea notaEntregaTextBox = new TextArea();
 	private Label    notaEntregaLabelValue = new Label("");
 	
@@ -208,7 +208,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		setAnimationEnabled(false);
 		setText(guiaAccion.getTitulo());
 
-		nroGuiaValorLabel.setText(guiaSeleccionada.getNroGuia()+"");
+		nroGuiaValorLabel.setText(guiaSeleccionada.getNroGuia() == null ? "": ""+guiaSeleccionada.getNroGuia());
 		
 		if(guiaAccion == GuiaAccion.NUEVO)
 			guiaSeleccionada.setFechaRegistro(adminParametros.getDateParam().getDate());
@@ -269,6 +269,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			guardarOrigen();
 			pagadoOrigenCheckBox.setEnabled(true);
 			pagadoDestinoCheckBox.setEnabled(true);
+			
 		} 
 		if(guiaAccion == GuiaAccion.CONSULTAR || guiaAccion == GuiaAccion.ENTREGA ) {
 			layout.setWidget(1, 3, nroFacturaLabelValue);
@@ -297,7 +298,9 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			nroConocimientoLabelValue.setText(guiaSeleccionada.getConocimiento() == null ? "" : guiaSeleccionada.getConocimiento().getNroConocimiento()+"");
 			
 			pagadoOrigenCheckBox.setEnabled(false);
-			pagadoDestinoCheckBox.setEnabled(false);
+			pagadoDestinoCheckBox.setEnabled(true);
+			
+			
 		}
 		if(guiaAccion == GuiaAccion.MODIFICAR) {
 			nroFacturaTextBox.setValue(guiaSeleccionada.getNroFactura());
@@ -305,6 +308,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			if(guiaSeleccionada.getOficinaOrigen() != null) origenLabelValue.setText(guiaSeleccionada.getOficinaOrigen().getNombre()); else origenLabelValue.setText("");
 			if(guiaSeleccionada.getConsignatario() != null) consignatarioSuggestBox.setValue(guiaSeleccionada.getConsignatario().getNombre()); else consignatarioSuggestBox.setValue("");
 			if(guiaSeleccionada.getOficinaDestino() != null) destinoSuggestBox.setValue(guiaSeleccionada.getOficinaDestino().getNombre()); else destinoSuggestBox.setValue("");
+			
 		}
 		
 		cellFormatter.setHorizontalAlignment(1, 3, HasHorizontalAlignment.ALIGN_LEFT);
@@ -337,8 +341,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		layout2.setWidget(1, 6, pagoTotalLabel);
 		layout2.setWidget(2, 6, pagoOrigenLabel);
 		layout2.setWidget(3, 6, pagoDestinoLabel);
-		layout2.setWidget(2, 8, pagadoOrigenCheckBox);  pagadoOrigenCheckBox.setText("PagadoO?");//        cellFormatter.setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		layout2.setWidget(3, 8, pagadoDestinoCheckBox); pagadoDestinoCheckBox.setText("PagadoD?");
+		layout2.setWidget(2, 8, pagadoOrigenCheckBox);  pagadoOrigenCheckBox.setText("Pagado?");//        cellFormatter.setHorizontalAlignment(4, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		layout2.setWidget(3, 8, pagadoDestinoCheckBox); pagadoDestinoCheckBox.setText("Pagado?");
 		
 		if(guiaAccion == GuiaAccion.NUEVO || guiaAccion == GuiaAccion.MODIFICAR){
 			layout2.setWidget(1, 1, adjuntoTextBox);     adjuntoTextBox.setValue("");
@@ -395,6 +399,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		}
 		if(guiaAccion == GuiaAccion.ENTREGA) {
 			horizontalPanelButton.add(entregaBtn);
+			horizontalPanelButton.add(imprimirBtn);
 			horizontalPanelButton.add(salirBtn);
 		}
 		
@@ -421,7 +426,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			    layoutEntrega.setWidget(1, 3, ciEntregaLabelValue);
 			    layoutEntrega.setWidget(2, 1, nroFacturaEntregaLabelValue);
 			    layoutEntrega.setWidget(2, 3, notaEntregaLabelValue);
-			    String formatted = DateTimeFormat.getFormat("yyyy-MM-dd H:mm:ss").format(adminParametros.getDateParam().getDate());
+			    String formatted = guiaSeleccionada.getFechaEntrega() == null ? "" : DateTimeFormat.getFormat("yyyy-MM-dd H:mm:ss").format(guiaSeleccionada.getFechaEntrega());
 			    fechaEntregaLabelValue.setText(formatted);
 			    layoutEntrega.setWidget(3, 1, fechaEntregaLabelValue);
 			    
@@ -458,6 +463,20 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		dock.add(surPanel, DockPanel.SOUTH);
 
 		setWidget(dock);
+		
+		
+		if(guiaAccion == GuiaAccion.NUEVO     || guiaAccion == GuiaAccion.MODIFICAR) gridItem2.setEnable(true);
+		if(guiaAccion == GuiaAccion.CONSULTAR || guiaAccion == GuiaAccion.ENTREGA ) gridItem2.setEnable(false);
+		if(guiaAccion == GuiaAccion.ENTREGA ) {
+			clienteEntregaSuggestBox.setValue("");
+			ciEntregaTextBox.setValue("");
+			nroFacturaEntregaTextBox.setValue("");
+			notaEntregaTextBox.setValue("");
+		}
+		
+		log.info("   guiaSeleccionada.getEstadoDescripcion(): " + guiaSeleccionada.getEstadoDescripcion());
+		if(guiaSeleccionada.getEstadoDescripcion() != null) remitirBtn.setVisible(false);
+		else remitirBtn.setVisible(true);
 		
 		cargarOracles();
 		center();
@@ -722,9 +741,16 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 				servicioGuia.cambiarEstado(guiaSeleccionada.getId(), "Remitido", new LlamadaRemota<Void>("No se pudo aceptar la Guia", true) {
 					@Override
 					public void onSuccess(Method method, Void response) {
-						mensajeExito.mostrar("Guia remitida existosamente con nro: " + guiaSeleccionada.getNroGuia());
-						mensajeExito.center();
-						VistaGuiaAccion.this.cargador.hide();
+						guiaSeleccionada.setEstadoDescripcion("Remitido");
+						servicioGuia.generarNroGuia(guiaSeleccionada.getId(), new LlamadaRemota<Integer>("", true) {
+							@Override
+							public void onSuccess(Method method, Integer response) {
+								nroGuiaValorLabel.setText(response+"");
+								mensajeExito.mostrar("Guia remitida existosamente con nro: " + response);
+								mensajeExito.center();
+								VistaGuiaAccion.this.cargador.hide();
+							}
+						});
 					}
 				});
 			} else {
@@ -732,18 +758,6 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			}
 		});
 		
-		imprimirBtn.ensureDebugId("imprimir1123");
-		
-//		imprimirBtn.addClickHandler(new ClickHandler() {
-//			@Override
-//			public void onClick(ClickEvent e) {
-//				log.info("e.getClass().getSimpleName(): " + e.getClass().getSimpleName());
-//				log.info("e.getSource(): " + ((Button)e.getSource()));
-//				log.info("horizontalPanelButton.getWidgetCount(): " + horizontalPanelButton.getWidgetCount());
-//				imprimirGuia(guiaSeleccionada);
-//			}
-//		});
-//		
 		imprimirBtn.addClickHandler(e->{
 			log.info("e.getClass().getSimpleName(): " + e.getClass().getSimpleName());
 			log.info("e.getSource(): " + ((Button)e.getSource()));
@@ -758,10 +772,14 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 				mensajeError.mostrar("Parametros Cliente corrupto", null);
 				return;
 			} 
+			guiaSeleccionada.setNombreClienteEntrega(cliente.getNombre());
+			guiaSeleccionada.setEntregaConsignatario(true);
 			servicioGuia.guardarEntregaConsignatario(guiaSeleccionada.getId(), true, new LlamadaRemota<Void>("Error al guardar. Si es una entrega consignatario", false) {
 				@Override
 				public void onSuccess(Method method, Void response) {
-					ciEntregaTextBox.setValue(cliente.getNit());
+					ciEntregaTextBox.setValue(cliente.getCi());
+					guiaSeleccionada.setEntregaConsignatario(true);
+					ciEntregaTextBox.setEnabled(false);
 				}
 			});
 		});
@@ -776,10 +794,12 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			servicioGuia.guardarEntregaConsignatario(guiaSeleccionada.getId(), false, new LlamadaRemota<Void>("Error al guardar. Si es una entrega consignatario", false) {
 				@Override
 				public void onSuccess(Method method, Void response) {
+					guiaSeleccionada.setEntregaConsignatario(false);
 					servicioGuia.guardarNombreClienteEntrega(guiaSeleccionada.getId(), remitenteName, new LlamadaRemota<Void>("Error al guardar nombre cliente de entrega", false) {
 						@Override
 						public void onSuccess(Method method, Void response) {
-							
+							guiaSeleccionada.setNombreClienteEntrega(remitenteName);
+							ciEntregaTextBox.setEnabled(true);
 						}
 					});
 				}
@@ -789,7 +809,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			servicioGuia.guardarCiEntrega(guiaSeleccionada.getId(), ciEntregaTextBox.getValue(), new LlamadaRemota<Void>("Error al guardar ci o nit", false) {
 				@Override
 				public void onSuccess(Method method, Void response) {
-					
+					guiaSeleccionada.setCiEntrega(ciEntregaTextBox.getValue());
 				}
 			});
 		});
@@ -821,6 +841,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 					servicioGuia.cambiarEstado(guiaSeleccionada.getId(), "Entregado", new LlamadaRemota<Void>("No se pudo guardar Estado", true) {
 						@Override
 						public void onSuccess(Method method, Void response) {
+							guiaSeleccionada.setEstadoDescripcion("Entregado");
 							mensajeConfirmacion.hide();
 						}
 					});
@@ -991,7 +1012,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			
 		}
 		
-		String ciRemitente = guiaSelecciondaPrint.getRemitente() == null ? "" : utilDCargo.validarNullParaMostrar(guiaSelecciondaPrint.getRemitente().getCi());
+		String ciConsignatario = guiaSelecciondaPrint.getConsignatario() == null ? "" : utilDCargo.validarNullParaMostrar(guiaSelecciondaPrint.getConsignatario().getCi());
 		String nroGuia =  utilDCargo.validarNullParaMostrar(guiaSelecciondaPrint.getNroGuia());
 		
 		String telefonoRemite = guiaSelecciondaPrint.getRemitente()     == null ? "" : utilDCargo.validarNullParaMostrar(guiaSelecciondaPrint.getRemitente().getTelefono());
@@ -1015,10 +1036,37 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		String pesoTotal   = utilDCargo.validarNullParaMostrar(peso);
 		String totalPrecio = utilDCargo.validarNullParaMostrar(guiaSelecciondaPrint.getTotalGuia());
 		
+		String adjunto = utilDCargo.validarNullParaMostrar(adjuntoTextBox.getValue());
+		
+		String fechaEntrega = "";
+		log.info("   guiaSelecciondaPrint.getEstadoDescripcion(): " + guiaSelecciondaPrint.getEstadoDescripcion());
+		log.info("   guiaSelecciondaPrint.getEntregaConsignatario(): " + guiaSelecciondaPrint.getEntregaConsignatario());
+		
+		//String consignatarioEntrega = ""; 
+		//String ciConsignatario ;
+		
+//		if(guiaSelecciondaPrint.getEstadoDescripcion() != null)
+//		   if(guiaSelecciondaPrint.getEstadoDescripcion().charAt(0) == 'E') {
+//			 fechaEntrega = adminParametros.getDateParam().getFormattedValue();
+//			 if(guiaSelecciondaPrint.getEntregaConsignatario() != null)
+//				 if(guiaSelecciondaPrint.getEntregaConsignatario()) {
+//					 consignatarioEntrega   = guiaSelecciondaPrint.getConsignatario().getNombre();  
+//					 ciConsignatario = guiaSelecciondaPrint.getConsignatario().getCi();
+//				 } else {
+//					 consignatarioEntrega   = guiaSelecciondaPrint.getNombreClienteEntrega();  
+//					 ciConsignatario = guiaSelecciondaPrint.getCiEntrega();
+//				 }
+//		  } 
+		
+		String consignatarioEntrega   = guiaSelecciondaPrint.getNombreClienteEntrega() == null ? "": guiaSelecciondaPrint.getNombreClienteEntrega();  
+		ciConsignatario = guiaSelecciondaPrint.getCiEntrega() == null ? "" : guiaSelecciondaPrint.getCiEntrega();
+		log.info("  consignatario: " + consignatario);
+		log.info("  ciConsignatario: " + ciConsignatario);
+		
 		imprimirPDF.generarPDFGuia(ciudad, direccion, telefono, fechaRegistro,  nroGuia,
 				remitente, telefonoRemite, origen, consignatario, telefonoConsig, destino, 
                 items, nroBultos, pesoTotal, totalPrecio, resumen,
-                pagoOrigen, pagoDestino, ciRemitente
+                pagoOrigen, pagoDestino, ciConsignatario, adjunto, fechaEntrega, consignatarioEntrega
 		);
 		
 	}

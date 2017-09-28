@@ -90,8 +90,8 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private SuggestBox origenSuggestBox  = new SuggestBox(oficinaOracle);
 	private SuggestBox destinoSuggestBox = new SuggestBox(oficinaOracle);
 	
-	private DateBox fechaReceptionDateBox = new DateBox();
-	private DateBox fechaEntregaDateBox = new DateBox();
+	private DateBox fechaIniDateBox = new DateBox();
+	private DateBox fechaFinDateBox = new DateBox();
 	
 	private TextBox nroFacturaOrigenTextBox = new TextBox();
 	private TextBox nroFacturaDestinoTextBox = new TextBox();
@@ -131,8 +131,8 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			}
 		});
 		
-		fechaReceptionDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
-		fechaEntregaDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
+		fechaIniDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
+		fechaFinDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
@@ -163,15 +163,15 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	    layout.setWidget(2, 2, new HTML("<b>Destino: </b>"));
 	    layout.setWidget(2, 3, destinoSuggestBox);
 	  
-	    layout.setWidget(1, 4, new HTML("<b>Fecha Recepción: </b>"));
-	    layout.setWidget(1, 5, fechaReceptionDateBox);
-	    layout.setWidget(2, 4, new HTML("<b>Fecha Entrega: </b>"));
-	    layout.setWidget(2, 5, fechaEntregaDateBox);
+	    layout.setWidget(1, 4, new HTML("<b>Fecha Inicio: </b>"));
+	    layout.setWidget(1, 5, fechaIniDateBox);
+	    layout.setWidget(2, 4, new HTML("<b>Fecha Fin: </b>"));
+	    layout.setWidget(2, 5, fechaFinDateBox);
 	    
-	    layout.setWidget(1, 6, new HTML("<b>Factura origen: </b>"));
-	    layout.setWidget(1, 7, nroFacturaOrigenTextBox);
-	    layout.setWidget(2, 6, new HTML("<b>Fecha destino: </b>"));
-	    layout.setWidget(2, 7, nroFacturaDestinoTextBox);
+//	    layout.setWidget(1, 6, new HTML("<b>Factura origen: </b>"));
+//	    layout.setWidget(1, 7, nroFacturaOrigenTextBox);
+//	    layout.setWidget(2, 6, new HTML("<b>Fecha destino: </b>"));
+//	    layout.setWidget(2, 7, nroFacturaDestinoTextBox);
 	    
 	    layout.setWidget(3, 0, new HTML("<b>Nro Guia: </b>"));
 	    layout.setWidget(3, 1, nroGuia);
@@ -319,8 +319,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		horizontalPanelButton.add(modificarBtn);
 		horizontalPanelButton.add(anularBtn);
 		//horizontalPanelButton.add(imprimirGuiaBtn);
-		horizontalPanelButton.add(imprimirBtn);
 		horizontalPanelButton.add(entregaBtn);
+		horizontalPanelButton.add(imprimirBtn);
+		
 		horizontalPanelButton.add(salirBtn);
 		horizontalPanel.add(horizontalPanelButton);
 		
@@ -395,9 +396,10 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		guia.setConsignatario(consignatario);
 		guia.setOficinaOrigen(origen);
 		guia.setOficinaDestino(destino);
-		guia.setFechaRegistro(fechaReceptionDateBox.getValue());
-		guia.setFechaEntrega(fechaEntregaDateBox.getValue());
-		guia.setNroFactura(nroFacturaOrigenTextBox.getValue());
+		guia.setFechaIni(fechaIniDateBox.getValue());
+		guia.setFechaFin(fechaFinDateBox.getValue());
+		//guia.setNroFactura(nroFacturaOrigenTextBox.getValue());
+		//guia.setNroFacturaEntrega(nroFacturaDestinoTextBox.getValue());
 		guia.setEstadoDescripcion(estadoListBox.getSelectedValue());
 		return guia;
 	}
@@ -435,11 +437,18 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 						anularBtn.setEnabled(false);
 						modificarBtn.setEnabled(false);
 						entregaBtn.setEnabled(false);
-					} else {
+					} 
+					if(estado.charAt(0) == 'E') {
 						anularBtn.setEnabled(true);
 						modificarBtn.setEnabled(true);
-						if(estado.charAt(0) != 'E') entregaBtn.setEnabled(true);
+						entregaBtn.setEnabled(false);
 					}
+					if(estado.charAt(0) == 'R') {
+						anularBtn.setEnabled(true);
+						modificarBtn.setEnabled(true);
+						entregaBtn.setEnabled(true);
+					}
+					
 				}
 			}
 		});
@@ -547,7 +556,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		servicioGuiaCliente.getEstados(new LlamadaRemota<List<EstadoGuia>>("No se puede obtener estados", false){
 			@Override
 			public void onSuccess(Method method, List<EstadoGuia> response) {
-				GWT.log("onSuccess:" + response.size());
+				GWT.log("estados:" + response);
 				estadoListBox.clear();
 				estadoListBox.addItem("Todos");
 				for (EstadoGuia e : response) {
@@ -582,7 +591,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			@Override
 			public void onClick(ClickEvent event) {
 				Guia guia = getParametrosBusqueda();
-				log.info("guia parametro búsqueda: "+ guia);
+				log.info("guia parametro búsqueda 1: "+ guia);
 				//PresentadorGuia.this.cargador.center();
 				servicioGuia.buscarGuias(guia, new MethodCallback<List<Guia>>() {
 					@Override
