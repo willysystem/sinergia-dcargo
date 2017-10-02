@@ -1,5 +1,7 @@
 package com.sinergia.dcargo.client.shared.dominio;
 
+import javax.persistence.Transient;
+
 /**
  * @generated
  */
@@ -164,6 +166,9 @@ public class Guia implements java.io.Serializable {
 	
 	private Boolean entregaConsignatario;
 
+	@Transient
+	private boolean excluirGuiasExistentesEnConocimiento;
+	
 	/**
 	 * @generated
 	 */
@@ -678,6 +683,14 @@ public class Guia implements java.io.Serializable {
 
 	public void setMovimientoIngresoDestino(MovimientoIngreso movimientoIngresoDestino) {
 		this.movimientoIngresoDestino = movimientoIngresoDestino;
+	}
+
+	public boolean getExcluirGuiasExistentesEnConocimiento() {
+		return excluirGuiasExistentesEnConocimiento;
+	}
+
+	public void setExcluirGuiasExistentesEnConocimiento(boolean excluirGuiasExistentesEnConocimiento) {
+		this.excluirGuiasExistentesEnConocimiento = excluirGuiasExistentesEnConocimiento;
 	}
 	
 }

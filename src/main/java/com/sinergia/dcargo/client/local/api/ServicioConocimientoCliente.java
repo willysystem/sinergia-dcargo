@@ -149,5 +149,10 @@ public interface ServicioConocimientoCliente extends RestService {
 	  @DELETE
 	  @Path("/{id:[0-9]+}")
 	  public void borrar(@PathParam("id") Long id, MethodCallback<Resultado> call);
-	
+	  
+	  @PUT
+	  @Produces("application/json")
+	  @Path("/generarNroConocimiento/{idConocimiento}")
+	  public void generarNroConocimiento(@QueryParam("idConocimiento") Long idConocimiento, MethodCallback<Integer> call);
+	  
 }

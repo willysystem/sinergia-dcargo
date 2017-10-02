@@ -101,7 +101,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		HashMap<String, Object> parametros = new HashMap<>(); 
 		String where = " c.estado <> :estadoPendiente AND";
 		if(0 != nroGuia){
-			where = "c.nroGuia = :nroGuia AND";
+			where = where + " c.nroGuia = :nroGuia AND";
 			parametros.put("nroGuia", nroGuia);
 		} 
 		if(!"".equals(remite)){
@@ -139,13 +139,9 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			guia.getFechaFin().setHours(23);
 			guia.getFechaFin().setMinutes(59);
 			guia.getFechaFin().setSeconds(59);
-			where = where + "  c.fechaRegistro BETWEEN :fechaIni AND :fechaFin AND";
+			where = where + " c.fechaRegistro BETWEEN :fechaIni AND :fechaFin AND";
 			parametros.put("fechaIni", guia.getFechaIni());
 			parametros.put("fechaFin", guia.getFechaFin());
-		}
-		if(guia.getFechaFin() != null){
-			
-			
 		}
 		if(!"".equals(nroFactura)){
 			where = where + " c.nroFactura = :nroFactura AND";
@@ -155,10 +151,14 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			where = where + " c.estado = :estado AND";
 			parametros.put("estado", estado);
 		}
+		if(guia.getExcluirGuiasExistentesEnConocimiento()) {
+			where = where + " c.conocimiento = null AND";
+		}
+		
 		
 		String query = null;
 		String select = "SELECT c FROM Guia c";
-		if("".equals(where)){
+		if("".equals(where)) {
 			query = select;
 		} else {
 			where = where.substring(0, where.length() - 4);

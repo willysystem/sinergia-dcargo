@@ -51,6 +51,7 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		List<Usuario> results = query.getResultList();
 		List<Usuario> users = new ArrayList<>();
 		for (Usuario user : results) {
+			if(user.getEstado() == null) continue; 
 			if(user.getEstado()=='E') continue;
 			
 			Usuario u = new Usuario();

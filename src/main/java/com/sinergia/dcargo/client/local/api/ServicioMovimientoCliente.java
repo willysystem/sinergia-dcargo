@@ -1,6 +1,5 @@
 package com.sinergia.dcargo.client.local.api;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -50,7 +49,7 @@ public interface ServicioMovimientoCliente extends RestService {
 	 @PUT
 	 @Consumes("application/json")
 	 @Path("/guardarFechaRegistro/{idMovimiento}/{fechaRegistro}/{tipoCuenta}")
-	 void guardarFechaRegistro(@QueryParam("idMovimiento") Long idMovimiento, @QueryParam("fechaRegistro") Date fechaRegistro, @QueryParam("tipoCuenta") TipoCuenta tipoCuenta, MethodCallback<Void> call);
+	 void guardarFechaRegistro(@QueryParam("idMovimiento") Long idMovimiento, @QueryParam("fechaRegistro") Long fechaRegistro, @QueryParam("tipoCuenta") TipoCuenta tipoCuenta, MethodCallback<Void> call);
 	 
 	 @PUT
 	 @Consumes("application/json")
@@ -93,5 +92,18 @@ public interface ServicioMovimientoCliente extends RestService {
 	  @Produces("application/json")
 	  @Path("/reporteDeudasPorCobrar/")
 	  void reporteDeudasPorCobrar(DeudasReporte deudasReporte, MethodCallback<DeudasPorCobrarReporte> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Produces("application/json")
+	  @Path("/generarNroComprobanteIngreso/{idMovimiento}/")
+	  void generarNroComprobanteIngreso(@QueryParam("idMovimiento") Long idMovimiento, MethodCallback<Integer> call);
+	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Produces("application/json")
+	  @Path("/generarNroComprobanteEgreso/{idMovimiento}/")
+	  void generarNroComprobanteEgreso(@QueryParam("idMovimiento") Long idMovimiento, MethodCallback<Integer> call);
+	  
 	  
 }

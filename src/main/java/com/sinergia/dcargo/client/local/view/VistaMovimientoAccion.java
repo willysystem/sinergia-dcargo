@@ -35,7 +35,6 @@ import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
-import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
@@ -52,7 +51,7 @@ public class VistaMovimientoAccion extends DialogBox {
 	@Inject
 	private Logger log;
 	 
-	@Inject private MensajeExito mensajeExito;
+//	@Inject private MensajeExito mensajeExito;
 	@Inject private MensajeAviso mensajeAviso;
 	@Inject private MensajeError mensajeError;
 	
@@ -152,6 +151,7 @@ public class VistaMovimientoAccion extends DialogBox {
 	
 	DockPanel dock = null;
 	
+	@SuppressWarnings("deprecation")
 	private void construirGUI() {
 		
 		setGlassEnabled(true);
@@ -162,6 +162,8 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		FlexTable layout = new FlexTable();
 		layout.setCellSpacing(6);
+		
+		fechaTextBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
 		
 		limpiarCampos();
 		
@@ -346,7 +348,7 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		setWidget(dock);
 		
-		agregarEscuchadores();
+		//agregarEscuchadores();
 		
 		setVisibleFormularioGuiaOrConocimiento(false);
 		
@@ -380,7 +382,7 @@ public class VistaMovimientoAccion extends DialogBox {
 					public void onSuccess(Method method, MovimientoIngreso response) {
 						movimientoSeleccionado = response;
 						movimientoSeleccionado.setTipoCuenta(TipoCuenta.INGRESO);
-						nroComprobanteValue.setText(movimientoSeleccionado.getNroComprobante() + "");
+						nroComprobanteValue.setText(movimientoSeleccionado.getNroComprobante() == null ? "" : movimientoSeleccionado.getNroComprobante() + "");
 						fechaTextBox.setValue(movimientoSeleccionado.getFechaRegistro());
 						List<CuentaIngreso> cuentas = adminParametros.getCuentasIngreso();
 						log.info("  - cuentas.size(): " + cuentas.size());
@@ -400,7 +402,7 @@ public class VistaMovimientoAccion extends DialogBox {
 					public void onSuccess(Method method, MovimientoEgreso response) {
 						movimientoSeleccionado = response;
 						movimientoSeleccionado.setTipoCuenta(TipoCuenta.EGRESO);
-						nroComprobanteValue.setText(movimientoSeleccionado.getNroComprobante() + "");
+						nroComprobanteValue.setText(movimientoSeleccionado.getNroComprobante() == null ? "" : movimientoSeleccionado.getNroComprobante() + "");
 						fechaTextBox.setValue(movimientoSeleccionado.getFechaRegistro());
 						List<CuentaEgreso> cuentas = adminParametros.getCuentasEgreso();
 						log.info("  - cuentas.size(): " + cuentas.size());
@@ -436,8 +438,9 @@ public class VistaMovimientoAccion extends DialogBox {
 		fechaTextBox.addValueChangeHandler(e -> {
 			//cargador.fijarEstadoGuiaEspera();
 			Date date = fechaTextBox.getValue();
+			log.info(" fechaRegistro:" + date); 
 			movimientoSeleccionado.setFechaRegistro(date);
-		    servicioMovimiento.guardarFechaRegistro(movimientoSeleccionado.getId(),date, movimientoSeleccionado.getTipoCuenta(),  new LlamadaRemota<Void>("Error al guardar Nombre", false){
+		    servicioMovimiento.guardarFechaRegistro(movimientoSeleccionado.getId(), date.getTime(), movimientoSeleccionado.getTipoCuenta(),  new LlamadaRemota<Void>("Error al guardar fecha", false){
 				@Override
 				public void onSuccess(Method method, Void response) {
 					//VistaMovimientoAccion.this.cargador.fijarEstadoGuiaCargado();
@@ -470,8 +473,24 @@ public class VistaMovimientoAccion extends DialogBox {
 				servicioMovimiento.cambiarEstado(movimientoSeleccionado.getId(), "V", new LlamadaRemota<Void>("No se pudo Guardar", false) {
 					@Override
 					public void onSuccess(Method method, Void response) {
-						mensajeAviso.mostrar("Guardado Exitosamente");
-						//VistaMovimientoAccion.this.hide();
+						if(tipoMovimientoListBox.getSelectedValue().equals(TipoCuenta.INGRESO.name()))
+							servicioMovimiento.generarNroComprobanteIngreso(movimientoSeleccionado.getId(), new LlamadaRemota<Integer>("No se puede generar numero de comprobandte de ingreso", true) {
+								@Override
+								public void onSuccess(Method method, Integer response) {
+									movimientoSeleccionado.setNroComprobante(response);
+									nroComprobanteValue.setText("" + response);
+									mensajeAviso.mostrar("Guardado Exitosamente");
+								}}
+							);
+						else  
+							servicioMovimiento.generarNroComprobanteEgreso(movimientoSeleccionado.getId(), new LlamadaRemota<Integer>("No se puede generar numero de comprobandte de ingreso", true) {
+								@Override
+								public void onSuccess(Method method, Integer response) {
+									movimientoSeleccionado.setNroComprobante(response);
+									nroComprobanteValue.setText("" + response);
+									mensajeAviso.mostrar("Guardado Exitosamente");
+								}}
+							);						    
 					}
 				});
 			}
@@ -653,10 +672,10 @@ public class VistaMovimientoAccion extends DialogBox {
 				}
 			});
 			
-			if(cuentaListBox.getSelectedItemText().contains("1000")) 
-				setVisibleFormularioGuiaOrConocimiento(true);
-			else
-				setVisibleFormularioGuiaOrConocimiento(false);
+//			if(cuentaListBox.getSelectedItemText().contains("1000")) whurtado. se modificó no existen guias por concepto de ingreso
+//				setVisibleFormularioGuiaOrConocimiento(true);
+//			else
+//				setVisibleFormularioGuiaOrConocimiento(false);
 		} else if (tipoMovimiento == TipoCuenta.EGRESO.name() && id != 0) {
 			servicioCuenta.getSubCuentasEgreso(id, new LlamadaRemota<List<CuentaEgreso>>("", false) {
 				@Override

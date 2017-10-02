@@ -19,9 +19,9 @@ import com.google.gwt.event.dom.client.DoubleClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.event.logical.shared.ValueChangeEvent;
 import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.cellview.client.TextColumn;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.FlexTable;
@@ -42,6 +42,7 @@ import com.google.gwt.view.client.SingleSelectionModel;
 import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
+import com.sinergia.dcargo.client.local.event.EventoHome;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
@@ -77,6 +78,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	@Inject
 	private AdminParametros adminParametros;
 	
+	@Inject
+	private HandlerManager eventBus;
+	
 	private VistaElegirGuiaDialogBox vistaElegirGuiaDialogBox;
 	
 	private MultiWordSuggestOracle clienteOracle = new MultiWordSuggestOracle();
@@ -94,7 +98,7 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 	private DateBox fechaFinDateBox = new DateBox();
 	
 	private TextBox nroFacturaOrigenTextBox = new TextBox();
-	private TextBox nroFacturaDestinoTextBox = new TextBox();
+	//private TextBox nroFacturaDestinoTextBox = new TextBox();
 	
 	private ListBox estadoListBox = new ListBox();
 	
@@ -316,7 +320,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 		horizontalPanelButton.setSpacing(5);
 		horizontalPanelButton.add(nuevoBtn);
 		horizontalPanelButton.add(consultarBtn);
-		horizontalPanelButton.add(modificarBtn);
+		log.info("adminParametros.getUsuario().getAdministrador(): " + adminParametros.getUsuario().getAdministrador());
+		if(adminParametros.getUsuario().getAdministrador())
+			horizontalPanelButton.add(modificarBtn);
 		horizontalPanelButton.add(anularBtn);
 		//horizontalPanelButton.add(imprimirGuiaBtn);
 		horizontalPanelButton.add(entregaBtn);
@@ -355,6 +361,14 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			accionPresentador();
 			return dock;
 		} else mainContentView.getCentralPanel().add(dock);
+		
+		// Permisos de usuario
+		destinoSuggestBox.setValue(adminParametros.getUsuario().getOffice().getNombre());
+		fechaIniDateBox.setValue(adminParametros.getDateParam().getDate());
+		fechaFinDateBox.setValue(adminParametros.getDateParam().getDate());
+//		if(adminParametros.getUsuario().getAdministrador()) origenSuggestBox.setEnabled(true);
+//		else origenSuggestBox.setEnabled(false);
+		
 		
 		return null;
 		
@@ -446,7 +460,13 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 					if(estado.charAt(0) == 'R') {
 						anularBtn.setEnabled(true);
 						modificarBtn.setEnabled(true);
-						entregaBtn.setEnabled(true);
+						if(!adminParametros.getUsuario().getAdministrador())
+							if(guia.getOficinaDestino().getNombre().equals(adminParametros.getUsuario().getOffice().getNombre()))
+								entregaBtn.setEnabled(true);
+							else 
+								entregaBtn.setEnabled(false); 
+						else	
+							entregaBtn.setEnabled(true);
 					}
 					
 				}
@@ -530,8 +550,9 @@ public class VistaGuia extends View<Guia> implements PresentadorGuia.Display {
 			imprimirPDF.generarImpresionBusquedaGuias(guiasImprimir);
 		});
 		salirBtn.addClickHandler(e -> {
-			log.info("Salir: "+ com.google.gwt.core.client.GWT.getHostPageBaseURL());
-			Window.Location.assign(com.google.gwt.core.client.GWT.getHostPageBaseURL());
+			//log.info("Salir: "+ com.google.gwt.core.client.GWT.getHostPageBaseURL());
+			//Window.Location.assign(com.google.gwt.core.client.GWT.getHostPageBaseURL());
+			eventBus.fireEvent(new EventoHome());
 		});
 		
 		anularBtn.setEnabled(true);

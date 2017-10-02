@@ -16,7 +16,6 @@
 
 package com.sinergia.dcargo.client.shared;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.ws.rs.Consumes;
@@ -67,7 +66,7 @@ public interface ServicioMovimiento {
   @PUT
   @Consumes("application/json")
   @Path("/guardarFechaRegistro/{idMovimiento}/{fechaRegistro}/{tipoCuenta}")
-  void guardarFechaRegistro(@QueryParam("idMovimiento") Long idMovimiento, @QueryParam("fechaRegistro") Date fechaRegistro, @QueryParam("tipoCuenta") TipoCuenta tipoCuenta) throws Exception;
+  void guardarFechaRegistro(@QueryParam("idMovimiento") Long idMovimiento, @QueryParam("fechaRegistro") Long fechaRegistro, @QueryParam("tipoCuenta") TipoCuenta tipoCuenta) throws Exception;
  
   @PUT
   @Consumes("application/json")
@@ -110,5 +109,17 @@ public interface ServicioMovimiento {
   @Produces("application/json")
   @Path("/reporteDeudasPorCobrar/")
   public DeudasPorCobrarReporte reporteDeudasPorCobrar(DeudasReporte deudasReporte) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Produces("application/json")
+  @Path("/generarNroComprobanteIngreso/{idMovimiento}/")
+  public Integer generarNroComprobanteIngreso(@QueryParam("idMovimiento") Long idMovimiento) throws Exception;
+  
+  @PUT
+  @Consumes("application/json")
+  @Produces("application/json")
+  @Path("/generarNroComprobanteEgreso/{idMovimiento}/")
+  public Integer generarNroComprobanteEgreso(@QueryParam("idMovimiento") Long idMovimiento) throws Exception;
   
 }

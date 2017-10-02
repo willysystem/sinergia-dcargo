@@ -30,7 +30,7 @@ public class MensajeAviso extends DialogBox {
 		
 		Label label = new Label();
 		label.setText(mensaje);
-		label.setPixelSize(250, 50);
+		label.setPixelSize(250, 70);
 		verticalPanel.add(label);
 		
 		Button aceptarButton = new Button("Aceptar");

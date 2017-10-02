@@ -108,8 +108,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	private Label telefonoConsignaValorLabel = new Label();
 
 	private HTML origenLabel = new HTML("<b>Origen:</b>");
-	//private SuggestBox origenSuggestBox = new SuggestBox(oficinaOracle);
-	private Label origenLabelValue = new Label("");
+	private SuggestBox origenSuggestBox = new SuggestBox(oficinaOracle);
+	//private Label origenLabelValue = new Label("");
 
 	private HTML destinoLabel = new HTML("<b>Destino*:</b>");
 	private SuggestBox destinoSuggestBox = new SuggestBox(oficinaOracle);
@@ -262,7 +262,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			layout.setWidget(1, 3, nroFacturaTextBox); nroFacturaTextBox.setValue("");
 			layout.setWidget(2, 1, remiteSuggestBox);  remiteSuggestBox.setValue(""); 
 			//layout.setWidget(2, 5, origenSuggestBox);  origenSuggestBox.setValue("");
-			layout.setWidget(2, 5, origenLabelValue);  
+			layout.setWidget(2, 5, origenSuggestBox);  
 			layout.setWidget(3, 1, consignatarioSuggestBox); consignatarioSuggestBox.setValue(""); 
 			layout.setWidget(3, 5, destinoSuggestBox);       destinoSuggestBox.setValue("");   
 			layout.setWidget(5, 1, nuevoClienteButton);
@@ -277,8 +277,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			nroFacturaLabelValue.setText(guiaSeleccionada.getNroFactura());
 			layout.setWidget(2, 1, remiteLabelValue);
 			if(guiaSeleccionada.getRemitente() != null) remiteLabelValue.setText(guiaSeleccionada.getRemitente().getNombre()); else remiteLabelValue.setText(""); 
-			layout.setWidget(2, 5, origenLabelValue);
-			if(guiaSeleccionada.getOficinaOrigen() != null) origenLabelValue.setText(guiaSeleccionada.getOficinaOrigen().getNombre()); else origenLabelValue.setText(""); 
+			layout.setWidget(2, 5, origenSuggestBox);
+			if(guiaSeleccionada.getOficinaOrigen() != null) origenSuggestBox.setValue(guiaSeleccionada.getOficinaOrigen().getNombre()); else origenSuggestBox.setText(""); 
 			layout.setWidget(3, 1, consignatarioLabelValue);
 			if(guiaSeleccionada.getConsignatario() != null) consignatarioLabelValue.setText(guiaSeleccionada.getConsignatario().getNombre()); else consignatarioLabelValue.setText(""); 
 			layout.setWidget(3, 5, destinoLabelValue);
@@ -305,7 +305,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		if(guiaAccion == GuiaAccion.MODIFICAR) {
 			nroFacturaTextBox.setValue(guiaSeleccionada.getNroFactura());
 			if(guiaSeleccionada.getRemitente() != null) remiteSuggestBox.setValue(guiaSeleccionada.getRemitente().getNombre()); else remiteSuggestBox.setText("");
-			if(guiaSeleccionada.getOficinaOrigen() != null) origenLabelValue.setText(guiaSeleccionada.getOficinaOrigen().getNombre()); else origenLabelValue.setText("");
+			if(guiaSeleccionada.getOficinaOrigen() != null) origenSuggestBox.setValue(guiaSeleccionada.getOficinaOrigen().getNombre()); else origenSuggestBox.setText("");
 			if(guiaSeleccionada.getConsignatario() != null) consignatarioSuggestBox.setValue(guiaSeleccionada.getConsignatario().getNombre()); else consignatarioSuggestBox.setValue("");
 			if(guiaSeleccionada.getOficinaDestino() != null) destinoSuggestBox.setValue(guiaSeleccionada.getOficinaDestino().getNombre()); else destinoSuggestBox.setValue("");
 			
@@ -615,11 +615,30 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 				public void onSuccess(Method method, Void response) {
 					fijarEstadoGuiaCargado();
 				}
-				
 			});
 			
 		});
-
+		
+		origenSuggestBox.addSelectionHandler(e->{
+			String origenNombre = e.getSelectedItem().getReplacementString();
+			Oficina oficina = adminParametros.buscarOficinaPorNombre(origenNombre);
+			guiaSeleccionada.setOficinaOrigen(oficina);
+			
+			Oficina oficinaTemp = new Oficina();
+			oficinaTemp.setId(oficina.getId());
+			Guia guiaTemp = new Guia();
+			guiaTemp.setId(guiaSeleccionada.getId());
+			guiaTemp.setOficinaOrigen(oficinaTemp);
+			
+			fijarEstadoGuiaEspera();
+			servicioGuia.guardarOrigen(guiaTemp, new LlamadaRemota<Void>("No se puede guardar Origen", false){
+				@Override
+				public void onSuccess(Method method, Void response) {
+					fijarEstadoGuiaCargado();
+				}
+			});
+		});
+		
 		destinoSuggestBox.addSelectionHandler(e->{
 			String origenNombre = e.getSelectedItem().getReplacementString();
 			Oficina oficina = adminParametros.buscarOficinaPorNombre(origenNombre);
@@ -754,7 +773,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 					}
 				});
 			} else {
-				VistaGuiaAccion.this.mensajeAviso.mostrar("Requiere llenar los campos obligatorios");
+				VistaGuiaAccion.this.mensajeAviso.mostrar("Requiere llenar los campos obligatorioso posiblemente el origen y destino son iguales");
 			}
 		});
 		
@@ -925,8 +944,8 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		}
 		
 		// origen
-		GWT.log("-->origenSuggestBox.getValue(): " + origenLabelValue.getText());
-		String origen = origenLabelValue.getText();
+		GWT.log("-->origenSuggestBox.getValue(): " + origenSuggestBox.getValue());
+		String origen = origenSuggestBox.getValue();
 		boolean origenValido = false;
 		for (Oficina o : adminParametros.getOficinas()) {
 			if(o.getNombre().equals(origen)) {origenValido = true; break;}
@@ -939,6 +958,10 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		for (Oficina o : adminParametros.getOficinas()) {
 			if(o.getNombre().equals(destino)) {destinoValido = true; break;}
 		}
+		
+		// origen y destino diferentes
+		if(origen.equals(destino)) return false;
+		
 		
 		// pago origen
 		GWT.log("-->pagoOrigenTextBox.getValue(): " + pagoOrigenTextBox.getValue());
@@ -967,6 +990,15 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			mensajeAviso.mostrar("Debe llenar un CI o NIT");
 			return false;
 		}
+		// Para el Operador al Entregar validar que el destino es el mismo de la sucursal
+//		if(!adminParametros.getUsuario().getAdministrador()) {
+//			String oficinaUsuario = adminParametros.getUsuario().getOffice().getNombre();
+//			String oficinaEntrega = guiaSeleccionada.getOficinaDestino().getNombre();
+//			if(!oficinaUsuario.equals(oficinaEntrega)) {
+//				mensajeAviso.mostrar("El Destino no corresponde a usuario ");
+//				return false;
+//			}
+//		}
 		return true;
 	}
 	
@@ -982,7 +1014,10 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		guiaTemp.setOficinaOrigen(oficinaTemp);
 		servicioGuia.guardarOrigen(guiaTemp, new LlamadaRemotaVacia<>("No se puede guardar Origen", false));
 		
-		origenLabelValue.setText(oficina.getNombre());
+		origenSuggestBox.setValue(oficina.getNombre());
+		
+		if(adminParametros.getUsuario().getAdministrador()) origenSuggestBox.setEnabled(true);
+		else origenSuggestBox.setEnabled(false);
 	}
 	
 	public void imprimirGuia(Guia guiaSelecciondaPrint) {
@@ -1041,22 +1076,6 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		String fechaEntrega = "";
 		log.info("   guiaSelecciondaPrint.getEstadoDescripcion(): " + guiaSelecciondaPrint.getEstadoDescripcion());
 		log.info("   guiaSelecciondaPrint.getEntregaConsignatario(): " + guiaSelecciondaPrint.getEntregaConsignatario());
-		
-		//String consignatarioEntrega = ""; 
-		//String ciConsignatario ;
-		
-//		if(guiaSelecciondaPrint.getEstadoDescripcion() != null)
-//		   if(guiaSelecciondaPrint.getEstadoDescripcion().charAt(0) == 'E') {
-//			 fechaEntrega = adminParametros.getDateParam().getFormattedValue();
-//			 if(guiaSelecciondaPrint.getEntregaConsignatario() != null)
-//				 if(guiaSelecciondaPrint.getEntregaConsignatario()) {
-//					 consignatarioEntrega   = guiaSelecciondaPrint.getConsignatario().getNombre();  
-//					 ciConsignatario = guiaSelecciondaPrint.getConsignatario().getCi();
-//				 } else {
-//					 consignatarioEntrega   = guiaSelecciondaPrint.getNombreClienteEntrega();  
-//					 ciConsignatario = guiaSelecciondaPrint.getCiEntrega();
-//				 }
-//		  } 
 		
 		String consignatarioEntrega   = guiaSelecciondaPrint.getNombreClienteEntrega() == null ? "": guiaSelecciondaPrint.getNombreClienteEntrega();  
 		ciConsignatario = guiaSelecciondaPrint.getCiEntrega() == null ? "" : guiaSelecciondaPrint.getCiEntrega();

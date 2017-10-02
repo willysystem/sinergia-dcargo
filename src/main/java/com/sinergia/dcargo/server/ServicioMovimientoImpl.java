@@ -26,8 +26,8 @@ import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
-import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dto.DateParam;
 import com.sinergia.dcargo.client.shared.dto.DeudasPorCobrarReporte;
 import com.sinergia.dcargo.client.shared.dto.DeudasReporte;
 import com.sinergia.dcargo.client.shared.dto.LiquidacionCargaReporte;
@@ -49,7 +49,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	final private Hashtable<Character, String> estados = new Hashtable<>();
 	
 	public ServicioMovimientoImpl() {
-		estados.put('P', "Pendiente");
+		//estados.put('P', "Pendiente");
 		estados.put('V', "Vigente");
 		estados.put('A', "Anulado");
 	}
@@ -63,6 +63,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		return estadosDTO;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<Movimiento> buscarMovimientos(Movimiento mov) throws Exception {
 		
@@ -87,12 +88,8 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		Long idGuia = null; 
 		Long idConocimiento = null;
 		if(mov.getTipoCuenta() == TipoCuenta.INGRESO) {
-//			if(((MovimientoIngreso)mov).getGuia() != null)
-//				idGuia = ((MovimientoIngreso)mov).getGuia().getId();
 			idGuia = mov.getIdGuia();
 		} else if(mov.getTipoCuenta() == TipoCuenta.EGRESO) {
-//			if(((MovimientoEgreso)mov).getConocimiento() != null)
-//				idConocimiento = ((MovimientoEgreso)mov).getConocimiento().getId();
 			idConocimiento = mov.getIdConocimiento();
 		} else {
 			
@@ -106,45 +103,36 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		
 		// Armando query
 		HashMap<String, Object> parametros = new HashMap<>(); 
-		String where = "";
+		String where = " c.estado <> :estadoPendiente AND";
 		
 		if(0 != nroComprobante){
-			where = "c.nroComprobante = :nroComprobante AND ";
+			where = where + " c.nroComprobante = :nroComprobante AND ";
 			parametros.put("nroComprobante", nroComprobante);
 		}
 		if(fechaInicio != null && fechaFin != null){
-			where = "c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND ";
+			where = where + " c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND ";
 			parametros.put("fechaInicio", fechaInicio);
 			parametros.put("fechaFin", fechaFin);
 		}
-//		if(fechaFin != null){
-//			where = "c.fechaRegistro <= :fechaFin AND";
-//			parametros.put("fechaFin", fechaFin);
-//		}
 		if(idGuia != null)
 			if(idGuia != 0){
-				where = "c.guia.id = :idGuia AND";
+				where = where + " c.guia.id = :idGuia AND";
 				parametros.put("idGuia", idGuia);
 			}
-		
 		if(idConocimiento != null)
 			if(idConocimiento != 0) {
-				where = "c.conocimiento.id = :idConocimiento AND";
+				where = where + " c.conocimiento.id = :idConocimiento AND";
 				parametros.put("idConocimiento", idConocimiento);
 			}
-		
 		if(idSubCuenta != null) 
 			if(idSubCuenta != 0) {
-				where = "c.cuenta.id = :idSubCuenta AND";
+				where = where + " c.cuenta.id = :idSubCuenta AND";
 				parametros.put("idSubCuenta", idSubCuenta);
 			}
-		
-		
 		if(estado != null){
 			where = where + " c.estado = :estado AND";
 			parametros.put("estado", estado);
 		}
-		
 		String entidad = "";
 		if(mov.getTipoCuenta() == null) entidad = "Movimiento";
 		else {
@@ -168,6 +156,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			else 
 				q.setParameter(e.getKey(), e.getValue());
 		}
+		q.setParameter("estadoPendiente", 'P');
 		
 		System.out.println("-> query: " + query);
 		@SuppressWarnings("unchecked")
@@ -183,15 +172,8 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	@Override
 	public  MovimientoIngreso nuevoMovimientoIngreso() throws Exception {
 		
-		String entidad = "MovimientoIngreso";
-		Query query = em.createQuery("SELECT MAX(g.nroComprobante) FROM " + entidad + " g");
-		Object object = query.getSingleResult();
-		String numero = "0";
-		if(object != null) numero = object.toString();
-		Integer nroComprobante = Integer.valueOf(numero) + 1;
-		
 		MovimientoIngreso mov = new MovimientoIngreso();
-		mov.setNroComprobante(nroComprobante);
+		//mov.setNroComprobante(nroComprobante);
 		mov.setFechaRegistro(new Date());
 		mov.setEstado('P');
 		
@@ -203,15 +185,9 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	
 	@Override
 	public MovimientoEgreso nuevoMovimientoEgreso() throws Exception {
-		String entidad = "MovimientoEgreso";
-		Query query = em.createQuery("SELECT MAX(g.nroComprobante) FROM " + entidad + " g");
-		Object object = query.getSingleResult();
-		String numero = "0";
-		if(object != null) numero = object.toString();
-		Integer nroComprobante = Integer.valueOf(numero) + 1;
 		
 		MovimientoEgreso mov = new MovimientoEgreso();
-		mov.setNroComprobante(nroComprobante);
+//		mov.setNroComprobante(nroComprobante);
 		mov.setFechaRegistro(new Date());
 		mov.setEstado('P');
 		
@@ -222,9 +198,9 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	}
 
 	@Override
-	public void guardarFechaRegistro(Long idMovimiento, Date fechaRegistro, TipoCuenta tipoCuenta) throws Exception {
+	public void guardarFechaRegistro(Long idMovimiento, Long fechaRegistro, TipoCuenta tipoCuenta) throws Exception {
 		Movimiento movP = buscarPor(idMovimiento, tipoCuenta);
-		movP.setFechaRegistro(fechaRegistro);
+		movP.setFechaRegistro(new Date(fechaRegistro));
 		em.merge(movP);
 	}
 	
@@ -438,7 +414,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		@SuppressWarnings("unchecked")
 		List<Conocimiento> csP = query.getResultList();
 
-		DecimalFormat df = new DecimalFormat( "#,###,###,##0.00" );
+		DecimalFormat df = new DecimalFormat("###,###.##" );
 		SimpleDateFormat dt = new SimpleDateFormat("yyyy-MM-dd");
 		
 		LiquidacionCargaReporte liquidacionCargaReporte = new LiquidacionCargaReporte();
@@ -594,7 +570,32 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		
 	}
 	
+	@Override
+	public Integer generarNroComprobanteIngreso(Long idMovimiento) throws Exception {
+		String entidad = "MovimientoIngreso";
+		Query query = em.createQuery("SELECT MAX(g.nroComprobante) FROM " + entidad + " g");
+		Object object = query.getSingleResult();
+		String numero = "0";
+		if(object != null) numero = object.toString();
+		Integer nroComprobante = Integer.valueOf(numero) + 1;
+		MovimientoIngreso vi = em.find(MovimientoIngreso.class, idMovimiento);
+		vi.setNroComprobante(nroComprobante);
+		em.merge(vi);
+		
+		return nroComprobante;
+	}
 	
-	
-	
+	@Override
+	public Integer generarNroComprobanteEgreso(Long idMovimiento) throws Exception{
+		String entidad = "MovimientoEgreso";
+		Query query = em.createQuery("SELECT MAX(g.nroComprobante) FROM " + entidad + " g");
+		Object object = query.getSingleResult();
+		String numero = "0";
+		if(object != null) numero = object.toString();
+		Integer nroComprobante = Integer.valueOf(numero) + 1;
+		MovimientoEgreso vi = em.find(MovimientoEgreso.class, idMovimiento);
+		vi.setNroComprobante(nroComprobante);
+		em.merge(vi);
+		return nroComprobante;
+	}
 }

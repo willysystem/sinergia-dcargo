@@ -36,7 +36,6 @@ import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
-import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
 import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
@@ -45,8 +44,6 @@ import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
 import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Movimiento;
-import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
-import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
 
 @Singleton
@@ -87,12 +84,18 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	private Button anularBtn = new Button("Anular");
 	private Button salirBtn = new Button("Salir");
 	
+	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void viewIU() {
 		
 		// Config
 		defaultUI();
 		//grid.setWidth("1000px");
+		
+		
+		fechaIniDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
+		fechaFinDateBox.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getShortDateFormat()));
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
@@ -152,16 +155,6 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		grid.setColumnWidth(fechaColmun, 40, Unit.PX);
 		grid.addColumn(fechaColmun, "Fecha");
 		
-		// Guia/Conocimiento
-		TextColumn<Movimiento> guiaConocimientoColmun = new TextColumn<Movimiento>() {
-			@Override
-			public String getValue(Movimiento entity) {
-				return entity.getNroGuiOrConocimiento();
-			}
-		};
-		grid.setColumnWidth(guiaConocimientoColmun, 50, Unit.PX);
-		grid.addColumn(guiaConocimientoColmun, "Guia/Conocimiento");
-		
 		// Suc cuenta
 		TextColumn<Movimiento> direccionColmun = new TextColumn<Movimiento>() {
 			@Override
@@ -206,7 +199,16 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		};
 		grid.setColumnWidth(telefonoColmun, 40, Unit.PX);
 		grid.addColumn(telefonoColmun, new SafeHtmlHeader(SafeHtmlUtils.fromSafeConstant("Monto")), ageFooter);
-		//grid.addColumn(telefonoColmun, "Monto");
+		
+		// Guia/Conocimiento
+		TextColumn<Movimiento> guiaConocimientoColmun = new TextColumn<Movimiento>() {
+			@Override
+			public String getValue(Movimiento entity) {
+				return entity.getNroGuiOrConocimiento();
+			}
+		};
+		grid.setColumnWidth(guiaConocimientoColmun, 50, Unit.PX);
+		grid.addColumn(guiaConocimientoColmun, "Guia/Conocimiento");
 		
 		// Origen
 		TextColumn<Movimiento> placaColmun = new TextColumn<Movimiento>() {
@@ -232,7 +234,6 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		TextColumn<Movimiento> vecinoColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
-//				return entity.getVecino_de();
 				return entity.getEstadoDescripcion();
 			}
 			
@@ -263,7 +264,8 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		horizontalPanelButton.setSpacing(5);
 		horizontalPanelButton.add(consultarBtn);
 		horizontalPanelButton.add(nuevoBtn);
-		horizontalPanelButton.add(modificarBtn);
+		if(adminParametros.getUsuario().getAdministrador())
+			horizontalPanelButton.add(modificarBtn);
 		horizontalPanelButton.add(anularBtn);
 		horizontalPanelButton.add(salirBtn);
 		
@@ -280,6 +282,9 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		implementarEscuchadores();
 		
 		cargarDatosIniciales();
+		
+		fechaIniDateBox.setValue(adminParametros.getDateParam().getDate());
+		fechaFinDateBox.setValue(adminParametros.getDateParam().getDate());
 	}
 
 	@Override
@@ -331,6 +336,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		return t;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private void implementarEscuchadores(){
 		
 		tipoCuentaListBox.addChangeHandler(e -> {

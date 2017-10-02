@@ -1,10 +1,10 @@
 
 /* Menu Bar */
 .gwt-MenuBar {
-  cursor: pointer;
+  cursor: hand;
 }
 .gwt-MenuBar .gwt-MenuItem {
-  cursor: pointer;
+  cursor: hand;
   font-family: Arial Unicode MS, Arial, sans-serif;
 }
 .gwt-MenuBar .gwt-MenuItem-selected {

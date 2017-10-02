@@ -21,7 +21,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
-import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MenuBar;
 import com.google.gwt.user.client.ui.MenuItem;
@@ -30,7 +29,6 @@ import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.sinergia.dcargo.client.local.AdminParametros;
-import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
@@ -59,11 +57,7 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	private Logger log;
 	
 	@Inject
-	private ServicioUnidadCliente servicioUsuario;
-	
-	@Inject
 	private AdminParametros adminParametros;
-	
 	
 	private SimplePanel panelCentral;
 	
@@ -136,6 +130,17 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    conocimientoMenuBar.setVisible(false);
 	    menus.put("conocimiento", conocimientoMenuBar);
 	    
+	    // Caja
+	    MenuItem cajaMenuBar =  new MenuItem("Caja", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoMovimiento());
+			}
+		});
+	    menu.addItem(cajaMenuBar);
+	    cajaMenuBar.setVisible(false);
+	    menus.put("caja", cajaMenuBar);
+	    
 	    // Liquidaciones
 	    MenuItem cargaLiquidacion = new MenuItem("Liquidación de carga", new Command() {
 			@Override
@@ -155,8 +160,6 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    deudasLiquidacion.setVisible(false);
 	    menus.put("liquidacionDeudasCobrar", deudasLiquidacion);
 	    
-	    //MenuItem actualizarNotaEntregaLiquidacion = new MenuItem("Actualizar nota de entrega", menuCommand);
-	    
 	    MenuBar liquidacionesMenuBar = new MenuBar(true);
 	    liquidacionesMenuBar.setAnimationEnabled(true);
 	    liquidacionesMenuBar.addItem(cargaLiquidacion);
@@ -168,17 +171,6 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    menu.addItem(menuLiquidaciones);
 	    //liquidacionesMenuBar.setVisible(false);
 	    //menus.put("liquidacionDeudasCobrar", liquidacionesMenuBar);
-	    
-	    // Caja
-	    MenuItem cajaMenuBar =  new MenuItem("Caja", new Command() {
-			@Override
-			public void execute() {
-				eventBus.fireEvent(new EventoMovimiento());
-			}
-		});
-	    menu.addItem(cajaMenuBar);
-	    cajaMenuBar.setVisible(false);
-	    menus.put("caja", cajaMenuBar);
 	    
 	    // Registro de Datos
 	    MenuBar registroDatosMenuBar = new MenuBar(true);

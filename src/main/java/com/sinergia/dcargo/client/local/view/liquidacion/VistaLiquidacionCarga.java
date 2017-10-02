@@ -283,15 +283,33 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 			items[k][0] = "";
 			items[k][1] = "Total";
 			items[k][2] = liquidacionCargaReporte.getNroTotalConocimientos();
-			items[k][3] =  liquidacionCargaReporte.getNroTotalGuia();
+			items[k][3] = liquidacionCargaReporte.getNroTotalGuia();
 			items[k][4] = liquidacionCargaReporte.getTotalCobroOrigen();
 			items[k][5] = liquidacionCargaReporte.getTotalCobroDestino();
 			items[k][6] = liquidacionCargaReporte.getTotalFleteDestino();
 			
+			Double totalCobroOrigen  = Double.valueOf(liquidacionCargaReporte.getTotalCobroOrigen());
+			Double totalCobroDestino = Double.valueOf(liquidacionCargaReporte.getTotalCobroDestino());
+			
 			String titulo1 = "Liquidación de Carga enviada de: "  + origen + " a: " + destino;
 			String titulo2 = "Movimientos comprendidos entre el :" + fechaIni + " y el: " + fechaFi;
 			
-			imprimirPDF.reporteLiquidacionCarga(ciudad, direccion, telefono, titulo1 , titulo2, items);
+			Double deduccion = tipoCuentaListBox.getValue() == null ? 0.0 : tipoCuentaListBox.getValue();
+			Double sumaDed = (totalCobroOrigen + totalCobroDestino)/100.0*Double.valueOf(deduccion); 
+			
+			String porcentaje      = utilDCargo.validarNullParaMostrar(deduccion);
+			String cuidadDestino   = utilDCargo.validarNullParaMostrar(origenSuggestBox.getValue());
+			String pagoFletes      = utilDCargo.validarNullParaMostrar(liquidacionCargaReporte.getTotalFleteDestino());
+			String deduccionP       = utilDCargo.validarNullParaMostrar(sumaDed);
+			String sumaDeducciones = utilDCargo.validarNullParaMostrar(liquidacionCargaReporte.getTotalFleteDestino() + sumaDed);
+			
+			String totalDestino = utilDCargo.validarNullParaMostrar(totalCobroDestino);
+			String saldoOrigen  =  utilDCargo.validarNullParaMostrar(totalCobroDestino + sumaDed);
+			
+			
+			imprimirPDF.reporteLiquidacionCarga(ciudad, direccion, telefono, titulo1 , titulo2, items, 
+					porcentaje, cuidadDestino, pagoFletes, deduccionP, sumaDeducciones, 
+					totalDestino, saldoOrigen, origen);
 		});
 	}
 	

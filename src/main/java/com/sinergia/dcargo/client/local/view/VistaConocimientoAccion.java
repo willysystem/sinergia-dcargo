@@ -36,6 +36,7 @@ import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.sinergia.dcargo.client.local.AdminParametros;
+import com.sinergia.dcargo.client.local.UtilDCargo;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioConocimientoCliente;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
@@ -62,26 +63,14 @@ import com.google.gwt.user.client.ui.HTML;
 @Singleton
 public class VistaConocimientoAccion extends DialogBox implements Carga {
 
-	@Inject
-	private AdminParametros adminParametros;
-	
-	@Inject
-	private Logger log;
-	 
-	@Inject 
-	private Cargador cargador;
-	
-	@Inject
-	private MensajeExito mensajeExito;
-	
-	@Inject
-	private MensajeAviso mensajeAviso;
-	
-	@Inject
-	private MensajeError mensajeError;
-	
-	@Inject
-	private ImprimirPDF imprimirPDF;
+	@Inject	private AdminParametros adminParametros;
+	@Inject private Logger          log;
+	@Inject private Cargador        cargador;
+	@Inject	private MensajeExito    mensajeExito;
+	@Inject	private MensajeAviso    mensajeAviso;
+	@Inject	private MensajeError    mensajeError;
+	@Inject	private ImprimirPDF     imprimirPDF;
+	@Inject private UtilDCargo      utilDCargo;
 	
 	@Inject
 	private ServicioGuiaCliente servicioGuia;
@@ -105,7 +94,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	
 	private HTML origenLabel = new HTML("<b>Origen*: </b>");
 	private SuggestBox origenSuggestBox = new SuggestBox(oficinaOracle);
-	private Label origenLabelValue = new Label("");
+	//private Label origenLabelValue = new Label("");
 	
 	private HTML destinoLabel = new HTML("<b>Destino*: </b>");
 	private SuggestBox destinoSuggestBox = new SuggestBox(oficinaOracle);
@@ -183,7 +172,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private DoubleBox pagoDestinoDoubleBox = new DoubleBox();
 	private Label pagoDestinoLabelValue = new Label();
 	
-	private Button aceptarBtn = new Button("Aceptar");
+	private Button enviarBtn = new Button("Enviar");
 	private Button imprimirInternoBtn = new Button("Imprimir Interno");
 	private Button imprimirExternoBtn = new Button("Imprimir Externo");
 	private Button salirBtn = new Button("Salir");
@@ -262,7 +251,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		setAnimationEnabled(false);
 		setText(conocimientoAccion.getTitulo());
 		
-		nroConocimientoValorLabel.setText(conocimientoSeleccionado.getNroConocimiento() + "");
+		nroConocimientoValorLabel.setText(conocimientoSeleccionado.getNroConocimiento() == null ? "" : ""+conocimientoSeleccionado.getNroConocimiento());
 		
 		// config
 		prepararComponentes();
@@ -297,7 +286,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		layoutConstante.setWidget(0, 1, nroConocimientoValorLabel); cellFormatter1.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		layoutConstante.setWidget(0, 2, new HTML("<pre>   </pre>"));
 		layoutConstante.setWidget(0, 3, origenLabel);        cellFormatter1.setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_RIGHT);
-		layoutConstante.setWidget(0, 4, origenLabelValue);   cellFormatter1.setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_LEFT);
+		layoutConstante.setWidget(0, 4, origenSuggestBox);   cellFormatter1.setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_LEFT);
 		layoutConstante.setWidget(0, 5, new HTML("<pre>   </pre>"));
 		layoutConstante.setWidget(0, 6, destinoLabel);        cellFormatter1.setHorizontalAlignment(0, 6, HasHorizontalAlignment.ALIGN_RIGHT);
 		layoutConstante.setWidget(0, 7, destinoValue);   cellFormatter1.setHorizontalAlignment(0, 7, HasHorizontalAlignment.ALIGN_LEFT);
@@ -312,7 +301,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		tabPanel.setAnimationDuration(1000);
 		tabPanel.getElement().getStyle().setMarginBottom(10.0, Unit.PX);
 		tabPanel.setWidth("800px");
-		tabPanel.setHeight("400px");
+		tabPanel.setHeight("500px");
 		
 		VerticalPanel vpCentro1 = getCentro1();
 		tabPanel.add(vpCentro1, "Datos generales");
@@ -341,7 +330,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		horizontalPanelButton.setSpacing(5);
 		
 		if(conocimientoAccion == ConocimientoAccion.NUEVO || conocimientoAccion == ConocimientoAccion.MODIFICAR) {
-			horizontalPanelButton.add(aceptarBtn);
+			horizontalPanelButton.add(enviarBtn);
 			horizontalPanelButton.add(imprimirInternoBtn);
 			horizontalPanelButton.add(imprimirExternoBtn);
 			horizontalPanelButton.add(salirBtn);
@@ -371,6 +360,11 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		cargarOracles();
 		datosIniciales();
 		center();
+		
+		// Permisos de usuario
+		origenSuggestBox.setValue(adminParametros.getUsuario().getOffice().getNombre());
+		if(adminParametros.getUsuario().getAdministrador()) origenSuggestBox.setEnabled(true);
+		else origenSuggestBox.setEnabled(false);
 		
 	}
 	
@@ -406,13 +400,6 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 					@Override
 					public void onSuccess(Method method, Conocimiento response) {
 						conocimientoSeleccionado = response;
-//						servicioConocimiento.cambiarEstado(conocimientoSeleccionado.getId(), "P", new LlamadaRemota<Void>("No se puede cambiar de estado", true) {
-//							@Override
-//							public void onSuccess(Method method, Void response) {
-//								construirGUI();
-//								VistaConocimientoAccion.this.cargador.hide();
-//							}
-//						});
 						construirGUI();
 						VistaConocimientoAccion.this.cargador.hide();
 					}
@@ -424,6 +411,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 					@Override
 					public void onSuccess(Method method, Conocimiento response) {
 						conocimientoSeleccionado = response;
+						log.info("conocimientoSeleccionado.getGuias().size(): " + response.getGuias().size());
 						construirGUI();
 						VistaConocimientoAccion.this.cargador.hide();
 					}
@@ -568,6 +556,9 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		cuerpo31.setWidget(2, 1, aclaracionValue);    cellFormatter31.setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT);
 		cuerpo3.add(cuerpo31);
 		
+		adjuntoValue.setWidth("300px");
+		aclaracionValue.setWidth("300px");
+		
 		cuerpo3.add(new HTML("<pre>      </pre>"));
 		
 		FlexTable cuerpo32 = new FlexTable();
@@ -641,6 +632,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			servicioConocimiento.adicionarGuia(conocimientoSeleccionado.getId(), guias.get(0).getId(), new LlamadaRemota<Void>("", true){
 				@Override
 				public void onSuccess(Method method, Void response) {
+					log.info("añadiento nueva guia");
 					conocimientoSeleccionado.getGuias().add(guias.get(0));
 					fijarEstadoGuiaCargado();
 				}
@@ -878,6 +870,15 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 				@Override
 				public void onSuccess(Method method, Void response) {
 					conocimientoSeleccionado.setPagoOrigen(pagoOrigen);
+					
+					Double flete       = fleteDoubleBox.getValue()      == null ? 0.0 : fleteDoubleBox.getValue();
+					Double aCuenta     = acuentaDoubleBox.getValue()    == null ? 0.0 : acuentaDoubleBox.getValue();
+					Double pagoOrigen  = pagoOrigenDoubleBox.getValue() == null ? 0.0 : pagoOrigenDoubleBox.getValue();
+					Double pagoDestino = flete - aCuenta - pagoOrigen;
+					pagoDestinoDoubleBox.setValue(pagoDestino);
+					
+					guardarPagoDestino();
+					
 					fijarEstadoGuiaCargado();
 				}
 			});
@@ -886,14 +887,21 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			guardarPagoDestino();
 		});
 		
-		aceptarBtn.addClickHandler(e -> {
+		enviarBtn.addClickHandler(e -> {
 			if(validarConocimiento()){
 				cargador.center();
 				servicioConocimiento.cambiarEstado(conocimientoSeleccionado.getId(), "V", new LlamadaRemota<Void>("No se pudo aceptar la Guia", true) {
 					@Override
 					public void onSuccess(Method method, Void response) {
-						mensajeExito.mostrar("Conocimiento existosamente Guardado: " + conocimientoSeleccionado.getNroConocimiento());
-						VistaConocimientoAccion.this.cargador.hide();
+						servicioConocimiento.generarNroConocimiento(conocimientoSeleccionado.getId(), new LlamadaRemota<Integer>("", true) {
+							@Override
+							public void onSuccess(Method method, Integer response) {
+								conocimientoSeleccionado.setEstadoDescripcion("Vigente");
+								nroConocimientoValorLabel.setText(response+"");
+								mensajeExito.mostrar("Conocimiento existosamente Guardado: " + response);
+								VistaConocimientoAccion.this.cargador.hide();
+							}
+						});
 					}
 				});
 			} 
@@ -932,13 +940,11 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 				k++;
 			}
 			
-			String fecha = conocimientoSeleccionado.getFechaRegistro().toString();  
-			String nroConocimiento = conocimientoSeleccionado.getNroConocimiento().toString();
-			String conductor = conocimientoSeleccionado.getTransportistaConductor().getNombre();
-			String origen = conocimientoSeleccionado.getOficinaOrigen().getNombre();
-			String destino = conocimientoSeleccionado.getOficinaDestino().getNombre();
-			
-			
+			String fecha           = utilDCargo.validarNullParaMostrarMedium(conocimientoSeleccionado.getFechaRegistro());  
+			String nroConocimiento = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getNroConocimiento());
+			String conductor       = conocimientoSeleccionado.getTransportistaConductor() == null ? "" : utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getTransportistaConductor().getNombre());
+			String origen          = conocimientoSeleccionado.getOficinaOrigen()  == null ? "" : utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getOficinaOrigen().getNombre());
+			String destino         = conocimientoSeleccionado.getOficinaDestino() == null ? "" : utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getOficinaDestino().getNombre());
 			
 			String marca = conocimientoSeleccionado.getTransportistaConductor().getMarca();
 			String color = conocimientoSeleccionado.getTransportistaConductor().getColor();
@@ -957,6 +963,71 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		     
 		});
 		
+		imprimirExternoBtn.addClickHandler(e -> {
+			String ciudadOficina    = utilDCargo.validarNullParaMostrar(utilDCargo.getCiudad());
+			String direccionOficina = utilDCargo.validarNullParaMostrar(utilDCargo.getDireccion());
+			String telefonoOficina  = utilDCargo.validarNullParaMostrar(utilDCargo.getTelefono());
+			
+			Transportista trans = conocimientoSeleccionado.getTransportistaPropietario();
+			String propietatarioNombre  = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getNombre()     == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getNombre());
+			String propietarioCi        = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getCi()         == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getCi());
+ 			String propietarioTelefono  = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getTelefono()   == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getTelefono());
+ 			String propietarioVecinoDe  = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getVecino_de()  == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getVecino_de());
+ 			String propietarioDomicilio = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getDireccion()  == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getDireccion());
+ 			String propietarioPlaca     = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getPlaca()      == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getPlaca());
+ 			String propietarioColor     = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getColor()      == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getColor());
+ 			String propietarioMarca     = trans == null ? "SIN DATOS" : (conocimientoSeleccionado.getTransportistaPropietario().getMarca()      == null ? "SIN DATOS" : conocimientoSeleccionado.getTransportistaPropietario().getMarca());
+ 			String multa                = trans == null ? "SIN DATOS" : (utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getMulta()) == null ? "SIN DATOS" : utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getMulta()));
+ 			String dias                 = trans == null ? "SIN DATOS" : (utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getDias())  == null ? "SIN DATOS" : utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getDias()));
+ 			
+			String parrafo1 = "<div style =\"text-align:justify\">Yo: " + propietatarioNombre + ", vecino de " + propietarioVecinoDe + " con Carnet de identidad " + propietarioCi + ", en adelante EL TRANSPORTISTA " + 
+			    " con domicilio en " + propietarioDomicilio + ", telefono " + propietarioTelefono + " soy propietario y/o conductor del camion marca " + propietarioMarca + " color " + propietarioColor + 
+			    " y placa " + propietarioPlaca + ". Declaro haber recibido de los señores DCargo los bultos que abajo se detallan en buenas condiciones y comprometiendome a entregar a los mencionados en las mismas condificiones " +
+			    " a los señores Trasp.XXXXXX. En caso de demora pagar una multa Bs." + multa + ".- por cada dia que transcurra, pasado los " + dias + " de la firma del presente conocimiento.</div>";
+			String parrafo2 = "<div><b>Observaciones: </b> La carga va bíen revisada por el transportista y en perfectas condiciones.</div>";
+			String parrafo3 = "<div style =\"text-align:justify\">El TRANSPORTISTA responde por los daños y perjuicios que resultaren por el deterioro, perdida parcial o total de la carga asignada, obligandome en toda forma de derecho a su persona. los bienes habidos y por haber y parcialmente con el camion transportador como tambien renuncia a su domicilio y demás leyes que pudieran favorecer en jucio o fuera de el firmado mancomunadalmente y solidariamente el presente documento.</div>";
+			
+			String nroConocimienoto = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getNroConocimiento());
+			
+			String items[][] = new String[conocimientoSeleccionado.getGuias().size()][5];
+			int k = 0;
+			Double pesoTotal = 0.0;
+			Integer cantidad = 0;
+			log.info(" imprimir: conocimientoSeleccionado.getGuias(): " + conocimientoSeleccionado.getGuias().size());
+			for (Guia g : conocimientoSeleccionado.getGuias()) {
+				items[k][0] = g.getConsignatario()    == null ? "" : utilDCargo.validarNullParaMostrar(g.getConsignatario().getNombre());
+				items[k][1] = g.getNroGuia()          == null ? "" : utilDCargo.validarNullParaMostrar(g.getNroGuia());
+				items[k][2] = g.getTotalPeso()        == null ? "" : utilDCargo.validarNullParaMostrar(g.getTotalPeso());
+				items[k][3] = g.getTotalCantidad()    == null ? "" : utilDCargo.validarNullParaMostrar(g.getTotalCantidad());
+				items[k][4] = g.getResumenContenido() == null ? "" : utilDCargo.validarNullParaMostrar(g.getResumenContenido());
+				pesoTotal   = pesoTotal + (g.getTotalPeso()     == null ? 0.0 : g.getTotalPeso());
+				cantidad    = cantidad  + (g.getTotalCantidad() == null ? 0   : g.getTotalCantidad());
+				k++;
+			}
+			String pesoTotalS     = utilDCargo.validarNullParaMostrar(pesoTotal);
+			String cantidadTotalS = cantidad + "";
+			
+			String origen = conocimientoSeleccionado.getOficinaOrigen() == null ? "" : conocimientoSeleccionado.getOficinaOrigen().getNombre();
+			String fecha  = utilDCargo.validarNullParaMostrarMedium(adminParametros.getDateParam().getDate());		
+			
+			String adjunto    =  utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getAdjunto());
+			String aclaracion =  utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getAclaracion());
+					
+			String flete     = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getFlete());
+			String acuenta   = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getAcuenta());
+			String enDestino = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getPagoOrigen());
+			String saldo     = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getPagoDestino());
+			
+			imprimirPDF.generarPDFExternoConocimiento(ciudadOficina, direccionOficina, telefonoOficina,
+					   nroConocimienoto,
+					   parrafo1, parrafo2, parrafo3,
+					   origen, fecha, 
+					   items, pesoTotalS, cantidadTotalS,
+					   adjunto, aclaracion,
+					   flete, acuenta, enDestino, saldo, 
+					   propietatarioNombre);
+			});
+		
 		salirBtn.addClickHandler(e -> {
 			hide();
 		});
@@ -973,33 +1044,23 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		});
 		
 		buscarGuiasButton.addClickHandler(e -> {
-			// Date fechaIni = fechaIniBusquedaGuia.getValue();
-			// Date fechaFin = fechaFinBusquedaGuia.getValue();
-			
-			// Validate
-//			if( fechaIni == null || fechaFin == null){
-//				mensajeAviso.mostrar("Necesitar elegir un intervalo de fecha");
-//				return;
-//			}
 			
 			if( destinoSuggestBox.getValue() == null || destinoSuggestBox.getValue().isEmpty()){
 				mensajeAviso.mostrar("Necesitar elegir un destino");
 				return;
 			}
 			
-			
 			Guia guia =  new Guia();
-//			guia.setFechaIni(fechaIni);
-//			guia.setFechaFin(fechaFin);
 			guia.setEstadoDescripcion("Remitido");
 			
-			Oficina oficinaOrigen = adminParametros.buscarOficinaPorNombre(origenLabelValue.getText());
+			Oficina oficinaOrigen = adminParametros.buscarOficinaPorNombre(origenSuggestBox.getText());
 			guia.setOficinaOrigen(oficinaOrigen);
 			log.info("--> oficinaOrigen: " + oficinaOrigen);
 			
 			Oficina oficinaDestino = adminParametros.buscarOficinaPorNombre(destinoSuggestBox.getValue());
 			guia.setOficinaDestino(oficinaDestino);
 			log.info("--> oficinaDestino: " + oficinaDestino);
+			guia.setExcluirGuiasExistentesEnConocimiento(true);
 			
 			fijarEstadoGuiaEspera();
 			servicioGuia.buscarGuias(guia, new LlamadaRemota<List<Guia>>("No se ejecuto correctamente la búsqueda de guias", true){
@@ -1024,14 +1085,14 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			});
 		});
 		
-		pagoDestinoDoubleBox.addFocusHandler(e -> {
-			Double flete       = fleteDoubleBox.getValue()      == null ? 0.0 : fleteDoubleBox.getValue();
-			Double aCuenta     = acuentaDoubleBox.getValue()    == null ? 0.0 : acuentaDoubleBox.getValue();
-			Double pagoOrigen  = pagoOrigenDoubleBox.getValue() == null ? 0.0 : pagoOrigenDoubleBox.getValue();
-			Double pagoDestino = flete - aCuenta - pagoOrigen;
-			pagoDestinoDoubleBox.setValue(pagoDestino);
-			guardarPagoDestino();
-		});
+//		pagoDestinoDoubleBox.addFocusHandler(e -> {
+//			Double flete       = fleteDoubleBox.getValue()      == null ? 0.0 : fleteDoubleBox.getValue();
+//			Double aCuenta     = acuentaDoubleBox.getValue()    == null ? 0.0 : acuentaDoubleBox.getValue();
+//			Double pagoOrigen  = pagoOrigenDoubleBox.getValue() == null ? 0.0 : pagoOrigenDoubleBox.getValue();
+//			Double pagoDestino = flete - aCuenta - pagoOrigen;
+//			pagoDestinoDoubleBox.setValue(pagoDestino);
+//			//guardarPagoDestino();
+//		});
 		
 	}
 	
@@ -1085,7 +1146,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		}
 		
 		// Destino
-		String destino = destinoSuggestBox.getValue();
+		String destino = conocimientoSeleccionado.getOficinaDestino().getNombre();
 		boolean destinoValido = false;
 		for (Oficina o : adminParametros.getOficinas()) {
 			if(o.getNombre().equals(destino)) {destinoValido = true; break;}
@@ -1096,8 +1157,14 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			return false;
 		}
 		
+		// Origen y destino
+		if(origen.equals(destino)) {
+			VistaConocimientoAccion.this.mensajeAviso.mostrar("Origen y destino no pueden ser iguales");
+			return false;
+		}
+		
 		// Multa
-		Double multa = multaTextBox.getValue();
+		Double multa = conocimientoSeleccionado.getMulta();
 		if(multa == null) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("Escriba una multa");
 			return false;
@@ -1105,7 +1172,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		log.info("--> multa:" + multa);
 		
 		// Dias
-		Integer dias = diasTextBox.getValue();
+		Integer dias = conocimientoSeleccionado.getDias();
 		if(dias == null) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("Introduzca número de dias");
 			return false;
@@ -1113,7 +1180,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		log.info("--> dias:" + dias);
 		
 		// Flete 
-		Double flete = fleteDoubleBox.getValue();
+		Double flete = conocimientoSeleccionado.getFlete();
 		if(flete == null) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("Flete esta vacio");
 			return false;
@@ -1121,7 +1188,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		log.info("--> flete:" + flete);
 		
 		// Acuenta
-		Double acuenta = acuentaDoubleBox.getValue();
+		Double acuenta = conocimientoSeleccionado.getAcuenta();
 		if(acuenta == null) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("A cuenta esta vacio");
 			return false;
@@ -1129,7 +1196,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		log.info("--> acuenta:" + acuenta);
 		
 		// Pagar en Origen
-		Double pagoOrigen = pagoOrigenDoubleBox.getValue();
+		Double pagoOrigen = conocimientoSeleccionado.getPagoOrigen();
 		if(pagoOrigen == null) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("Pago en Origen esta vacio");
 			return false;
@@ -1137,7 +1204,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		log.info("--> pagoOrigen:" + pagoOrigen);
 		
 		// Pagar en Destino
-		Double pagoDestino = pagoDestinoDoubleBox.getValue();
+		Double pagoDestino = conocimientoSeleccionado.getPagoDestino();
 		if(pagoDestino == null) {
 			VistaConocimientoAccion.this.mensajeAviso.mostrar("Pago en Destino esta vacio");
 			return false;
@@ -1175,10 +1242,10 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			public void onSuccess(Method method, List<Guia> response) {
 				storeDestino.clear();
 				storeDestino.addAll(response);
-				conocimientoSeleccionado.getGuias().addAll(response);
+				//conocimientoSeleccionado.getGuias().addAll(response);
 			}
 		});
-		origenLabelValue.setText(adminParametros.getUsuario().getOffice().getNombre());
+		origenSuggestBox.setValue(adminParametros.getUsuario().getOffice().getNombre());
 		guardarOrigen(adminParametros.getUsuario().getOffice());
 	}
 	
@@ -1216,8 +1283,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private void limpiarCampos(){
 		nroConocimientoValorLabel.setText("");
 		fechaRegistroValorLabel.setText("");
-		origenLabelValue.setText("");
-		origenSuggestBox.setValue("");
+		origenSuggestBox.setText("");
 		propietarioLabelValue.setText("");
 		propietarioSuggestBox.setValue("");
 		conductorLabelValue.setText("");

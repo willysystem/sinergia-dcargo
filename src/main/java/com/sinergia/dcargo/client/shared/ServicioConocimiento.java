@@ -163,5 +163,10 @@ public interface ServicioConocimiento {
   @DELETE
   @Path("/{id:[0-9]+}")
   public Resultado borrar(@PathParam("id") Long id) throws Exception;
+  
+  @PUT
+  @Produces("application/json")
+  @Path("/generarNroConocimiento/{idConocimiento}")
+  public Integer generarNroConocimiento(@QueryParam("idConocimiento") Long idConocimiento);
 
 }

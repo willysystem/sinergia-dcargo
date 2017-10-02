@@ -285,7 +285,8 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 		horizontalPanelButton.setSpacing(5);
 		horizontalPanelButton.add(nuevoBtn);
 		horizontalPanelButton.add(consultarBtn);
-		horizontalPanelButton.add(modificarBtn);
+		if(adminParametros.getUsuario().getAdministrador())
+			horizontalPanelButton.add(modificarBtn);
 		horizontalPanelButton.add(anularBtn);
 		horizontalPanelButton.add(imprimirBtn);
 		horizontalPanelButton.add(salirBtn);
@@ -310,6 +311,13 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 			accionPresentador();
 			return dock;
 		} else mainContentView.getCentralPanel().add(dock);
+		
+		// Permisos de usuario
+		destinoSuggestBox.setValue(adminParametros.getUsuario().getOffice().getNombre());
+		fechaInicio.setValue(adminParametros.getDateParam().getDate());
+		fechaFin.setValue(adminParametros.getDateParam().getDate());
+//		if(adminParametros.getUsuario().getAdministrador()) origenSuggestBox.setEnabled(true);
+//		else origenSuggestBox.setEnabled(false);
 		
 		return null;
 	}
@@ -422,6 +430,11 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 				estadoListBox.setSelectedIndex(2);
 			}
 		});
+		List<Oficina> oficina = adminParametros.getOficinas();
+		for (Oficina of : oficina) {
+			if(of.getNombre() != null)
+			 oficinaOracle.add(of.getNombre());
+		}
 		
 	}
 	

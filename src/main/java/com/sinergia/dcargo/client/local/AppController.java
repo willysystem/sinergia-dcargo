@@ -19,6 +19,7 @@ import com.sinergia.dcargo.client.local.event.EventoConocimiento;
 import com.sinergia.dcargo.client.local.event.EventoCuentas;
 import com.sinergia.dcargo.client.local.event.EventoDeudasPorCobrar;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoHome;
 import com.sinergia.dcargo.client.local.event.EventoLiquidacionCarga;
 import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
@@ -88,6 +89,7 @@ public class AppController implements com.sinergia.dcargo.client.local.presenter
 
 		History.addValueChangeHandler(this);
 		
+		eventBus.addHandler(EventoHome.TYPE, e -> History.newItem("home"));
 		eventBus.addHandler(EventoUsuario.TYPE, e -> History.newItem("users")); 
 		eventBus.addHandler(EventoCambiarContrasenia.TYPE, e -> History.newItem("contrasenia")); 
 		eventBus.addHandler(EventoCliente.TYPE, e -> History.newItem("clientes"));

@@ -13,9 +13,13 @@ import javax.annotation.Resource;
 import javax.ejb.EJB;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
+import javax.persistence.TemporalType;
+
+import org.slf4j.Logger;
 
 import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioConocimiento;
@@ -48,13 +52,16 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	private OficinaServicio oficinaServicio;
 	
 	@EJB
-	private ServicioGuia servicioGuia; 
+	private ServicioGuia servicioGuia;
+	
+	@Inject 
+	private Logger log;
 	
 	final private Hashtable<Character, String> estados = new Hashtable<>();
 	
 	public ServicioConocimientoImpl() {
 		super(Conocimiento.class);
-		estados.put('P', "Pendiente");
+		//estados.put('P', "Pendiente");
 		estados.put('V', "Vigente");
 		estados.put('E', "Entregado");
 		estados.put('A', "Anulado");
@@ -83,34 +90,37 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		Character estado = getEstado(conocimiento.getEstadoDescripcion());
 		
 		HashMap<String, Object> parametros = new HashMap<>(); 
-		String where = "";
-		
+		String where = " c.estado <> :estadoPendiente AND";
 		if(0 != nroConocimiento){
-			where = "c.nroConocimiento = :nroConocimiento AND";
+			where = where + " c.nroConocimiento = :nroConocimiento AND";
 			parametros.put("nroConocimiento", nroConocimiento);
 		} 
-		if(fechaInicio != null){
-			where = "c.fechaRegistro >= :fechaInicio AND";
+		if(fechaInicio != null && fechaFin != null){
+			fechaInicio.setHours(0);
+			fechaInicio.setMinutes(0);
+			fechaInicio.setSeconds(0);
+			fechaFin.setHours(23);
+			fechaFin.setMinutes(59);
+			fechaFin.setSeconds(59);
+			where = where + "  c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND";
 			parametros.put("fechaInicio", fechaInicio);
-		}
-		if(fechaFin != null){
-			where = "c.fechaRegistro <= :fechaFin AND";
 			parametros.put("fechaFin", fechaFin);
 		}
+		
 		if(idPropietario != 0){
-			where = "c.transportistaPropietario.id = :idPropietario AND";
+			where = where + " c.transportistaPropietario.id = :idPropietario AND";
 			parametros.put("idPropietario", idPropietario);
 		}
 		if(idConductor != 0){
-			where = "c.transportistaConductor.id = :idConductor AND";
+			where = where + " c.transportistaConductor.id = :idConductor AND";
 			parametros.put("idConductor", idConductor);
 		}
 		if(idOficinaOrigen != 0) {
-			where = "c.oficinaOrigen.id = :idOficinaOrigen AND";
+			where = where + " c.oficinaOrigen.id = :idOficinaOrigen AND";
 			parametros.put("idOficinaOrigen", idOficinaOrigen);
 		}
 		if(idOficinaDestino != 0) {
-			where = "c.oficinaDestino.id = :idOficinaDestino AND";
+			where = where + " c.oficinaDestino.id = :idOficinaDestino AND";
 			parametros.put("idOficinaDestino", idOficinaDestino);
 		}
 		if(estado != null){
@@ -128,8 +138,16 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		}
 		
 		Query q = em.createQuery(query);
-		for (Entry<String, Object> e: parametros.entrySet()) q.setParameter(e.getKey(), e.getValue()); 
-		
+		//for (Entry<String, Object> e: parametros.entrySet()) q.setParameter(e.getKey(), e.getValue());
+		for (Entry<String, Object> e: parametros.entrySet()) {
+			if(e.getValue() instanceof Date){
+				q.setParameter(e.getKey(), (Date)e.getValue(), TemporalType.TIMESTAMP);
+			} else {
+				q.setParameter(e.getKey(), e.getValue());
+			}
+			log.info("->" + e.getKey() + ": " + e.getValue());
+		}
+		q.setParameter("estadoPendiente", 'P');
 		
 		System.out.println("-> query: " + query);
 		@SuppressWarnings("unchecked")
@@ -144,14 +162,8 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	@Override
 	public Conocimiento nuevoConocimiento() throws Exception {
 		
-		Query query = em.createQuery("SELECT MAX(g.nroConocimiento) FROM Conocimiento g");
-		Object object = query.getSingleResult();
-		String numero = "0";
-		if(object != null) numero = object.toString();
-		Integer nroConocimiento = Integer.valueOf(numero) + 1;
-		
 		Conocimiento c = new Conocimiento();
-		c.setNroConocimiento(nroConocimiento);
+		//c.setNroConocimiento(nroConocimiento);
 		c.setFechaRegistro(new Date());
 		c.setEstado('P');
 		
@@ -436,5 +448,17 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		return null;
 	}
 	
+	@Override
+	public Integer generarNroConocimiento(Long idConocimiento) {
+		Query query = em.createQuery("SELECT MAX(g.nroConocimiento) FROM Conocimiento g");
+		Object object = query.getSingleResult();
+		String numero = "0";
+		if(object != null) numero = object.toString();
+		Integer nroConocimiento = Integer.valueOf(numero) + 1;
+		Conocimiento conocimiento = buscarPorId(idConocimiento);
+		conocimiento.setNroConocimiento(nroConocimiento);
+		return nroConocimiento;
+		
+	}
 	
 }
