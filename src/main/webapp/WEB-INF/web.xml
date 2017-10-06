@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
-
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0">
 	<welcome-file-list>
 		<welcome-file>DCargo.html</welcome-file>
 	</welcome-file-list>
@@ -12,22 +12,34 @@
 		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 
-	<!-- Security Contrains -->
+<!-- 	<filter> -->
+<!-- 		<filter-name>LoginFilter</filter-name> -->
+<!-- 		<filter-class>com.sinergia.dcargo.server.util.LoginFilter</filter-class> -->
+<!-- 	</filter> -->
+<!-- 	<filter-mapping> -->
+<!-- 		<filter-name>LoginFilter</filter-name> -->
+<!-- 		<url-pattern>*</url-pattern> -->
+<!-- 	</filter-mapping> -->
+		
+<!-- 	<listener> -->
+<!-- 			<listener-class>com.sinergia.dcargo.server.util.PharosSessionListener</listener-class> -->
+<!-- 	</listener>	 -->
+
 	<security-constraint>
-        <web-resource-collection>
-            <web-resource-name>Public Area</web-resource-name>
-            <url-pattern>/login/*</url-pattern>
-            <url-pattern>/images/*</url-pattern>
-        </web-resource-collection>
-    </security-constraint>
-	
+		<web-resource-collection>
+			<web-resource-name>Public Area</web-resource-name>
+			<url-pattern>/login/*</url-pattern>
+			<url-pattern>/images/*</url-pattern>
+		</web-resource-collection>
+	</security-constraint>
 	<security-constraint>
+
 		<display-name>Security Constraint on Conversation</display-name>
 		<web-resource-collection>
 			<web-resource-name>all</web-resource-name>
 			<url-pattern>/*</url-pattern>
 			<http-method>GET</http-method>
-            <http-method>POST</http-method>
+			<http-method>POST</http-method>
 		</web-resource-collection>
 		<auth-constraint>
 			<role-name>*</role-name>
@@ -36,12 +48,9 @@
 
 	<login-config>
 		<auth-method>FORM</auth-method>
-		<!-- <realm-name>SPNEGO</realm-name> -->
-		
 		<form-login-config>
 			<form-login-page>/login.html</form-login-page>
 			<form-error-page>/login.html</form-error-page>
-<!-- 			<form-error-page>/error.html</form-error-page> -->
 		</form-login-config>
 	</login-config>
 
@@ -49,16 +58,14 @@
 		<description>role required to log in to the Application</description>
 		<role-name>*</role-name>
 	</security-role>
-	
+
 	<session-config>
-        <session-timeout>10</session-timeout>
-        <cookie-config>
-  			<http-only>true</http-only>
-  			<secure>false</secure>
- 		</cookie-config>
- 		<tracking-mode>COOKIE</tracking-mode>
- 	</session-config>
-	
-	
+		<session-timeout>30</session-timeout>
+		<cookie-config>
+			<http-only>true</http-only>
+			<secure>false</secure>
+		</cookie-config>
+		<tracking-mode>COOKIE</tracking-mode>
+	</session-config>
 
 </web-app>

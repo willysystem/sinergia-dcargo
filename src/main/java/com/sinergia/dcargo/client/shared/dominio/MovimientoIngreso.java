@@ -1,5 +1,9 @@
 package com.sinergia.dcargo.client.shared.dominio;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+import org.hibernate.envers.RevisionEntity;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
@@ -7,6 +11,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 @javax.persistence.Entity
 @javax.persistence.Table(name="movimiento_ingreso")
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class MovimientoIngreso extends Movimiento implements
 		java.io.Serializable {
 	/**

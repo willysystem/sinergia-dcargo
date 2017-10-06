@@ -105,6 +105,10 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		HashMap<String, Object> parametros = new HashMap<>(); 
 		String where = " c.estado <> :estadoPendiente AND";
 		
+		if(!mov.getNombreUsuarioRev().equals("Todos")) {
+			where = where + " c.nombreUsuarioRev = :nombreUsuarioRev AND";
+		}
+		
 		if(0 != nroComprobante){
 			where = where + " c.nroComprobante = :nroComprobante AND ";
 			parametros.put("nroComprobante", nroComprobante);
@@ -157,6 +161,9 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 				q.setParameter(e.getKey(), e.getValue());
 		}
 		q.setParameter("estadoPendiente", 'P');
+		if(!mov.getNombreUsuarioRev().equals("Todos")) {
+			q.setParameter("nombreUsuarioRev", mov.getNombreUsuarioRev());
+		}
 		
 		System.out.println("-> query: " + query);
 		@SuppressWarnings("unchecked")
@@ -176,9 +183,11 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		//mov.setNroComprobante(nroComprobante);
 		mov.setFechaRegistro(new Date());
 		mov.setEstado('P');
+		mov.setNombreUsuarioRev(sctx.getCallerPrincipal().getName());
 		
 		Movimiento movP = em.merge(mov);
 		mov.setId(movP.getId());
+		
 		
 		return mov;
 	}
@@ -190,6 +199,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 //		mov.setNroComprobante(nroComprobante);
 		mov.setFechaRegistro(new Date());
 		mov.setEstado('P');
+		mov.setNombreUsuarioRev(sctx.getCallerPrincipal().getName());
 		
 		Movimiento movP = em.merge(mov);
 		mov.setId(movP.getId());
@@ -216,6 +226,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	public void guardarMonto(Long idMovimiento, Double monto, TipoCuenta tipoCuenta) throws Exception {
 		Movimiento movP = buscarPor(idMovimiento, tipoCuenta);
 		movP.setMonto(monto);
+		movP.setNombreUsuarioRev(sctx.getCallerPrincipal().getName());
 		em.merge(movP);
 	}
 
@@ -269,6 +280,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		movTO.setGlosa(mov.getGlosa());
 		movTO.setEstado(mov.getEstado());
 		movTO.setEstadoDescripcion(estados.get(mov.getEstado()));
+		movTO.setNombreUsuarioRev(mov.getNombreUsuarioRev());
 		
 		if(mov instanceof MovimientoIngreso) {
 			

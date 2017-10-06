@@ -179,7 +179,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	
 	private Button salirBtn = new Button("Salir");
 	private HTML estadoHTML  = new HTML();
-
+	
 	public VistaGuiaAccion() {
 		super();
 		GWT.log(this.getClass().getSimpleName() + "()");
@@ -199,7 +199,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 	HorizontalPanel horizontalPanelButton = null;
 	
 	private void construirGUI() {
- 
+		
 		horizontalPanelButton = new HorizontalPanel();
 		
 		log.info("  remitirBtn.isVisible():" + remitirBtn.isVisible());
@@ -599,6 +599,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 			String consignatarioName = e.getSelectedItem().getReplacementString();
 			Cliente cliente = adminParametros.buscarClientePorNombre(consignatarioName);
 			telefonoConsignaValorLabel.setText(cliente.getTelefono());
+			direccionValorLabel.setText(cliente.getDireccion());
 			guiaSeleccionada.setConsignatario(cliente);
 			GWT.log("valueconsignatario: " + consignatarioName);
 			
@@ -764,9 +765,11 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 						servicioGuia.generarNroGuia(guiaSeleccionada.getId(), new LlamadaRemota<Integer>("", true) {
 							@Override
 							public void onSuccess(Method method, Integer response) {
+								guiaSeleccionada.setNroGuia(response);
 								nroGuiaValorLabel.setText(response+"");
 								mensajeExito.mostrar("Guia remitida existosamente con nro: " + response);
 								mensajeExito.center();
+								remitirBtn.setVisible(false);
 								VistaGuiaAccion.this.cargador.hide();
 							}
 						});
@@ -881,7 +884,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		
 		pagadoOrigenCheckBox.addValueChangeHandler(e -> {
 			if(e.getValue())
-				servicioGuia.pagarOrigen(guiaSeleccionada.getId(), pagoOrigenTextBox.getValue(), "Pago Guia en el origen, Nro Guia:" + guiaSeleccionada.getNroGuia() , new LlamadaRemota<Void>("No se pude pagar guia en el origen", false) {
+				servicioGuia.pagarOrigen(guiaSeleccionada.getId(), pagoOrigenTextBox.getValue(), "Pago Guia en el origen" + guiaSeleccionada.getNroGuia() , new LlamadaRemota<Void>("No se pude pagar guia en el origen", false) {
 					@Override
 					public void onSuccess(Method method, Void response) {
 						mensajeAviso.mostrar("Exitosamente pagado en el origen");	
@@ -897,7 +900,7 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		});
 		pagadoDestinoCheckBox.addValueChangeHandler(e -> {
 			if(e.getValue())
-				servicioGuia.pagarDestino(guiaSeleccionada.getId(), pagoDestinoTextBox.getValue(), "Pago Guia en el origen, Nro Guia:" + guiaSeleccionada.getNroGuia() , new LlamadaRemota<Void>("No se pude pagar guia en el origen", false) {
+				servicioGuia.pagarDestino(guiaSeleccionada.getId(), pagoDestinoTextBox.getValue(), "Pago Guia en el destino" + guiaSeleccionada.getNroGuia() , new LlamadaRemota<Void>("No se pude pagar guia en el origen", false) {
 					@Override
 					public void onSuccess(Method method, Void response) {
 						mensajeAviso.mostrar("Exitosamente pagado en el destino");	
@@ -1025,14 +1028,16 @@ public class VistaGuiaAccion extends DialogBox implements Carga {
 		GWT.log("--> imprimir Guia: " + guiaSelecciondaPrint.getId());
 		GWT.log("--> imprimir Guia.getItems(): " + guiaSelecciondaPrint.getItems().size());
 		
-		String items[][] = new String[7][guiaSelecciondaPrint.getItems().size()];
+		String items[][] = new String[guiaSelecciondaPrint.getItems().size()][7];
 		int k = 0;
 		int bultos = 0;
 		Double peso = 0D;
 		//Double total = pagoTotalTextBox.getValue();
 		
 		for (Item i: guiaSelecciondaPrint.getItems()) {
-			items[k][0] = Integer.toString(k+1);
+			//log.info("--" + k);
+			log.info("--" + (k+1));
+			items[k][0] = (k+1) + "";
 			items[k][1] = utilDCargo.validarNullParaMostrar(i.getCantidad());
 			items[k][2] = utilDCargo.validarNullParaMostrar(i.getContenido());
 			items[k][3] = utilDCargo.validarNullParaMostrar(i.getPeso());

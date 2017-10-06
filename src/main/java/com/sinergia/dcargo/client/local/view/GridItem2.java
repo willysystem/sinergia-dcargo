@@ -66,20 +66,13 @@ import com.sencha.gxt.widget.core.client.grid.SummaryType.SumSummaryType;
 @Singleton
 public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidget {
 
-	@Inject
-	private AdminParametros adminParametros;
+	@Inject private AdminParametros adminParametros;
+	@Inject protected Logger log;
 	
-	@Inject
-	protected Logger log;
+	@Inject private ServicioItemCliente servicioItem;
+	@Inject private ServicioGuiaCliente servicioGuia;
 	
-	@Inject
-	private ServicioItemCliente servicioItem;
-	
-	@Inject
-	private ServicioGuiaCliente servicioGuia;
-	
-	@Inject
-	private MensajeAviso mensajeAviso;
+	@Inject private MensajeAviso mensajeAviso;
 	
 //	@Inject
 //	private Cargador cargador;
@@ -280,6 +273,9 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 //					editing.completeEditing();
 //				}
 //			});
+			//grid.addRowDoubleClickHandler(handler)
+			
+			
 			TextField contenidoTextField = new TextField();
 			
 			editing = createGridEditing(grid);
@@ -292,7 +288,20 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			editing.addEditor(totalColumn, totalField);
 		
 			editing.addCancelEditHandler(e -> store.rejectChanges());
+			
+			editing.addStartEditHandler( e -> {
+				if(editing.getEditableGrid().getSelectionModel().getSelectedItem() != null) {
+					itemSeleccionado = editing.getEditableGrid().getSelectionModel().getSelectedItem();
+				}
+				//log.info("   itemSeleccionado la Iniciar: " + itemSeleccionado.getId());
+			});
+			
 			editing.addCompleteEditHandler( e -> {
+				if(editing.getEditableGrid().getSelectionModel().getSelectedItem() != null) {
+					itemSeleccionado = editing.getEditableGrid().getSelectionModel().getSelectedItem();
+				}
+				//itemSeleccionado = editing.getEditableGrid().getSelectionModel().getSelectedItem();
+				//log.info("   itemSeleccionado la Complentar: " + itemSeleccionado.getId());
 				guardarItem();
 			});
 			
@@ -444,9 +453,9 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		Integer bultosTotal = 0;
 		for (Item i: store.getAll()) {
 			resumen = resumen + i.getCantidad() + " " + i.getContenido() + ",";
-			total = total + i.getTotal();
+			total = total + (i.getTotal() == null ? 0.0 : i.getTotal());
 			pesoTotal = pesoTotal + (i.getPeso()==null?0:i.getPeso());
-			bultosTotal = bultosTotal + i.getCantidad();
+			bultosTotal = bultosTotal + (i.getCantidad() == null ? 0 : i.getCantidad());
 		}
 		resumen = resumen.substring(0, resumen.length()-1);
 		vistaGuiaAccion.setResumen(resumen);
@@ -494,8 +503,8 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 	
 	private void calcularTotal() {
 		
-		Double precioD = precioDoubleField.getValue();
-		Double pesoD   = pesoField.getValue();
+		Double precioD = precioDoubleField.getValue() == null ? 0 : precioDoubleField.getValue();
+		Double pesoD   = pesoField.getValue()         == null ? 0 : pesoField.getValue();
 		Double totalD  = precioD*pesoD;
 		totalField.setValue(totalD);
 		GWT.log("event.getSelectedItem(): precio: " + precioD);

@@ -16,10 +16,14 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
 import com.google.gwt.user.client.ui.HasWidgets;
+import com.sinergia.dcargo.client.local.AdminParametros;
+import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
+import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Cargador;
 import com.sinergia.dcargo.client.shared.dominio.Movimiento;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Singleton
 public class PresentadorMovimiento implements Presenter {
@@ -33,6 +37,11 @@ public class PresentadorMovimiento implements Presenter {
 	@Inject
 	private ServicioMovimientoCliente servicioTransportistas;
 	
+	private ServicioUsuarioCliente servicioUsuario = GWT.create(ServicioUsuarioCliente.class);
+	
+	@Inject
+	private AdminParametros adminParametros;
+	
 	@Inject
 	private Cargador cargador;
 
@@ -42,7 +51,7 @@ public class PresentadorMovimiento implements Presenter {
 		HasClickHandlers getBuscarButton();
 		void cargarDataUI(List<Movimiento> movimientos);
 		Movimiento getParametrosBusqueda();
-
+		void llenarUsuarios(List<Usuario> usuarios);
 	}
 	
 	public PresentadorMovimiento() {
@@ -64,6 +73,14 @@ public class PresentadorMovimiento implements Presenter {
 		log.info(this.getClass().getSimpleName() + ".go()" );
 		display.viewIU();
 		bind();
+		servicioUsuario.getUsers(new LlamadaRemota<List<Usuario>>("No se puede obtener usuarios", true) {
+			@Override
+			public void onSuccess(Method method, List<Usuario> response) {
+				adminParametros.setUsuarios(response);
+				display.llenarUsuarios(response);
+				
+			}
+		});
 	}
 
 	public void bind() {

@@ -23,6 +23,9 @@ import com.sinergia.dcargo.client.shared.dto.LiquidacionReporte;
 
 @Path("/rest/movimiento")
 public interface ServicioMovimientoCliente extends RestService {
+	
+	 
+	
 	 @GET 
 	 @Path("/getEstados")
 	 @Produces("application/json")

@@ -5,12 +5,16 @@ import javax.persistence.InheritanceType;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
+
 /**
  * @generated
  */
 @Inheritance(strategy=InheritanceType.TABLE_PER_CLASS)
 @javax.persistence.Entity
-@Table(name="movimiento") 
+@Table(name="movimiento")
+@Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
 public class Movimiento implements java.io.Serializable {
 	/**
 	 * @generated
@@ -54,6 +58,9 @@ public class Movimiento implements java.io.Serializable {
 	 * @generated
 	 */
 	private String estadoDescripcion;
+	
+	private String nombreUsuarioRev;
+	
 	/**
 	 * @generated
 	 */
@@ -361,6 +368,15 @@ public class Movimiento implements java.io.Serializable {
 	public void setIdConocimiento(Long idConocimiento) {
 		this.idConocimiento = idConocimiento;
 	}
+
+	public String getNombreUsuarioRev() {
+		return nombreUsuarioRev;
+	}
+
+	public void setNombreUsuarioRev(String nombreUsuarioRev) {
+		this.nombreUsuarioRev = nombreUsuarioRev;
+	}
+	
 	
 	
 }

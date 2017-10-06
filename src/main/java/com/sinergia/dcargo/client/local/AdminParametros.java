@@ -1,7 +1,6 @@
 package com.sinergia.dcargo.client.local;
 
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
@@ -24,7 +23,6 @@ import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Carga;
 import com.sinergia.dcargo.client.local.view.Cargador;
 import com.sinergia.dcargo.client.shared.dominio.Cliente;
-import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
 import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
@@ -56,6 +54,8 @@ public class AdminParametros {
 	private List<Transportista> transportistas;
 	private List<CuentaIngreso> cuentasIngreso;
 	private List<CuentaEgreso> cuentasEgreso;
+	
+	private List<Usuario> usuarios;
 	
 	private Usuario usuario;
 	
@@ -325,6 +325,14 @@ public class AdminParametros {
 				AdminParametros.this.cargador.hide();
 			}
 		});
+	}
+
+	public List<Usuario> getUsuarios() {
+		return usuarios;
+	}
+
+	public void setUsuarios(List<Usuario> usuarios) {
+		this.usuarios = usuarios;
 	}
 	
 }

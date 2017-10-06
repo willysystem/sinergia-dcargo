@@ -448,8 +448,10 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		Guia guia = buscarPorId(idGuia);
 		guia.setEstado(getEstado(estadoDescripcion));
 
-		if(estadoDescripcion.charAt(0) == 'E')
+		if(estadoDescripcion.charAt(0) == 'E') {
 			guia.setFechaEntrega(new Date());
+		}
+			
 		
 		
 		em.merge(guia);
@@ -582,7 +584,20 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		Integer nroGuia = Integer.valueOf(numero) + 1;
 		Guia guia = buscarPorId(idGuia);
 		guia.setNroGuia(nroGuia);
+		
+		// Guardar Glosa 
+		if(guia.getPagadoOrigen() != null) 
+			if(guia.getPagadoOrigen()) {
+				String glosa = "Ingreso en el Origen: " + guia.getOficinaOrigen().getNombre() + " -> " + guia.getOficinaDestino().getNombre() + " con Nro Guia: " + guia.getNroGuia();
+				guia.getMovimientoIngresoOrigen().setGlosa(glosa);
+			}
+		if(guia.getPagadoDestino() != null) 	
+			if(guia.getPagadoDestino()) {
+				String glosa = "Ingreso en el Detino: " + guia.getOficinaOrigen().getNombre() + " -> " + guia.getOficinaDestino().getNombre() + " con Nro Guia: " + guia.getNroGuia();
+				guia.getMovimientoIngresoDestino().setGlosa(glosa);
+			}
 		merge(guia);
+		
 		return nroGuia;
 	}
 }

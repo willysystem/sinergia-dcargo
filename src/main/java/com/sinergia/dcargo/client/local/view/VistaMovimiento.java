@@ -45,6 +45,7 @@ import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
 import com.sinergia.dcargo.client.shared.dominio.CuentaIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Singleton
 public class VistaMovimiento extends View<Movimiento> implements PresentadorMovimiento.Display {
@@ -75,6 +76,8 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	
 	
 	private ListBox estadoListBox = new ListBox();
+	
+	private ListBox usuarioListBox = new ListBox();
 	
 	private Button buscarBtn = new Button("Buscar");
 	
@@ -125,11 +128,19 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	    layout.setWidget(0, 5, fechaIniDateBox);
 	    layout.setWidget(1, 4, new HTML("<b>Fecha Final: </b>"));
 	    layout.setWidget(1, 5, fechaFinDateBox);
-	    layout.setWidget(2, 2, cuentaLabel);
-	    layout.setWidget(2, 3, nroIntegerBox);
-	    layout.setWidget(2, 4, new HTML("<b>Estado: </b>"));
-	    layout.setWidget(2, 5, estadoListBox);
-	    layout.setWidget(2, 6, buscarBtn);
+	    
+	    layout.setWidget(2, 0, cuentaLabel);
+	    layout.setWidget(2, 1, nroIntegerBox);
+	    layout.setWidget(2, 2, new HTML("<b>Estado: </b>"));
+	    layout.setWidget(2, 3, estadoListBox);
+	    if(adminParametros.getUsuario().getAdministrador()) {
+	    	layout.setWidget(2, 4, new HTML("<b>Usuario: </b>"));
+		    layout.setWidget(2, 5, usuarioListBox);
+		    layout.setWidget(2, 6, buscarBtn);
+	    } else {
+	    	layout.setWidget(2, 5, buscarBtn);
+	    }
+	    
 	    
 	    vpNorte.add(layout);
 		
@@ -230,16 +241,29 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		grid.setColumnWidth(marcaColmun, 40, Unit.PX);
 		grid.addColumn(marcaColmun, "Destino");
 		
-		// Vecino de
-		TextColumn<Movimiento> vecinoColmun = new TextColumn<Movimiento>() {
+		// Usuario
+		TextColumn<Movimiento> usuarioColmun = new TextColumn<Movimiento>() {
+			@Override
+			public String getValue(Movimiento entity) {
+				return entity.getNombreUsuarioRev();
+			}
+			
+		};
+		if(adminParametros.getUsuario().getAdministrador())
+			grid.addColumn(usuarioColmun, "Usuario");
+		grid.setColumnWidth(usuarioColmun, 40, Unit.PX);
+		
+		
+		// Estado
+		TextColumn<Movimiento> estadoColmun = new TextColumn<Movimiento>() {
 			@Override
 			public String getValue(Movimiento entity) {
 				return entity.getEstadoDescripcion();
 			}
 			
 		};
-		grid.setColumnWidth(vecinoColmun, 40, Unit.PX);
-		grid.addColumn(vecinoColmun, "Estado");
+		grid.setColumnWidth(estadoColmun, 40, Unit.PX);
+		grid.addColumn(estadoColmun, "Estado");
 		
 		
 		grid.setWidth("1000px");
@@ -285,6 +309,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		
 		fechaIniDateBox.setValue(adminParametros.getDateParam().getDate());
 		fechaFinDateBox.setValue(adminParametros.getDateParam().getDate());
+		
 	}
 
 	@Override
@@ -332,6 +357,8 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		t.setEstado(estadoListBox.getSelectedValue().equals("Todos")?null:estadoListBox.getSelectedValue().charAt(0));
 		t.setFechaRegistroIni(fechaIniDateBox.getValue());
 		t.setFechaRegistroFin(fechaFinDateBox.getValue());
+		
+		t.setNombreUsuarioRev(usuarioListBox.getSelectedItemText());
 		
 		return t;
 	}
@@ -415,8 +442,6 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		});
 	}
 	
-	
-	
 	private void cargarDatosIniciales() {
 		tipoCuentaListBox.clear();
 		tipoCuentaListBox.addItem("Todos", "Todos");
@@ -476,6 +501,22 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 				}
 			}
 		});
+	}
+	@Override
+	public void llenarUsuarios(List<Usuario> usuarios) {
+		usuarioListBox.clear();
+		usuarioListBox.addItem("Todos", "0");
+		for (Usuario usuario : usuarios) {
+//			String nombre = usuario.getNombres() == null ? "" : usuario.getNombres();
+//			String apellidos = usuario.getApellidos() == null ? "" : usuario.getApellidos();
+			usuarioListBox.addItem(usuario.getNombreUsuario(), usuario.getId() + "");
+		}
+		for(int i = 0; i< usuarioListBox.getItemCount(); i++) {
+			if(usuarioListBox.getItemText(i).equals(adminParametros.getUsuario().getNombreUsuario())) {
+				usuarioListBox.setSelectedIndex(i);
+				break;
+			}
+		}
 	}
 	
 }
