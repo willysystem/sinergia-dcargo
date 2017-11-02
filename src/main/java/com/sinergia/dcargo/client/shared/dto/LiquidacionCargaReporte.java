@@ -15,11 +15,19 @@ public class LiquidacionCargaReporte implements Serializable {
 	
 	private String totalCobroOrigen;
 	
+	private Double totalCobroOrigenDouble;
+	
 	private String totalCobroDestino;
+	
+	private Double totalCobroDestinoDouble;
 	
 	private String totalFleteDestino;
 	
+	private Double totalFleteDestinoDouble;
+	
 	private String deduccionFletesDestino;
+	
+
 	
 	private String deduccionTotal;
 
@@ -85,6 +93,31 @@ public class LiquidacionCargaReporte implements Serializable {
 
 	public void setDeduccionTotal(String deduccionTotal) {
 		this.deduccionTotal = deduccionTotal;
+	}
+
+	public Double getTotalCobroOrigenDouble() {
+		return totalCobroOrigenDouble;
+	}
+
+	public void setTotalCobroOrigenDouble(Double totalCobroOrigenDouble) {
+		this.totalCobroOrigenDouble = totalCobroOrigenDouble;
+	}
+
+	public Double getTotalCobroDestinoDouble() {
+		return totalCobroDestinoDouble;
+	}
+
+	public void setTotalCobroDestinoDouble(Double totalCobroDestinoDouble) {
+		this.totalCobroDestinoDouble = totalCobroDestinoDouble;
+	}
+
+
+	public Double getTotalFleteDestinoDouble() {
+		return totalFleteDestinoDouble;
+	}
+
+	public void setTotalFleteDestinoDouble(Double totalFleteDestinoDouble) {
+		this.totalFleteDestinoDouble = totalFleteDestinoDouble;
 	}
 
 	@Override

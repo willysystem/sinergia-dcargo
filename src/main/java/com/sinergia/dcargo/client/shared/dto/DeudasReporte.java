@@ -174,5 +174,14 @@ public class DeudasReporte implements Serializable {
 	public void setIdCliente(Long idCliente) {
 		this.idCliente = idCliente;
 	}
+
+	@Override
+	public String toString() {
+		return "DeudasReporte [idOrigenBusqueda=" + idOrigenBusqueda + ", iddDestinoBusqueda=" + iddDestinoBusqueda
+				+ ", fechaInicioBusqueda=" + fechaInicioBusqueda + ", fechaDestinoBusqueda=" + fechaDestinoBusqueda
+				+ ", idCliente=" + idCliente + "]";
+	}
+	
+	
 	
 }

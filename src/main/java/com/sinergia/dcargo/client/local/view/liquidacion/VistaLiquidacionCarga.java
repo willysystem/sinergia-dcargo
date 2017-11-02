@@ -68,8 +68,8 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 	private HTML             destinoLabel = new HTML("<b>Destino: </b>");
 	private SuggestBox destinoSuggestBox  = new SuggestBox(oficinaOracle);
 			
-	private HTML porcentajeDeduccionesLabel = new HTML("<b>Porcentaje para el destino: </b>");		
-	private IntegerBox    tipoCuentaListBox = new IntegerBox();
+	private HTML porcentajeDeduccionesLabel          = new HTML("<b>Porcentaje para el destino: </b>");		
+	private IntegerBox    porcentajeDeduccionesValue = new IntegerBox();
 	
 	private Button imprimirBtn = new Button("Imprimir");
 	private Button salirBtn = new Button("Salir");
@@ -88,6 +88,7 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 		defaultUI();
 		fechaInicio.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat("yyyy-MM-dd"))); 
 		fechaFin.setFormat(new DateBox.DefaultFormat(DateTimeFormat.getFormat("yyyy-MM-dd")));
+		porcentajeDeduccionesValue.setValue(10);
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
@@ -113,7 +114,7 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 	    layout.setWidget(1, 2, destinoLabel);
 	    layout.setWidget(1, 3, destinoSuggestBox);
 	    layout.setWidget(2, 0, porcentajeDeduccionesLabel);
-	    layout.setWidget(2, 1, tipoCuentaListBox);
+	    layout.setWidget(2, 1, porcentajeDeduccionesValue);
 	    layout.setWidget(2, 3, buscarBtn);
 	    
 	    vpNorte.add(layout);
@@ -248,7 +249,7 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 		
 		fechaInicio.addValueChangeHandler(e -> liquidacionReporteBusqueda.setFechaInicioBusqueda(fechaInicio.getValue()));
 		fechaFin.addValueChangeHandler(e -> liquidacionReporteBusqueda.setFechaDestinoBusqueda(fechaFin.getValue()));
-		origenSuggestBox.addSelectionHandler(e->{
+		origenSuggestBox.addSelectionHandler(e-> {
 			String origenNombre = e.getSelectedItem().getReplacementString();
 			Oficina oficina = adminParametros.buscarOficinaPorNombre(origenNombre);
 			liquidacionReporteBusqueda.setIdOrigenBusqueda(oficina.getId());
@@ -294,14 +295,14 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 			String titulo1 = "Liquidación de Carga enviada de: "  + origen + " a: " + destino;
 			String titulo2 = "Movimientos comprendidos entre el :" + fechaIni + " y el: " + fechaFi;
 			
-			Double deduccion = tipoCuentaListBox.getValue() == null ? 0.0 : tipoCuentaListBox.getValue();
+			Double deduccion = porcentajeDeduccionesValue.getValue() == null ? 0.0 : porcentajeDeduccionesValue.getValue();
 			Double sumaDed = (totalCobroOrigen + totalCobroDestino)/100.0*Double.valueOf(deduccion); 
 			
 			String porcentaje      = utilDCargo.validarNullParaMostrar(deduccion);
 			String cuidadDestino   = utilDCargo.validarNullParaMostrar(origenSuggestBox.getValue());
 			String pagoFletes      = utilDCargo.validarNullParaMostrar(liquidacionCargaReporte.getTotalFleteDestino());
 			String deduccionP       = utilDCargo.validarNullParaMostrar(sumaDed);
-			String sumaDeducciones = utilDCargo.validarNullParaMostrar(liquidacionCargaReporte.getTotalFleteDestino() + sumaDed);
+			String sumaDeducciones = utilDCargo.validarNullParaMostrar(liquidacionCargaReporte.getTotalFleteDestinoDouble() + sumaDed);
 			
 			String totalDestino = utilDCargo.validarNullParaMostrar(totalCobroDestino);
 			String saldoOrigen  =  utilDCargo.validarNullParaMostrar(totalCobroDestino + sumaDed);
@@ -323,6 +324,31 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 			palabras1.add(oficina.getNombre());
 		}
 		oficinaOracle.addAll(palabras1);
+	}
+	
+	@Override
+	public boolean validar() {
+		if(fechaInicio.getValue() == null) {
+			mensajeAviso.mostrar("Elegir fecha de inicio");
+			return false;
+		}
+		if(fechaFin.getValue() == null) {
+			mensajeAviso.mostrar("Elegir fecha de fin");
+			return false;
+		}
+		if(origenSuggestBox.getValue() == null || origenSuggestBox.getValue().equals("")) {
+			mensajeAviso.mostrar("Elegir origen");
+			return false;
+		}
+		if(destinoSuggestBox.getValue() == null || destinoSuggestBox.getValue().equals("")) {
+			mensajeAviso.mostrar("Elegir destino");
+			return false;
+		}
+		if(porcentajeDeduccionesValue.getValue() == null) {
+			mensajeAviso.mostrar("Elegir porcetaje de deducciones");
+			return false;
+		}
+		return true;
 	}
 	
 }

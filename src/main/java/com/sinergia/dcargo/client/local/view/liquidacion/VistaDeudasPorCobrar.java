@@ -71,7 +71,7 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 	private HTML             destinoLabel = new HTML("<b>Destino: </b>");
 	private SuggestBox destinoSuggestBox  = new SuggestBox(oficinaOracle);
 			
-	private HTML            clienteLabel = new HTML("<b>Cliente: </b>");		
+	private HTML            clienteLabel = new HTML("<b>Remitente: </b>");		
 	private SuggestBox    clienteListBox = new SuggestBox(clienteOracle);
 	
 	private Button imprimirBtn = new Button("Imprimir");
@@ -81,11 +81,15 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 	
 	private DeudasReporte liquidacionReporteBusqueda;
 	
+	private DockPanel dock;
+	
 	public VistaDeudasPorCobrar() { super(10); }
 	public VistaDeudasPorCobrar(int paging) { super(paging); }
 	
 	@Override
 	public void viewIU() {
+		
+		if(dock == null) implementarEscuchadores();
 		
 		// Config
 		defaultUI();
@@ -183,45 +187,45 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 		grid.setColumnWidth(vecinoColmun, 40, Unit.PX);
 		grid.addColumn(vecinoColmun, "Deudas Monto");
 		
-		// Ingresos - Fecha
-		TextColumn<DeudasReporte> ingresoFechaColmun = new TextColumn<DeudasReporte>() {
-			@Override
-			public String getValue(DeudasReporte entity) {
-				return entity.getIngresosFecha();
-			}
-		};
-		grid.setColumnWidth(ingresoFechaColmun, 40, Unit.PX);
-		grid.addColumn(ingresoFechaColmun, "Ingresos Fecha");
-		
-		// Ingresos - NroComprobante
-		TextColumn<DeudasReporte> ingresonroCbteColmun = new TextColumn<DeudasReporte>() {
-			@Override
-			public String getValue(DeudasReporte entity) {
-				return entity.getIngresosNroComprobante();
-			}
-		};
-		grid.setColumnWidth(ingresonroCbteColmun, 40, Unit.PX);
-		grid.addColumn(ingresonroCbteColmun, "Ingresos Cbte.");
-		
-		// Ingresos - Acuenta
-		TextColumn<DeudasReporte> ingresoACuentaColmun = new TextColumn<DeudasReporte>() {
-			@Override
-			public String getValue(DeudasReporte entity) {
-				return entity.getIngresosAcuenta();
-			}
-		};
-		grid.setColumnWidth(ingresoACuentaColmun, 40, Unit.PX);
-		grid.addColumn(ingresoACuentaColmun, "Ingresos Acuenta");
-		
-		// Ingresos - Saldo
-		TextColumn<DeudasReporte> ingresoSaldoColmun = new TextColumn<DeudasReporte>() {
-			@Override
-			public String getValue(DeudasReporte entity) {
-				return entity.getIngresosSaldo();
-			}
-		};
-		grid.setColumnWidth(ingresoSaldoColmun, 40, Unit.PX);
-		grid.addColumn(ingresoSaldoColmun, "Ingresos Saldo");
+//		// Ingresos - Fecha
+//		TextColumn<DeudasReporte> ingresoFechaColmun = new TextColumn<DeudasReporte>() {
+//			@Override
+//			public String getValue(DeudasReporte entity) {
+//				return entity.getIngresosFecha();
+//			}
+//		};
+//		grid.setColumnWidth(ingresoFechaColmun, 40, Unit.PX);
+//		grid.addColumn(ingresoFechaColmun, "Ingresos Fecha");
+//		
+//		// Ingresos - NroComprobante
+//		TextColumn<DeudasReporte> ingresonroCbteColmun = new TextColumn<DeudasReporte>() {
+//			@Override
+//			public String getValue(DeudasReporte entity) {
+//				return entity.getIngresosNroComprobante();
+//			}
+//		};
+//		grid.setColumnWidth(ingresonroCbteColmun, 40, Unit.PX);
+//		grid.addColumn(ingresonroCbteColmun, "Ingresos Cbte.");
+//		
+//		// Ingresos - Acuenta
+//		TextColumn<DeudasReporte> ingresoACuentaColmun = new TextColumn<DeudasReporte>() {
+//			@Override
+//			public String getValue(DeudasReporte entity) {
+//				return entity.getIngresosAcuenta();
+//			}
+//		};
+//		grid.setColumnWidth(ingresoACuentaColmun, 40, Unit.PX);
+//		grid.addColumn(ingresoACuentaColmun, "Ingresos Acuenta");
+//		
+//		// Ingresos - Saldo
+//		TextColumn<DeudasReporte> ingresoSaldoColmun = new TextColumn<DeudasReporte>() {
+//			@Override
+//			public String getValue(DeudasReporte entity) {
+//				return entity.getIngresosSaldo();
+//			}
+//		};
+//		grid.setColumnWidth(ingresoSaldoColmun, 40, Unit.PX);
+//		grid.addColumn(ingresoSaldoColmun, "Ingresos Saldo");
 		
 		grid.setWidth("1000px");
 		grid.setHeight("350px");
@@ -247,7 +251,8 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 		horizontalPanelButton.add(salirBtn);
 		
 		horizontalPanel.add(horizontalPanelButton);
-		DockPanel dock = new DockPanel();
+		
+		dock = new DockPanel();
 		dock.add(vpNorte, DockPanel.NORTH);
 		dock.add(vpGrid, DockPanel.CENTER);
 		dock.add(horizontalPanel, DockPanel.SOUTH);
@@ -255,8 +260,6 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 		
 		
 		salirBtn.addClickHandler(e -> Window.Location.assign(GWT.getHostPageBaseURL()));
-		
-		implementarEscuchadores();
 		
 		cargarDatosIniciales();
 	}
@@ -291,7 +294,10 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 	
 	private void implementarEscuchadores(){
 		
-		fechaInicio.addValueChangeHandler(e -> liquidacionReporteBusqueda.setFechaInicioBusqueda(fechaInicio.getValue()));
+		fechaInicio.addValueChangeHandler(e -> {
+			log.info(" --fechaInicio.getValue(): " + fechaInicio.getValue());
+			liquidacionReporteBusqueda.setFechaInicioBusqueda(fechaInicio.getValue());
+		});
 		fechaFin.addValueChangeHandler(e -> liquidacionReporteBusqueda.setFechaDestinoBusqueda(fechaFin.getValue()));
 		origenSuggestBox.addSelectionHandler(e->{
 			String origenNombre = e.getSelectedItem().getReplacementString();
@@ -302,6 +308,11 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 			String origenNombre = e.getSelectedItem().getReplacementString();
 			Oficina oficina = adminParametros.buscarOficinaPorNombre(origenNombre);
 			liquidacionReporteBusqueda.setIddDestinoBusqueda(oficina.getId());
+		});
+		clienteListBox.addSelectionHandler(e->{
+			String nombreCliente = e.getSelectedItem().getReplacementString();
+			Cliente cliente = adminParametros.buscarClientePorNombre(nombreCliente);
+			liquidacionReporteBusqueda.setIdCliente(cliente.getId());
 		});
 		
 		imprimirBtn.addClickHandler(e -> {
@@ -323,10 +334,10 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 				items[k][4]  = l.getDestino();
 				items[k][5]  = l.getDeudasClientes();
 				items[k][6]  = l.getDeudasMonto();
-				items[k][7]  = l.getIngresosFecha();
-				items[k][8]  = l.getIngresosNroComprobante();
-				items[k][9]  = l.getIngresosAcuenta();
-				items[k][10] = l.getIngresosSaldo();
+//				items[k][7]  = l.getIngresosFecha();
+//				items[k][8]  = l.getIngresosNroComprobante();
+//				items[k][9]  = l.getIngresosAcuenta();
+//				items[k][10] = l.getIngresosSaldo();
 				k++;
 			}
 			
@@ -361,6 +372,31 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 		}
 		clienteOracle.addAll(palabras2);
 		
+	}
+	
+	@Override
+	public boolean validar() {
+		if(fechaInicio.getValue() == null) {
+			mensajeAviso.mostrar("Elegir fecha de inicio");
+			return false;
+		}
+		if(fechaFin.getValue() == null) {
+			mensajeAviso.mostrar("Elegir fecha de fin");
+			return false;
+		}
+		if(origenSuggestBox.getValue() == null || origenSuggestBox.getValue().equals("")) {
+			mensajeAviso.mostrar("Elegir origen");
+			return false;
+		}
+		if(destinoSuggestBox.getValue() == null || destinoSuggestBox.getValue().equals("")) {
+			mensajeAviso.mostrar("Elegir destino");
+			return false;
+		}
+		if(clienteListBox.getValue() == null) {
+			mensajeAviso.mostrar("Elegir porcetaje de deducciones");
+			return false;
+		}
+		return true;
 	}
 	
 }

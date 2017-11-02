@@ -466,8 +466,11 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		liquidacionCargaReporte.setNroTotalConocimientos(csP.size()+"");
 		liquidacionCargaReporte.setNroTotalGuia((nro-1)+"");
 		liquidacionCargaReporte.setTotalCobroOrigen(df.format(sumaCobroOrigen));
+		liquidacionCargaReporte.setTotalCobroOrigenDouble(sumaCobroOrigen);
 		liquidacionCargaReporte.setTotalCobroDestino(df.format(sumaCobroDestino));
+		liquidacionCargaReporte.setTotalCobroDestinoDouble(sumaCobroDestino);
 		liquidacionCargaReporte.setTotalFleteDestino(df.format(sumaFleteDestino));
+		liquidacionCargaReporte.setTotalFleteDestinoDouble(sumaFleteDestino);
 		
 		return liquidacionCargaReporte;
 		
@@ -511,7 +514,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		
 		
 		Long idOficinaOrigen  = deudasReporte.getIdOrigenBusqueda() == null ? 0 : deudasReporte.getIdOrigenBusqueda(); 
-		Long idOficinaDestino = deudasReporte.getIddDestinoBusqueda() == null ? 0 : deudasReporte.getIddDestinoBusqueda();
+		//Long idOficinaDestino = deudasReporte.getIddDestinoBusqueda() == null ? 0 : deudasReporte.getIddDestinoBusqueda();
 		
 		
 		Long idCliente = deudasReporte.getIdCliente();
@@ -522,14 +525,15 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		
 		//String sql = "SELECT c FROM Conocimiento c WHERE c.fechaRegistro >= :fechaInicio AND c.fechaRegistro <= :fechaFin  AND " +
 		String sql = "SELECT c FROM Guia c WHERE c.fechaRegistro BETWEEN :fechaInicio AND :fechaFin AND " + 
-				     "c.oficinaOrigen.id = :idOficinaOrigen AND c.oficinaDestino.id = :idOficinaDestino " +
+				     //"c.oficinaOrigen.id = :idOficinaOrigen AND c.oficinaDestino.id = :idOficinaDestino " +
+				     "c.oficinaOrigen.id = :idOficinaOrigen " +
 				     queryAddCliente +
 				     " ORDER BY c.fechaRegistro ASC";
 		Query query = em.createQuery(sql);
 		query.setParameter("fechaInicio", fechaInicio1, TemporalType.TIMESTAMP);
 		query.setParameter("fechaFin", fechaFin1, TemporalType.TIMESTAMP);
 		query.setParameter("idOficinaOrigen", idOficinaOrigen);
-		query.setParameter("idOficinaDestino", idOficinaDestino);
+		//query.setParameter("idOficinaDestino", idOficinaDestino);
 		if(idCliente != null)
 		   query.setParameter("idCliente", idCliente);
 		
@@ -563,7 +567,8 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			else movIngreso = gP.getMovimientoIngresoDestino();	
 			
 			if(movIngreso != null) {
-				d.setIngresosFecha(df.format(movIngreso.getFechaRegistro()));
+				String fechaIngreso =  movIngreso.getFechaRegistro() == null ? "" : dt.format(movIngreso.getFechaRegistro());
+				d.setIngresosFecha(fechaIngreso);
 				d.setIngresosNroComprobante(movIngreso.getNroGuiOrConocimiento());
 				d.setIngresosAcuenta(df.format(movIngreso.getMonto()));
 				d.setIngresosSaldo("");

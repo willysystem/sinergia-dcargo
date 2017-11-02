@@ -362,7 +362,13 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		center();
 		
 		// Permisos de usuario
-		origenSuggestBox.setValue(adminParametros.getUsuario().getOffice().getNombre());
+		if(conocimientoAccion == ConocimientoAccion.MODIFICAR || conocimientoAccion == ConocimientoAccion.CONSULTAR) {
+			origenSuggestBox.setValue(conocimientoSeleccionado.getOficinaOrigen().getNombre());
+		} else {
+			origenSuggestBox.setValue(adminParametros.getUsuario().getOffice().getNombre());
+			guardarOrigen(adminParametros.getUsuario().getOffice());
+		}
+		
 		if(adminParametros.getUsuario().getAdministrador()) origenSuggestBox.setEnabled(true);
 		else origenSuggestBox.setEnabled(false);
 		
@@ -450,8 +456,15 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 				multaTextBox.setValue(conocimientoSeleccionado.getMulta());
 				diasTextBox.setValue(conocimientoSeleccionado.getDias());
 				
+				
+//				String origen = "";
+//				if(conocimientoSeleccionado.getOficinaOrigen() != null) 
+//					origen = conocimientoSeleccionado.getOficinaOrigen().getNombre();  
+//				origenSuggestBox.setValue(origen);
+				
 				String destino = "";
-				if(conocimientoSeleccionado.getOficinaDestino() != null) destino = conocimientoSeleccionado.getOficinaDestino().getNombre();  
+				if(conocimientoSeleccionado.getOficinaDestino() != null) 
+					destino = conocimientoSeleccionado.getOficinaDestino().getNombre();  
 				destinoSuggestBox.setValue(destino);
 				
 				observacionesTextArea.setValue(conocimientoSeleccionado.getObservacion());
@@ -647,7 +660,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		
 		FlexTable flexTable = new FlexTable();
 		flexTable.setCellSpacing(0);
-		FlexCellFormatter cellFormatter = flexTable.getFlexCellFormatter();
+//		FlexCellFormatter cellFormatter = flexTable.getFlexCellFormatter();
 //		flexTable.setHTML(0, 0, "Fecha Inicio: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
 //		flexTable.setWidget(0, 1, fechaIniBusquedaGuia);     cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
 //		flexTable.setHTML(0, 2, "Fecha Fin: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
@@ -896,6 +909,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 						servicioConocimiento.generarNroConocimiento(conocimientoSeleccionado.getId(), new LlamadaRemota<Integer>("", true) {
 							@Override
 							public void onSuccess(Method method, Integer response) {
+								conocimientoSeleccionado.setNroConocimiento(response);
 								conocimientoSeleccionado.setEstadoDescripcion("Vigente");
 								nroConocimientoValorLabel.setText(response+"");
 								mensajeExito.mostrar("Conocimiento existosamente Guardado: " + response);
@@ -939,6 +953,11 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 				totalDestino = totalDestino + g.getSaldoDestino();
 				k++;
 			}
+			items[k][1] = "Totales";
+			items[k][3] = utilDCargo.validarNullParaMostrar(totalPeso);
+			items[k][4] = utilDCargo.validarNullParaMostrar(totalBultos);
+			items[k][6] = utilDCargo.validarNullParaMostrar(totalOrigen);
+			items[k][7] = utilDCargo.validarNullParaMostrar(totalDestino);
 			
 			String fecha           = utilDCargo.validarNullParaMostrarMedium(conocimientoSeleccionado.getFechaRegistro());  
 			String nroConocimiento = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getNroConocimiento());
@@ -946,20 +965,25 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			String origen          = conocimientoSeleccionado.getOficinaOrigen()  == null ? "" : utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getOficinaOrigen().getNombre());
 			String destino         = conocimientoSeleccionado.getOficinaDestino() == null ? "" : utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getOficinaDestino().getNombre());
 			
-			String marca = conocimientoSeleccionado.getTransportistaConductor().getMarca();
-			String color = conocimientoSeleccionado.getTransportistaConductor().getColor();
-			String placa = conocimientoSeleccionado.getTransportistaConductor().getPlaca(); 
+			String marca = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getTransportistaConductor().getMarca());
+			String color = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getTransportistaConductor().getColor());
+			String placa = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getTransportistaConductor().getPlaca()); 
 			String vehiculo = marca + "  " + color + "  " + placa;
 			
-			String adjunto = conocimientoSeleccionado.getAdjunto() == null ? "": conocimientoSeleccionado.getAdjunto();
-			String aclaracion = conocimientoSeleccionado.getAclaracion() == null ? "": conocimientoSeleccionado.getAclaracion();		
+			String adjunto    = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getAdjunto());
+			String aclaracion = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getAclaracion());		
+			
+			String flete   = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getFlete());
+			String aCuenta = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getAcuenta());
+			String pagoOrigen  = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getPagoOrigen());
+			String pagoDestino = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getPagoDestino());
 			
 			imprimirPDF.generarPDFConocimiento(
 					fecha, nroConocimiento, conductor, origen, vehiculo, destino, 
-			        items, totalPeso.toString() , totalBultos + "", totalOrigen.toString(), totalDestino.toString(),
+			        items, 
 			        adjunto, aclaracion, 
-			        conocimientoSeleccionado.getFlete()+"", conocimientoSeleccionado.getAcuenta().toString(), conocimientoSeleccionado.getPagoOrigen().toString(), conocimientoSeleccionado.getPagoDestino().toString()
-			    );
+			        flete, aCuenta, pagoOrigen, pagoDestino
+			);
 		     
 		});
 		
@@ -989,7 +1013,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			
 			String nroConocimienoto = utilDCargo.validarNullParaMostrar(conocimientoSeleccionado.getNroConocimiento());
 			
-			String items[][] = new String[conocimientoSeleccionado.getGuias().size()][5];
+			String items[][] = new String[conocimientoSeleccionado.getGuias().size()+1][5];
 			int k = 0;
 			Double pesoTotal = 0.0;
 			Integer cantidad = 0;
@@ -1004,8 +1028,13 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 				cantidad    = cantidad  + (g.getTotalCantidad() == null ? 0   : g.getTotalCantidad());
 				k++;
 			}
+			
 			String pesoTotalS     = utilDCargo.validarNullParaMostrar(pesoTotal);
 			String cantidadTotalS = cantidad + "";
+			
+			items[k][0] = "Totales:";
+			items[k][2] = pesoTotalS;
+			items[k][3] = cantidadTotalS;
 			
 			String origen = conocimientoSeleccionado.getOficinaOrigen() == null ? "" : conocimientoSeleccionado.getOficinaOrigen().getNombre();
 			String fecha  = utilDCargo.validarNullParaMostrarMedium(adminParametros.getDateParam().getDate());		
@@ -1022,7 +1051,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 					   nroConocimienoto,
 					   parrafo1, parrafo2, parrafo3,
 					   origen, fecha, 
-					   items, pesoTotalS, cantidadTotalS,
+					   items, 
 					   adjunto, aclaracion,
 					   flete, acuenta, enDestino, saldo, 
 					   propietatarioNombre);
@@ -1245,17 +1274,16 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 				//conocimientoSeleccionado.getGuias().addAll(response);
 			}
 		});
-		origenSuggestBox.setValue(adminParametros.getUsuario().getOffice().getNombre());
-		guardarOrigen(adminParametros.getUsuario().getOffice());
+	
 	}
 	
-	private Transportista getTransportistaPorNombre(String nombre){
-		List<Transportista> transportistas = adminParametros.getTransportistas();
-		for(Transportista t: transportistas){
-			if(t.getNombre().equals(nombre)) return t;
-		}
-		return null;
-	}
+//	private Transportista getTransportistaPorNombre(String nombre){
+//		List<Transportista> transportistas = adminParametros.getTransportistas();
+//		for(Transportista t: transportistas){
+//			if(t.getNombre().equals(nombre)) return t;
+//		}
+//		return null;
+//	}
 	
 	private void fijarEstadoGuiaEspera(){
 		fijarEstadoGuia("Actualizado ...", "red");

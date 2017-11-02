@@ -35,6 +35,7 @@ import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
+import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.CuentaEgreso;
@@ -69,6 +70,9 @@ public class VistaMovimientoAccion extends DialogBox {
 	
 	@Inject
 	private Cargador cargador;
+	
+	@Inject
+	private ImprimirPDF imprimirPDF;
 
 	private MovimientoAccion movimientoAccion;
 	private Movimiento movimientoSeleccionado;
@@ -120,6 +124,7 @@ public class VistaMovimientoAccion extends DialogBox {
 	private TextArea glosaTextArea   = new TextArea();
 	
 	private Button guardarBtn  = new Button("Guardar");
+	private Button imprimirBtn = new Button("Imprimir");
 	private Button cancelarBtn = new Button("Cancelar");
 	private Button salirBtn    = new Button("Salir");
 	
@@ -324,14 +329,18 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		if(movimientoAccion == MovimientoAccion.NUEVO ) {
 			horizontalPanelButton.add(guardarBtn);
+			horizontalPanelButton.add(imprimirBtn);
 			horizontalPanelButton.add(salirBtn);
+			
 		}
 		if(movimientoAccion == MovimientoAccion.MODIFICAR){
 			horizontalPanelButton.add(guardarBtn);
+			horizontalPanelButton.add(imprimirBtn);
 			horizontalPanelButton.add(salirBtn);
 		}
 		
 		if(movimientoAccion == MovimientoAccion.CONSULTAR){
+			horizontalPanelButton.add(imprimirBtn);
 			horizontalPanelButton.add(salirBtn);
 		}
 		
@@ -496,8 +505,35 @@ public class VistaMovimientoAccion extends DialogBox {
 			}
 		});
 		
-		cancelarBtn.addClickHandler(e -> { 
-				
+		imprimirBtn.addClickHandler(e -> {
+			String ciudad    = utilDCargo.getCiudad();
+			String direccion = utilDCargo.getDireccion();
+			String telefono  = utilDCargo.getTelefono();
+			
+			String titulo                = "COMPROBANTE DE " + movimientoSeleccionado.getTipoCuenta();
+			String numeroComprobante     = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getNroComprobante());
+			String fecha                 = adminParametros.getDateParam().getFormattedValue();
+			String nroGuiaOrConocimiento = movimientoSeleccionado.getNroGuiOrConocimiento();
+			String origen                = "";
+			String items[][] = new String[1][2];
+//			if(movimientoSeleccionado.getCuenta() != null) {
+//				items[0][0] = "" + movimientoSeleccionado.getCuenta();
+//				if(movimientoSeleccionado.getCuenta().get)
+//			}
+			
+			items[0][1] = "";
+			
+			String glosa = movimientoSeleccionado.getGlosa();
+			String entregueConforme = "";
+			String recibiConforme = "";
+			
+			
+			imprimirPDF.reporteComprobante(
+					ciudad, direccion, telefono,
+					titulo, numeroComprobante, fecha, 
+					nroGuiaOrConocimiento, origen, 
+					items, glosa, 
+					entregueConforme, recibiConforme);
 		});
 		
 		salirBtn.addClickHandler(e -> VistaMovimientoAccion.this.hide());

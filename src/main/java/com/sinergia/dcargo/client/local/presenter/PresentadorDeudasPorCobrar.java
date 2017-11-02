@@ -42,6 +42,7 @@ public class PresentadorDeudasPorCobrar implements Presenter {
 		HasClickHandlers getBuscarButton();
 		void cargarDataUI(DeudasPorCobrarReporte deudasPorCobrarReporte);
 		DeudasReporte getParametrosBusqueda();
+		public boolean validar();
 
 	}
 	
@@ -70,16 +71,18 @@ public class PresentadorDeudasPorCobrar implements Presenter {
 		this.display.getBuscarButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				DeudasReporte deudasReporte = display.getParametrosBusqueda();				
-				log.info("deudasReporte: " + deudasReporte);
-				//cargador.center();
-				servicioMovimiento.reporteDeudasPorCobrar(deudasReporte, new LlamadaRemota<DeudasPorCobrarReporte>("No se pudo hallar el reporte de deudas por cobrar", false) {
-					@Override
-					public void onSuccess(Method method, DeudasPorCobrarReporte response) {
-						display.cargarDataUI(response);
-					//	cargador.hide();
-					}
-				});
+				if(display.validar()) {
+					DeudasReporte deudasReporte = display.getParametrosBusqueda();				
+					log.info("deudasReporte: " + deudasReporte);
+					//cargador.center();
+					servicioMovimiento.reporteDeudasPorCobrar(deudasReporte, new LlamadaRemota<DeudasPorCobrarReporte>("No se pudo hallar el reporte de deudas por cobrar", false) {
+						@Override
+						public void onSuccess(Method method, DeudasPorCobrarReporte response) {
+							display.cargarDataUI(response);
+						//	cargador.hide();
+						}
+					});
+				}
 			}
 		});
 	}

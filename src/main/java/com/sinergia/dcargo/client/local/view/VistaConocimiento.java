@@ -463,7 +463,7 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 				new MensajeAviso("Seleccione la Conocimiento que decea anular").show();
 			} else {
 				VistaConocimiento.this.cargador.center();
-				servicioGuia.cambiarEstado(conocimiento.getId(), "Anulado", new LlamadaRemota<Void>("No se pudo anular la Conocimiento", true) {
+				servicioConocimiento.cambiarEstado(conocimiento.getId(), "Anulado", new LlamadaRemota<Void>("No se pudo anular la Conocimiento", true) {
 					@Override
 					public void onSuccess(Method method, Void response) {
 						mensajeExito.mostrar("Conocimiento anulada existosamente, con nro: " + conocimiento.getNroConocimiento());
@@ -549,4 +549,5 @@ public class VistaConocimiento extends View<Conocimiento> implements Presentador
 		cargarDataUI(conocimientos);
 	}
 	
+
 }

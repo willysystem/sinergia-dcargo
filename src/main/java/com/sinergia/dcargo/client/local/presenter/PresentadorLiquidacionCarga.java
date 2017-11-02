@@ -40,7 +40,7 @@ public class PresentadorLiquidacionCarga implements Presenter {
 		HasClickHandlers getBuscarButton();
 		void cargarDataUI(LiquidacionCargaReporte movimientos);
 		LiquidacionReporte getParametrosBusqueda();
-
+		public boolean validar();
 	}
 	
 	public PresentadorLiquidacionCarga() {
@@ -68,16 +68,18 @@ public class PresentadorLiquidacionCarga implements Presenter {
 		this.display.getBuscarButton().addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
-				LiquidacionReporte liquidacionReporte = display.getParametrosBusqueda();
-				log.info("liquidacionReporte: "+ liquidacionReporte);
-				//cargador.center();
-				servicioMovimiento.reporteLiquidacionCarga(liquidacionReporte, new LlamadaRemota<LiquidacionCargaReporte>("No se pudo hallar el reporte", false) {
-					@Override
-					public void onSuccess(Method method, LiquidacionCargaReporte response) {
-						display.cargarDataUI(response);
-					//	cargador.hide();
-					}
-				});
+				if(display.validar()) {
+					LiquidacionReporte liquidacionReporte = display.getParametrosBusqueda();
+					log.info("liquidacionReporte: "+ liquidacionReporte);
+					//cargador.center();
+					servicioMovimiento.reporteLiquidacionCarga(liquidacionReporte, new LlamadaRemota<LiquidacionCargaReporte>("No se pudo hallar el reporte", false) {
+						@Override
+						public void onSuccess(Method method, LiquidacionCargaReporte response) {
+							display.cargarDataUI(response);
+						//	cargador.hide();
+						}
+					});
+				}
 			}
 		});
 	}
