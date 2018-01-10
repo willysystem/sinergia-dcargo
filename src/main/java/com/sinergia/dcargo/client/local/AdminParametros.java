@@ -19,6 +19,7 @@ import com.sinergia.dcargo.client.local.api.ServicioOficinaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioPrecioCliente;
 import com.sinergia.dcargo.client.local.api.ServicioTransportistasCliente;
 import com.sinergia.dcargo.client.local.api.ServicioUnidadCliente;
+import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Carga;
 import com.sinergia.dcargo.client.local.view.Cargador;
@@ -39,12 +40,13 @@ public class AdminParametros {
 	
 	@Inject protected Logger log;
 	
-	@Inject private ServicioClienteCliente servicioCliente; 
-	@Inject private ServicioOficinaCliente servicioOficina;
-	@Inject private ServicioUnidadCliente servicioUnidad;
-	@Inject private ServicioPrecioCliente servicioPrecio;
+	@Inject private ServicioClienteCliente        servicioCliente; 
+	@Inject private ServicioOficinaCliente        servicioOficina;
+	@Inject private ServicioUnidadCliente         servicioUnidad;
+	@Inject private ServicioPrecioCliente         servicioPrecio;
 	@Inject private ServicioTransportistasCliente servicioTransportista;
-	@Inject private ServicioCuentaCliente servicioCuenta;
+	@Inject private ServicioCuentaCliente         servicioCuenta;
+	private ServicioUsuarioCliente servicioUsuario = GWT.create(ServicioUsuarioCliente.class);
 	
 	
 	private List<Cliente> clientes;
@@ -139,7 +141,15 @@ public class AdminParametros {
 																log.info("CuentasEgreso.size" + response.size() );
 																cuentasEgreso = (List<CuentaEgreso>)response;
 																//log.info("cuentasIngreso.size" + cuentasIngreso.size() );
-																AdminParametros.this.cargador.hide();
+																servicioUsuario.getUsers(new LlamadaRemota<List<Usuario>>("No se puede obtener usuarios", true) {
+																	@Override
+																	public void onSuccess(Method method, List<Usuario> response) {
+																		log.info("Usuarios.size" + response.size() );
+																		setUsuarios(response);
+																		AdminParametros.this.cargador.hide();
+																		
+																	}
+																});
 															}
 														});
 													}
@@ -295,6 +305,14 @@ public class AdminParametros {
 			if(cuenta.getNroCuenta() != null)
 				if(cuenta.getNroCuenta().equals(nroCuenta))
 					return cuenta;
+		}
+		return null;
+	}
+	
+	public Usuario buscarUsuarioPorNombreUsuario(String nombreUsuario){
+		for (Usuario usuario: usuarios) {
+			if(usuario.getNombreUsuario().equals(nombreUsuario))
+					return usuario;
 		}
 		return null;
 	}

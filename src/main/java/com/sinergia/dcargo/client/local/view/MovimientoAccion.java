@@ -2,7 +2,14 @@ package com.sinergia.dcargo.client.local.view;
 
 public enum MovimientoAccion {
 	
-	NUEVO("Nuevo Movimiento"),
+	NUEVO_MOVIMIENTO("Nuevo Movimiento"),
+	BUSCAR_MOVIMIEINTO("Nuevo Movimiento"),
+	
+//	NUEVO_INGRESO("Nuevo Ingreso"),
+//	NUEVO_EGRESO("Nuevo Engreso"),
+//	BUSCAR_INGRESO("Buscar Ingreso"),
+//	BUSCAR_EGRESO("Buscar Engreso"),
+	
 	//NUEVO_DESDE_CONOCIMIENTO("Nuevo Transportista"),
 	CONSULTAR("Consultar Movimiento"),
 	MODIFICAR("Modificar Movimiento"),

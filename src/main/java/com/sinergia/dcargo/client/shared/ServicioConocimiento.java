@@ -126,7 +126,8 @@ public interface ServicioConocimiento {
   
   @PUT
   @Consumes("application/json")
-  @Path("/guardarAcuenta/{idConocimiento}/{flete}")
+  @Produces("application/json")
+  @Path("/guardarAcuenta/{idConocimiento}/{acuenta}")
   public void guardarAcuenta(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("acuenta") Double acuenta) throws Exception;
   
   @PUT

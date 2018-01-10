@@ -1,0 +1,4 @@
+<!-- Includes the source files for the Dark theme. -->
+<module type="fileset">
+      <stylesheet src="azul.css"/>
+</module>

@@ -29,20 +29,11 @@ import com.sinergia.dcargo.client.shared.dominio.Transportista;
 @Singleton
 public class PresentadorConocimiento implements Presenter {
 
-	@Inject
-	public Display display;
-
-	@Inject
-	private Logger log;
-	
-	@Inject
-	private AdminParametros adminParametros;
-	
-	@Inject
-	private Cargador cargador;
-	
-	@Inject
-	private ServicioConocimientoCliente servicioConocimiento;
+	@Inject public Display display;
+	@Inject private Logger log;
+	@Inject private AdminParametros adminParametros;
+	@Inject private Cargador cargador;
+	@Inject private ServicioConocimientoCliente servicioConocimiento;
 	
 	private List<Transportista> transportistas;
 	
@@ -95,27 +86,27 @@ public class PresentadorConocimiento implements Presenter {
 
 	public void bind() {
 		
-		this.display.getBuscarButton().addClickHandler(new ClickHandler() {
-			@Override
-			public void onClick(ClickEvent event) {
-				Conocimiento conocimiento = display.getParametrosBusqueda();
-				log.info("conocimiento: "+ conocimiento);
-				cargador.center();
-				servicioConocimiento.buscarConocimiento(conocimiento, new MethodCallback<List<Conocimiento>>() {
-					@Override
-					public void onFailure(Method method, Throwable exception) {
-						log.info("Error al traer Guias: " + exception.getMessage());
-						cargador.hide();
-						new MensajeError("Error al traer Guias: ", exception).show();
-					}
-					@Override
-					public void onSuccess(Method method, List<Conocimiento> response) {
-						showGuiaData(response);
-						cargador.hide();
-					}
-				});
-			}
-		});
+//		this.display.getBuscarButton().addClickHandler(new ClickHandler() {
+//			@Override
+//			public void onClick(ClickEvent event) {
+//				Conocimiento conocimiento = display.getParametrosBusqueda();
+//				log.info("conocimiento: "+ conocimiento);
+//				cargador.center();
+//				servicioConocimiento.buscarConocimiento(conocimiento, new MethodCallback<List<Conocimiento>>() {
+//					@Override
+//					public void onFailure(Method method, Throwable exception) {
+//						log.info("Error al traer Guias: " + exception.getMessage());
+//						cargador.hide();
+//						new MensajeError("Error al traer Guias: ", exception).show();
+//					}
+//					@Override
+//					public void onSuccess(Method method, List<Conocimiento> response) {
+//						showGuiaData(response);
+//						cargador.hide();
+//					}
+//				});
+//			}
+//		});
 		
 
 	}

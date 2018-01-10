@@ -77,7 +77,7 @@ public class VistaCliente extends View<Cliente> implements PresentadorClientes.D
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
-		hpTitulo.add(new HTML("<center style='font-weight:bold;font-size:16px'>Clientes</center>"));
+		hpTitulo.add(new HTML("<center class='tituloModulo'>Clientes</center>"));
 		hpTitulo.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		hpTitulo.setWidth("100%");
 		//hpTitulo.

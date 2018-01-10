@@ -25,6 +25,7 @@ import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioCuenta;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
 import com.sinergia.dcargo.client.shared.ServicioMovimiento;
+import com.sinergia.dcargo.client.shared.ServicioUsuario;
 import com.sinergia.dcargo.client.shared.dominio.Cliente;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.Cuenta;
@@ -34,6 +35,7 @@ import com.sinergia.dcargo.client.shared.dominio.Item;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.Unidad;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 import com.sinergia.dcargo.client.shared.OficinaServicio;
 import com.sinergia.dcargo.server.dao.Dao;
 
@@ -49,22 +51,18 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	@Resource
 	private SessionContext sctx;
 	
-	@EJB
-	private ServicioCliente serviceCliente;
-	
-	@EJB
-	private OficinaServicio oficinaServicio;
-	
-	@EJB
-	private ServicioMovimiento servicioMovimiento;
-	
-	@EJB
-	private ServicioCuenta servicioCuenta;
+	@EJB private ServicioCliente    serviceCliente;
+	@EJB private OficinaServicio    oficinaServicio;
+	@EJB private ServicioMovimiento servicioMovimiento;
+	@EJB private ServicioCuenta     servicioCuenta;
+	@EJB private ServicioUsuario    servicioUsuario;
 	
 	@Inject 
 	private Logger log;
 	
 	final private Hashtable<Character, String> estados = new Hashtable<>();
+	
+	final private Hashtable<Character, String> estadosPago = new Hashtable<>();
 	
 	public ServicioGuiaImpl() {
 		super(Guia.class);
@@ -72,6 +70,12 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		estados.put('R', "Remitido");
 		estados.put('E', "Entregado");
 		estados.put('A', "Anulado");
+		
+		//estadosPago.put('C', "Cancelado");
+		estadosPago.put('Z', "Origen-Destino");
+		estadosPago.put('O', "Origen");
+		estadosPago.put('D', "Destino");
+		
 	}
 	
 	@Override
@@ -86,11 +90,16 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	}
 
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<Guia> buscarGuias(Guia guia) {
 		
 		Integer nroGuia = guia.getNroGuia();
 		nroGuia = nroGuia == null ? 0: nroGuia;
+		
+		Integer nroConocimiento = guia.getNroConocimiento();
+		nroConocimiento = nroConocimiento == null ? 0: nroConocimiento;
+		
 		String remite = guia.getRemitente() == null ? "": guia.getRemitente().getNombre();
 		String consignatario = guia.getConsignatario() == null ? "" : guia.getConsignatario().getNombre();
 		String origen = guia.getOficinaOrigen() == null ? "": guia.getOficinaOrigen().getNombre();
@@ -103,7 +112,13 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		if(0 != nroGuia){
 			where = where + " c.nroGuia = :nroGuia AND";
 			parametros.put("nroGuia", nroGuia);
-		} 
+		}
+		if(0 != nroConocimiento){
+			where = where + " c.conocimiento.nroConocimiento = :nroConocimiento AND";
+			parametros.put("nroConocimiento", nroConocimiento);
+		}
+		
+		
 		if(!"".equals(remite)){
 			List<Cliente> clientes = serviceCliente.buscarClientesPorNombre(remite);
 			if(!clientes.isEmpty()) {
@@ -155,7 +170,6 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			where = where + " c.conocimiento = null AND";
 		}
 		
-		
 		String query = null;
 		String select = "SELECT c FROM Guia c";
 		if("".equals(where)) {
@@ -197,7 +211,8 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setFechaRegistro(guiaP.getFechaRegistro());
 		gDTO.setFechaEntrega(guiaP.getFechaEntrega());
 		gDTO.setNroFactura(guiaP.getNroFactura());
-		gDTO.setEstadoDescripcion(getDescripcion(guiaP.getEstado()));
+		gDTO.setEstadoDescripcion(getEstadoDescripcion(guiaP.getEstado()));
+		gDTO.setEstadoPagoDescripcion(getEstadoPagoDescripcion(guiaP.getEstadoPago()));
 		gDTO.setPagoOrigen(guiaP.getPagoOrigen());
 		gDTO.setSaldoDestino(guiaP.getSaldoDestino());
 		gDTO.setTotalPeso(guiaP.getTotalPeso());
@@ -206,6 +221,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setResumenContenido(guiaP.getResumenContenido());
 		gDTO.setFechaEntrega(guiaP.getFechaEntrega());
 		gDTO.setNroFacturaEntrega(guiaP.getNroFacturaEntrega());
+		gDTO.setObservaciones(guiaP.getObservaciones());
 		
 		Cliente remite1 = null;
 		if(guiaP.getRemitente() != null) {
@@ -223,6 +239,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 			consignatario1.setNombre(guiaP.getConsignatario().getNombre());
 			consignatario1.setTelefono(guiaP.getConsignatario().getTelefono());
 			consignatario1.setCi(guiaP.getConsignatario().getCi());
+			consignatario1.setDireccion(guiaP.getConsignatario().getDireccion());
 			gDTO.setConsignatario(consignatario1);
 		}
 		
@@ -333,7 +350,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	@Override
 	public void guardarNroEntrega(Guia guia) throws Exception {
 		Guia guiaP = buscarPorId(guia.getId());
-		guiaP.setNotaEntrega(guia.getNotaEntrega());
+		guiaP.setNroNotaEntrega(guia.getNroNotaEntrega());
 		merge(guiaP);
 	}
 
@@ -359,6 +376,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		gDTO.setAdjunto(guiaP.getAdjunto());
 		gDTO.setResumenContenido(guiaP.getResumenContenido());
 		gDTO.setNotaEntrega(guiaP.getNotaEntrega());
+		gDTO.setNroNotaEntrega(guiaP.getNroNotaEntrega());
 		gDTO.setPagoOrigen(guiaP.getPagoOrigen());
 		gDTO.setSaldoDestino(guiaP.getSaldoDestino());
 		gDTO.setTotalGuia(guiaP.getTotalGuia());
@@ -400,6 +418,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 //				iDTO.setPrecioMonto(itemP.getPrecio().getDescripcion());
 //				iDTO.setPrecio(pDTO);
 //			} else iDTO.setPrecioMonto("");
+			
 			iDTO.setPrecio(itemP.getPrecio());
 			
 			iDTO.setTotal(itemP.getTotal());
@@ -412,7 +431,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	}
 
 	@Override
-	public void guardarTotal(Long idGuia, Double total) throws Exception {
+	public void guardartotal(Long idGuia, Double total) throws Exception {
 		Guia guia = buscarPorId(idGuia);
 		guia.setTotalGuia(total);
 		em.merge(guia);
@@ -436,11 +455,25 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		return null;
 	}
 	
-	private String getDescripcion(Character estado) {
-		for (Map.Entry<Character, String> e: estados.entrySet()) {
+//	private Character getEstadoPago(String estadoDescripcion) {
+//		for (Map.Entry<Character, String> e: estadosPago.entrySet()) {
+//			if(e.getValue().equals(estadoDescripcion)) return e.getKey();
+//		}
+//		return null;
+//	}
+	
+	private String getEstadoDescripcion(Character estado) {
+	   for (Map.Entry<Character, String> e: estados.entrySet()) {
 			if(e.getKey() == estado) return e.getValue();
-		}
-		return null;
+	   }
+	   return null;
+	}
+	
+	private String getEstadoPagoDescripcion(Character estado) {
+	   for (Map.Entry<Character, String> e: estadosPago.entrySet()) {
+		   if(e.getKey() == estado) return e.getValue();
+	   }
+	   return null;
 	}
 
 	@Override
@@ -448,11 +481,27 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		Guia guia = buscarPorId(idGuia);
 		guia.setEstado(getEstado(estadoDescripcion));
 
+		if(estadoDescripcion.charAt(0) == 'R') {
+			// Origen
+			if(guia.getPagoOrigen() > 0D && guia.getSaldoDestino() == 0D) {
+				guia.setEstadoPago('O');
+			}
+			
+			// Destino
+			if(guia.getPagoOrigen() == 0D && guia.getSaldoDestino() > 0D) {
+				guia.setEstadoPago('D');
+			}
+			
+			// Origen-Destino
+			if(guia.getPagoOrigen() > 0D && guia.getSaldoDestino() > 0D) {
+				guia.setEstadoPago('Z');
+			}
+			
+		}
+		
 		if(estadoDescripcion.charAt(0) == 'E') {
 			guia.setFechaEntrega(new Date());
 		}
-			
-		
 		
 		em.merge(guia);
 	}
@@ -498,6 +547,13 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		guia.setNotaEntrega(notaEntrega);
 		em.merge(guia);
 	}
+	
+	@Override
+	public void guardarNroNotaEntrega(Long idGuia, String nroNotaEntrega) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setNroNotaEntrega(nroNotaEntrega);
+		em.merge(guia);
+	}
 
 //	@Override
 //	public void guardarFechaEntrega(Long idGuia, DateParam fechaEntrega) throws Exception {
@@ -514,8 +570,14 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	}
 
 	@Override
-	public void pagarOrigen(Long idGuia, Double monto, String glosa) throws Exception {
-		Cuenta cuenta = servicioCuenta.getCuentaIngresoPorNroCuenta(1000);
+	public Integer pagarOrigen(Long idGuia, Double monto, String glosa) throws Exception {
+		
+		String userName = sctx.getCallerPrincipal().getName();
+		Usuario user    = servicioUsuario.buscarPorUsuario(userName); 
+		Oficina oficina = user.getOffice();
+		Cuenta cuenta = oficina.getCuentaIngresoOrigen(); 
+		
+		//Cuenta cuenta = servicioCuenta.getCuentaIngresoPorNroCuenta(1000);
 		Guia guia = buscarPorId(idGuia);
 		guia.setPagadoOrigen(true);
 		guia = merge(guia);
@@ -529,6 +591,8 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		miP.setEstado("V".charAt(0));
 		guia.setMovimientoIngresoOrigen(miP);
 		em.merge(miP);
+		
+		return miP.getNroComprobante();
 	}
 	
 	@Override
@@ -545,11 +609,18 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 	}
 	
 	@Override
-	public void pagarDestino(Long idGuia, Double monto, String glosa) throws Exception {
-		Cuenta cuenta = servicioCuenta.getCuentaIngresoPorNroCuenta(1000);
+	public Integer pagarDestino(Long idGuia, Double monto, String glosa) throws Exception {
+		//Cuenta cuenta = servicioCuenta.getCuentaIngresoPorNroCuenta(1000);
+		String userName = sctx.getCallerPrincipal().getName();
+		Usuario user    = servicioUsuario.buscarPorUsuario(userName); 
+		Oficina oficina = user.getOffice();
+		Cuenta cuenta = oficina.getCuentaIngresoDestino(); 
+		
 		Guia guia = buscarPorId(idGuia);
 		guia.setPagadoDestino(true);
 		guia = merge(guia);
+		
+		
 		MovimientoIngreso miP = servicioMovimiento.nuevoMovimientoIngreso();
 		miP = em.find(MovimientoIngreso.class, miP.getId());
 		miP.setFechaRegistro(new Date());
@@ -560,6 +631,8 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		miP.setEstado("V".charAt(0));
 		guia.setMovimientoIngresoDestino(miP);
 		em.merge(miP);
+		
+		return miP.getNroComprobante();
 	}
 	
 	@Override
@@ -599,5 +672,12 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		merge(guia);
 		
 		return nroGuia;
+	}
+
+	@Override
+	public void guardarObservaciones(Long idGuia, String observaciones) throws Exception {
+		Guia guia = buscarPorId(idGuia);
+		guia.setObservaciones(observaciones);
+		em.merge(guia);
 	}
 }

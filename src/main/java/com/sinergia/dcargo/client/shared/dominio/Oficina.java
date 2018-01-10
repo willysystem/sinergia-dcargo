@@ -1,6 +1,5 @@
 package com.sinergia.dcargo.client.shared.dominio;
 
-
 /**
  * @generated
  */
@@ -46,6 +45,35 @@ public class Oficina implements java.io.Serializable {
 	 */
 	@javax.persistence.OneToMany(mappedBy = "oficinaDestino")
 	private java.util.Set<Guia> guiasDestino = new java.util.HashSet<Guia>();
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.OneToOne(mappedBy = "oficinaIngresoOrigen")
+	private CuentaIngreso cuentaIngresoOrigen;
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.OneToOne(mappedBy = "oficinaIngresoDestino")
+	private CuentaIngreso cuentaIngresoDestino;
+	/**
+	 * @generated
+	 */
+	@javax.persistence.OneToOne(mappedBy = "oficinaEgresoaCuenta")
+	private CuentaEgreso cuentaEgresoAcuenta;
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.OneToMany(mappedBy = "oficina")
+	private java.util.Set<CuentaEgreso> cuentasEgreso = new java.util.HashSet<CuentaEgreso>();
+
+	/**
+	 * @generated
+	 */
+	@javax.persistence.OneToMany(mappedBy = "oficinaIngreso")
+	private java.util.Set<CuentaIngreso> cuentasIngreso = new java.util.HashSet<CuentaIngreso>();
 
 	/**
 	 * @generated
@@ -123,8 +151,8 @@ public class Oficina implements java.io.Serializable {
 	 */
 	public void setConocimientosOrigen(
 			java.util.Set<Conocimiento> conocimientosOrigen) {
-		this.conocimientosOrigen = conocimientosOrigen;
-	}
+				this.conocimientosOrigen = conocimientosOrigen;
+			}
 
 	/**
 	 * @generated
@@ -154,8 +182,8 @@ public class Oficina implements java.io.Serializable {
 	 */
 	public void setConocimientosDestino(
 			java.util.Set<Conocimiento> conocimientosDestino) {
-		this.conocimientosDestino = conocimientosDestino;
-	}
+				this.conocimientosDestino = conocimientosDestino;
+			}
 
 	/**
 	 * @generated
@@ -238,5 +266,109 @@ public class Oficina implements java.io.Serializable {
 	 */
 	public String toString() {
 		return "Oficina" + " id=" + id + " nombre=" + nombre;
+	}
+
+	/**
+	 * @generated
+	 */
+	public CuentaIngreso getCuentaIngresoOrigen() {
+		return this.cuentaIngresoOrigen;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setCuentaIngresoOrigen(
+			CuentaIngreso cuentaIngresoOrigen) {
+				this.cuentaIngresoOrigen = cuentaIngresoOrigen;
+			}
+
+	/**
+	 * @generated
+	 */
+	public CuentaIngreso getCuentaIngresoDestino() {
+		return this.cuentaIngresoDestino;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setCuentaIngresoDestino(CuentaIngreso cuentaIngresoDestino) {
+		this.cuentaIngresoDestino = cuentaIngresoDestino;
+	}
+
+	/**
+	 * @generated
+	 */
+	public CuentaEgreso getCuentaEgresoAcuenta() {
+		return this.cuentaEgresoAcuenta;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setCuentaEgresoAcuenta(
+			CuentaEgreso cuentaEgresoAcuenta) {
+				this.cuentaEgresoAcuenta = cuentaEgresoAcuenta;
+			}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Set<CuentaEgreso> getCuentasEgreso() {
+		return this.cuentasEgreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setCuentasEgreso(java.util.Set<CuentaEgreso> cuentasEgreso) {
+		this.cuentasEgreso = cuentasEgreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void addCuentasEgreso(CuentaEgreso cuentasEgreso) {
+		getCuentasEgreso().add(cuentasEgreso);
+		cuentasEgreso.setOficina(this);
+	}
+
+	/**
+	 * @generated
+	 */
+	public void removeCuentasEgreso(CuentaEgreso cuentasEgreso) {
+		getCuentasEgreso().remove(cuentasEgreso);
+		cuentasEgreso.setOficina(null);
+	}
+
+	/**
+	 * @generated
+	 */
+	public java.util.Set<CuentaIngreso> getCuentasIngreso() {
+		return this.cuentasIngreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void setCuentasIngreso(java.util.Set<CuentaIngreso> cuentasIngreso) {
+		this.cuentasIngreso = cuentasIngreso;
+	}
+
+	/**
+	 * @generated
+	 */
+	public void addCuentasIngreso(CuentaIngreso cuentasIngreso) {
+		getCuentasIngreso().add(cuentasIngreso);
+		cuentasIngreso.setOficinaIngreso(this);
+	}
+
+	/**
+	 * @generated
+	 */
+	public void removeCuentasIngreso(CuentaIngreso cuentasIngreso) {
+		getCuentasIngreso().remove(cuentasIngreso);
+		cuentasIngreso.setOficinaIngreso(null);
 	}
 }

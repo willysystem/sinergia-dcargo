@@ -1,5 +1,7 @@
 package com.sinergia.dcargo.client.shared.dominio;
 
+import javax.persistence.Transient;
+
 /**
  * @generated
  */
@@ -79,6 +81,9 @@ public class Item implements java.io.Serializable {
 	 */
 	private Double total;
 
+	@Transient
+	private String eliminar;
+	
 	/**
 	 * @generated
 	 */
@@ -299,5 +304,14 @@ public class Item implements java.io.Serializable {
 		return "";
 	}
 
+	public String getEliminar() {
+		return eliminar;
+	}
+
+	public void setEliminar(String eliminar) {
+		this.eliminar = eliminar;
+	}
+
+	
 	
 }

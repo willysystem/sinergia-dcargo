@@ -18,6 +18,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
+import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HasWidgets;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Image;
@@ -32,9 +33,15 @@ import com.sinergia.dcargo.client.local.AdminParametros;
 import com.sinergia.dcargo.client.local.event.EventoCambiarContrasenia;
 import com.sinergia.dcargo.client.local.event.EventoCliente;
 import com.sinergia.dcargo.client.local.event.EventoConocimiento;
+import com.sinergia.dcargo.client.local.event.EventoConocimientoNuevo;
 import com.sinergia.dcargo.client.local.event.EventoCuentas;
 import com.sinergia.dcargo.client.local.event.EventoDeudasPorCobrar;
+import com.sinergia.dcargo.client.local.event.EventoEgresoBusqueda;
+import com.sinergia.dcargo.client.local.event.EventoEgresoNuevo;
 import com.sinergia.dcargo.client.local.event.EventoGuia;
+import com.sinergia.dcargo.client.local.event.EventoGuiaNuevo;
+import com.sinergia.dcargo.client.local.event.EventoIngresoBusqueda;
+import com.sinergia.dcargo.client.local.event.EventoIngresoNuevo;
 import com.sinergia.dcargo.client.local.event.EventoLiquidacionCarga;
 import com.sinergia.dcargo.client.local.event.EventoMovimiento;
 import com.sinergia.dcargo.client.local.event.EventoTransportista;
@@ -70,6 +77,9 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	
 	private HashMap<String, MenuItem> menus = new HashMap<>();
 	
+	//@Inject
+	//private VistaGuiaAccion vistaGuiaAccion;
+	
 	public MainContentView() {
 		GWT.log(MainContentView.class.getSimpleName() + "()");
 	}
@@ -86,6 +96,8 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 
 	@Override
 	public void showMainContent(HasWidgets container) {
+		mainContainer = new DockPanel();
+		//mainContainer.clear();
 		
 		mainContainer.setWidth("100%");
 		mainContainer.setHeight("100%");
@@ -95,7 +107,10 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		mainContainer.add(getMainMenu(), DockPanel.NORTH);
 		mainContainer.add(getContentBody() , DockPanel.CENTER);
 		mainContainer.add(getStatusBar(), DockPanel.SOUTH);
+		
+		container.clear();
 	    container.add(mainContainer);
+		//container.add(getMainMenu());
 	    
 	}
 	
@@ -104,42 +119,129 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		MenuBar menu = new MenuBar();
 	    menu.setAutoOpen(true);
 	    menu.setAnimationEnabled(true);
-	   
-//	    MenuBar guiasMenuBar = new MenuBar(true);
-//	    guiasMenuBar.setAnimationEnabled(true);
-	   
-	    // Guías
-	    MenuItem menuGuia = new MenuItem("Guías", new Command() {
+	    menu.setStyleName("menu");
+	       
+	    // Guia
+	    MenuBar menuBarGuia = new MenuBar(true);
+	    menuBarGuia.setAnimationEnabled(true);
+	    menuBarGuia.setStyleName("subMenu");
+	    
+	    // Nueva GUIA 
+	    MenuItem nuevaGuiaMenuItem = new MenuItem("Nuevo", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoGuiaNuevo());
+				//vistaGuiaAccion.mostrar(GuiaAccion.NUEV	O, null);
+			}
+		});
+	    nuevaGuiaMenuItem.setStyleName("subMenuItem");
+	    menuBarGuia.addItem(nuevaGuiaMenuItem);
+	    
+	    // Buscar GUIA
+	    MenuItem buscarGuiaMenuItem = new MenuItem("Buscar", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoGuia());
 			}
 		});
-	    menu.addItem(menuGuia);
-	    menuGuia.setVisible(false);
-	    menus.put("guia", menuGuia);
+	    buscarGuiaMenuItem.setStyleName("subMenuItem");
+	    menuBarGuia.addItem(buscarGuiaMenuItem);
 	    
-	    // Conocimiento
-	    MenuItem conocimientoMenuBar =  new MenuItem("Conocimiento", new Command() {
+	    MenuItem menuGuia = new MenuItem("Guia", menuBarGuia);
+	    menuGuia.setStylePrimaryName("menu-title");
+	    menu.addItem(menuGuia);
+	    
+	    //// Conocimiento
+	    MenuBar menuBarConocmiento = new MenuBar(true);
+	    menuBarConocmiento.setAnimationEnabled(true);
+	    menuBarConocmiento.setStyleName("subMenu");
+	    
+	    // Nueva Conocimiento 
+	    MenuItem nuevoConocimientoMenuItem = new MenuItem("Nuevo", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoConocimientoNuevo());
+			}
+		});
+	    nuevoConocimientoMenuItem.setStyleName("subMenuItem");
+	    menuBarConocmiento.addItem(nuevoConocimientoMenuItem);
+	    
+	    // Buscar Conocimiento
+	    MenuItem buscarConocimientoMenuItem = new MenuItem("Buscar", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoConocimiento());
 			}
 		});
-	    menu.addItem(conocimientoMenuBar);
-	    conocimientoMenuBar.setVisible(false);
-	    menus.put("conocimiento", conocimientoMenuBar);
+	    buscarConocimientoMenuItem.setStyleName("subMenuItem");
+	    menuBarConocmiento.addItem(buscarConocimientoMenuItem);
 	    
-	    // Caja
-	    MenuItem cajaMenuBar =  new MenuItem("Caja", new Command() {
+	    MenuItem menuConocimiento = new MenuItem("Conocimiento", menuBarConocmiento);
+	    menuConocimiento.setStylePrimaryName("menu-title");
+	    menuConocimiento.addStyleName("menu-title_2nd");
+	    menu.addItem(menuConocimiento);	    
+	    
+	    //// Caja
+//	    MenuItem cajaMenuBar =  new MenuItem("Caja", new Command() {
+//			@Override
+//			public void execute() {
+//				eventBus.fireEvent(new EventoMovimiento());
+//			}
+//		});
+//	    cajaMenuBar.setStylePrimaryName("menu-title");
+//	    cajaMenuBar.addStyleName("menu-title_3rd");
+//	    menu.addItem(cajaMenuBar);
+//	    cajaMenuBar.setVisible(false);
+//	    menus.put("caja", cajaMenuBar);
+//	    
+	    MenuBar menuBarCaja = new MenuBar(true);
+	    menuBarCaja.setAnimationEnabled(true);
+	    menuBarCaja.setStyleName("subMenu");
+	    
+	    // Nuevo Ingreso 
+	    MenuItem nuevoIngresoMenuItem = new MenuItem("Nuevo Movimiento", new Command() {
 			@Override
 			public void execute() {
-				eventBus.fireEvent(new EventoMovimiento());
+				eventBus.fireEvent(new EventoIngresoNuevo());
 			}
 		});
-	    menu.addItem(cajaMenuBar);
-	    cajaMenuBar.setVisible(false);
-	    menus.put("caja", cajaMenuBar);
+	    nuevoIngresoMenuItem.setStyleName("subMenuItem");
+	    menuBarCaja.addItem(nuevoIngresoMenuItem);
+	    
+	    // Buscar Ingreso
+	    MenuItem buscarIngresoMenuItem = new MenuItem("Buscar Movimiento", new Command() {
+			@Override
+			public void execute() {
+				eventBus.fireEvent(new EventoIngresoBusqueda());
+			}
+		});
+	    buscarIngresoMenuItem.setStyleName("subMenuItem");
+	    menuBarCaja.addItem(buscarIngresoMenuItem);
+	    
+	    MenuItem menuMovimiento = new MenuItem("Caja", menuBarCaja);
+	    menuMovimiento.setStylePrimaryName("menu-title");
+	    menuMovimiento.addStyleName("menu-title_3rd");
+	    menu.addItem(menuMovimiento);	    
+	    
+	    // Nuevo Egreso 
+//	    MenuItem nuevoEgresoMenuItem = new MenuItem("Nuevo Egreso", new Command() {
+//			@Override
+//			public void execute() {
+//				eventBus.fireEvent(new EventoEgresoNuevo());
+//			}
+//		});
+//	    nuevoEgresoMenuItem.setStyleName("subMenuItem");
+//	    menuBarCaja.addItem(nuevoEgresoMenuItem);
+	    
+	    // Buscar Egreso
+//	    MenuItem busquedaEgresoMenuItem = new MenuItem("Buscar Egreso", new Command() {
+//			@Override
+//			public void execute() {
+//				eventBus.fireEvent(new EventoEgresoBusqueda());
+//			}
+//		});
+//	    busquedaEgresoMenuItem.setStyleName("subMenuItem");
+//	    menuBarCaja.addItem(busquedaEgresoMenuItem);
 	    
 	    // Liquidaciones
 	    MenuItem cargaLiquidacion = new MenuItem("Liquidación de carga", new Command() {
@@ -149,6 +251,7 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 			}
 		});
 	    cargaLiquidacion.setVisible(false);
+	    cargaLiquidacion.setStyleName("subMenuItem");
 	    menus.put("liquidacionCarga", cargaLiquidacion);
 	    
 	    MenuItem deudasLiquidacion = new MenuItem("Deudas por cobrar", new Command() {
@@ -157,16 +260,21 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoDeudasPorCobrar());
 			}
 		});
+	    deudasLiquidacion.setStyleName("subMenuItem");
 	    deudasLiquidacion.setVisible(false);
 	    menus.put("liquidacionDeudasCobrar", deudasLiquidacion);
 	    
 	    MenuBar liquidacionesMenuBar = new MenuBar(true);
+	    liquidacionesMenuBar.setStyleName("subMenu");
 	    liquidacionesMenuBar.setAnimationEnabled(true);
 	    liquidacionesMenuBar.addItem(cargaLiquidacion);
 	    liquidacionesMenuBar.addItem(deudasLiquidacion);
 	    //liquidacionesMenuBar.addItem(actualizarNotaEntregaLiquidacion);
 	    MenuItem menuLiquidaciones = new MenuItem("Liquidaciones", liquidacionesMenuBar);
 	    menuLiquidaciones.setVisible(false);
+	    menuLiquidaciones.setStylePrimaryName("menu-title");
+	    menuLiquidaciones.addStyleName("menu-title_4th");
+	    
 	    menus.put("liquidacion", menuLiquidaciones);
 	    menu.addItem(menuLiquidaciones);
 	    //liquidacionesMenuBar.setVisible(false);
@@ -174,12 +282,14 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    
 	    // Registro de Datos
 	    MenuBar registroDatosMenuBar = new MenuBar(true);
+	    registroDatosMenuBar.setStyleName("subMenu");
 	    MenuItem clientesRegistroDatos = new MenuItem("Clientes", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoCliente());
 			}
 		});
+	    clientesRegistroDatos.setStyleName("subMenuItem");
 	    clientesRegistroDatos.setVisible(false);
 	    menus.put("registroCliente", clientesRegistroDatos);
 	    MenuItem transportistasRegistroDatos = new MenuItem("Transportistas",  new Command() {
@@ -188,14 +298,16 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoTransportista());
 			}
 		});
+	    transportistasRegistroDatos.setStyleName("subMenuItem");
 	    transportistasRegistroDatos.setVisible(false);
 	    menus.put("registroTransportistas", transportistasRegistroDatos);
-	    MenuItem cuentasIngresoRegistroDatos = new MenuItem("Cuentas de ingreso y egreso", new Command() {
+	    MenuItem cuentasIngresoRegistroDatos = new MenuItem("Cuentas", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoCuentas());
 			}
 		});
+	    cuentasIngresoRegistroDatos.setStyleName("subMenuItem");
 	    cuentasIngresoRegistroDatos.setVisible(false);
 	    menus.put("registroCuentas", cuentasIngresoRegistroDatos);
 	    
@@ -204,18 +316,22 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    registroDatosMenuBar.addItem(transportistasRegistroDatos);
 	    registroDatosMenuBar.addItem(cuentasIngresoRegistroDatos);
 	    MenuItem menuRegistro = new MenuItem("Registro de Datos", registroDatosMenuBar);
+	    menuRegistro.setStylePrimaryName("menu-title");
+	    menuRegistro.addStyleName("menu-title_5th");
 	    menu.addItem(menuRegistro);
 	    menuRegistro.setVisible(false);
 	    menus.put("registro", menuRegistro);
 	    
 	    // Administración
 	    MenuBar admMenuBar = new MenuBar(true);
+	    admMenuBar.setStyleName("subMenu");
 	    MenuItem usuariosAdministracion = new MenuItem("Usuarios", new Command() {
 			@Override
 			public void execute() {
 				eventBus.fireEvent(new EventoUsuario());
 			}
 		});
+	    usuariosAdministracion.setStyleName("subMenuItem");
 	    usuariosAdministracion.setVisible(false);
 	    menus.put("admUsuarios", usuariosAdministracion);
 	    MenuItem contrasenaAdministracion = new MenuItem("Cambio de contraseña", new Command() {
@@ -224,6 +340,7 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 				eventBus.fireEvent(new EventoCambiarContrasenia());
 			}
 		});
+	    contrasenaAdministracion.setStyleName("subMenuItem");
 	    contrasenaAdministracion.setVisible(false);
 	    menus.put("admContrasena", contrasenaAdministracion);
 	    MenuItem salirAdministracion = new MenuItem("Salir", new Command() {
@@ -231,6 +348,7 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		      														 Window.open("logout", "_self", null);
 		      													  }
 															  });
+	    salirAdministracion.setStyleName("subMenuItem");
 	    salirAdministracion.setVisible(false);
 	    menus.put("admSalir", salirAdministracion);
 	    
@@ -240,6 +358,8 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	    admMenuBar.addItem(salirAdministracion);
 	    MenuItem admItem = new MenuItem("Administración", admMenuBar);
 	    admItem.setVisible(false);
+	    admItem.setStylePrimaryName("menu-title");
+	    admItem.addStyleName("menu-title_6th");
 	    menus.put("adm", admItem);
 	    menu.addItem(admItem);
 	    
@@ -290,10 +410,17 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 	private HorizontalPanel getStatusBar() {
 		
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
+		horizontalPanel.setStyleName("barraEstado");
+		//horizontalPanel.setWidth("100%");
+		horizontalPanel.setHeight("40px");
 		
 		// user 
 		HorizontalPanel  userHorizontalPanel = new HorizontalPanel();
-		userHorizontalPanel.setWidth("150px");
+		//userHorizontalPanel.setWidth("25%");
+		userHorizontalPanel.setHeight("100%");
+		userHorizontalPanel.setStyleName("barraEstadoItem");
+		userHorizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
+		
 		//userHorizontalPanel.setBorderWidth(1);
 		Label userLabel = new Label("Usuario: ");
 		userLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -306,7 +433,10 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		
 		// Full name
 		HorizontalPanel  fullNameHorizontalPanel = new HorizontalPanel();
-		fullNameHorizontalPanel.setWidth("300px");
+		//fullNameHorizontalPanel.setWidth("25%");
+		fullNameHorizontalPanel.setHeight("100%");
+		fullNameHorizontalPanel.setStyleName("barraEstadoItem");
+		fullNameHorizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		//fullNameHorizontalPanel.setBorderWidth(1);
 		Label fullNameLabel = new Label("Nombre: ");
 		fullNameLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -319,7 +449,10 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		
 		// Place
 		HorizontalPanel placeHorizontalPanel =  new HorizontalPanel();
-		placeHorizontalPanel.setWidth("230px");
+		//placeHorizontalPanel.setWidth("25%");
+		placeHorizontalPanel.setHeight("100%");
+		placeHorizontalPanel.setStyleName("barraEstadoItem");
+		placeHorizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		//placeHorizontalPanel.setBorderWidth(1);
 		Label placeLabel = new Label("Lugar de trabajo: ");
 		placeLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);
@@ -332,7 +465,10 @@ public class MainContentView extends ResizeComposite implements MainContentPrese
 		
 		// Date
 		HorizontalPanel dateHorizontalPanel =  new HorizontalPanel();
-		dateHorizontalPanel.setWidth("180px");
+		//dateHorizontalPanel.setWidth("25%");
+		dateHorizontalPanel.setHeight("100%");
+		dateHorizontalPanel.setStyleName("barraEstadoItem");
+		dateHorizontalPanel.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		//dateHorizontalPanel.setBorderWidth(1);
 		Label dateLabel = new Label("Fecha: ");
 		dateLabel.setAutoHorizontalAlignment(HasHorizontalAlignment.ALIGN_RIGHT);

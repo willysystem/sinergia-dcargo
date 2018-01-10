@@ -44,11 +44,11 @@ public class MensajeConfirmacion extends DialogBox {
 		horizontalPanel2.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		horizontalPanel2.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
 		
-		Button aceptarButton = new Button("Aceptar");
+		Button aceptarButton = new Button("Sí");
 		aceptarButton.addClickHandler(clickHandlerAceptar);
 		horizontalPanel2.add(aceptarButton);
 		
-		Button cancelarButton = new Button("Cancelar");
+		Button cancelarButton = new Button("No");
 		cancelarButton.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {

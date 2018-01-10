@@ -29,6 +29,7 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.ListBox;
+import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
@@ -71,10 +72,13 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	
 	private HTML       cuentaLabel               = new HTML("<b>Nro Comprobante: </b>");
 	private IntegerBox nroComprobanteIntegerBox         = new IntegerBox();
+	private IntegerBox nroGuiaIntegerBox         = new IntegerBox();
 	//private IntegerBox nroConocimientoIntegerBox = new IntegerBox();
 	private Widget     nroIntegerBox             = nroComprobanteIntegerBox;
 	
+	private MovimientoAccion movimientoAccion;
 	
+	private TextBox glosaTextBox = new TextBox();
 	private ListBox estadoListBox = new ListBox();
 	
 	private ListBox usuarioListBox = new ListBox();
@@ -102,7 +106,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
-		hpTitulo.add(new HTML("<center style='font-weight:bold;font-size:16px'>Movimientos de Ingreso y Egreso</center>"));
+		hpTitulo.add(new HTML("<center class='tituloModulo'> Buscar Movimiento </center>"));
 		hpTitulo.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		hpTitulo.setWidth("100%");
 		
@@ -120,27 +124,35 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 	    // Campos
 	    layout.setWidget(0, 0, new HTML("<b>Tipo Movimiento: </b>"));
 	    layout.setWidget(0, 1, tipoCuentaListBox);
-	    layout.setWidget(0, 2, new HTML("<b>Cuenta: </b>"));
-	    layout.setWidget(0, 3, cuentaListBox);
-	    layout.setWidget(1, 2, new HTML("<b>Sub Cuenta: </b>"));
-	    layout.setWidget(1, 3, subCuentaListBox);
-	    layout.setWidget(0, 4, new HTML("<b>Fecha Inicial: </b>"));
-	    layout.setWidget(0, 5, fechaIniDateBox);
-	    layout.setWidget(1, 4, new HTML("<b>Fecha Final: </b>"));
-	    layout.setWidget(1, 5, fechaFinDateBox);
+	    layout.setWidget(1, 0, new HTML("<b>Fecha Inicial: </b>"));
+	    layout.setWidget(1, 1, fechaIniDateBox);
+	    layout.setWidget(2, 0, new HTML("<b>Fecha Final: </b>"));
+	    layout.setWidget(2, 1, fechaFinDateBox);
 	    
-	    layout.setWidget(2, 0, cuentaLabel);
-	    layout.setWidget(2, 1, nroIntegerBox);
-	    layout.setWidget(2, 2, new HTML("<b>Estado: </b>"));
-	    layout.setWidget(2, 3, estadoListBox);
+	    layout.setWidget(0, 2, cuentaLabel);
+	    layout.setWidget(0, 3, nroIntegerBox);
+	    layout.setWidget(1, 2, new HTML("<b>Nro Guía: </b>"));
+	    layout.setWidget(1, 3, nroGuiaIntegerBox);
+	    layout.setWidget(2, 2, new HTML("<b>Glosa: </b>"));
+	    layout.setWidget(2, 3, glosaTextBox);
+	    
+	    
+	    
+	    layout.setWidget(0, 4, new HTML("<b>Cuenta: </b>"));
+	    layout.setWidget(0, 5, cuentaListBox);
+	    layout.setWidget(1, 4, new HTML("<b>Sub Cuenta: </b>"));
+	    layout.setWidget(1, 5, subCuentaListBox);
+	    layout.setWidget(2, 4, new HTML("<b>Estado: </b>"));
+	    layout.setWidget(2, 5, estadoListBox);
+	    
+	    
 	    if(adminParametros.getUsuario().getAdministrador()) {
-	    	layout.setWidget(2, 4, new HTML("<b>Usuario: </b>"));
-		    layout.setWidget(2, 5, usuarioListBox);
-		    layout.setWidget(2, 6, buscarBtn);
+	    	layout.setWidget(0, 6, new HTML("<b>Usuario: </b>"));
+		    layout.setWidget(0, 7, usuarioListBox);
+		    layout.setWidget(1, 6, buscarBtn);
 	    } else {
-	    	layout.setWidget(2, 5, buscarBtn);
+	    	layout.setWidget(1, 6, buscarBtn);
 	    }
-	    
 	    
 	    vpNorte.add(layout);
 		
@@ -197,14 +209,15 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		        if (items.size() == 0) {
 		          return "";
 		        } else {
-		          int total = 0;
+		          Double total = 0.0;
 		          for (Movimiento item : items) {
 		        	  if(item.getTipoCuenta() == TipoCuenta.INGRESO)
 		        		  total += item.getMonto() == null ? 0 : item.getMonto();
 		              if(item.getTipoCuenta() == TipoCuenta.EGRESO)
 		            	  total -= item.getMonto();
 		          }
-		          return "Total: " + total;
+		          String totalFormatted = NumberFormat.getFormat("0.00").format(total);
+		          return "" + totalFormatted + " Bs";
 		        }
 		      }
 		};
@@ -219,7 +232,7 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 			}
 		};
 		grid.setColumnWidth(guiaConocimientoColmun, 50, Unit.PX);
-		grid.addColumn(guiaConocimientoColmun, "Guia/Conocimiento");
+		grid.addColumn(guiaConocimientoColmun, "Guía/Conocimiento");
 		
 		// Origen
 		TextColumn<Movimiento> placaColmun = new TextColumn<Movimiento>() {
@@ -406,17 +419,20 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 			if(movimiento == null){
 				mensajeAviso.mostrar("Seleccione un movimiento");
 			} else {
-				vistaMovimientoAccion.mostrar(MovimientoAccion.CONSULTAR, movimiento);
+				//vistaMovimientoAccion.mostrar(MovimientoAccion.CONSULTAR, movimiento);
 			}
 		});
-		nuevoBtn.addClickHandler(e->vistaMovimientoAccion.mostrar(MovimientoAccion.NUEVO, null));
+		
+//		nuevoBtn.addClickHandler(e->vistaMovimientoAccion.mostrar(MovimientoAccion.NUEVO_INGRESO, null));
+//		nuevoBtn.addClickHandler(e->vistaMovimientoAccion.mostrar(MovimientoAccion.NUEVO_EGRESO, null));
+		
 		modificarBtn.addClickHandler(e->{
 			Movimiento movimiento = ((SingleSelectionModel<Movimiento>)grid.getSelectionModel()).getSelectedObject();
 			log.info("Movimiento: " + movimiento);
 			if(movimiento == null){
 				new MensajeAviso("Seleccione un Movimiento").show();
 			} else {
-				vistaMovimientoAccion.mostrar(MovimientoAccion.MODIFICAR, movimiento);
+				//vistaMovimientoAccion.mostrar(MovimientoAccion.MODIFICAR, movimiento);
 			}
 		});
 		anularBtn.addClickHandler(e->{
@@ -518,5 +534,11 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 			}
 		}
 	}
+	
+	@Override
+	public void setMovimientoAccion(MovimientoAccion movimientoAccion) {
+		this.movimientoAccion = movimientoAccion;
+	}
+	
 	
 }

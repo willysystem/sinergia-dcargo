@@ -1,5 +1,5 @@
-package com.sinergia.dcargo.client.local.view;
-
-public class StatusBar {
-
-}
+//package com.sinergia.dcargo.client.local.view;
+//
+//public class StatusBar {
+//
+//}

@@ -2,13 +2,13 @@ package com.sinergia.dcargo.client.local.view;
 
 public enum GuiaAccion {
 	
-	NUEVO("Nueva Guia"),
-	CONSULTAR("Consultar Guia"),
-	MODIFICAR("Modificar Guia"),
-	ANULAR("Anular Guia"),
-	REPORTE("Reportes Guia"),
-	ENTREGA("Entrega Guia"),
-	SALIR("Salir Guia");
+	NUEVO("Nueva Guía"),
+	CONSULTAR("Consultar Guía"),
+	MODIFICAR("Modificar Guía"),
+	ANULAR("Anular Guía"),
+	REPORTE("Reportes Guía"),
+	ENTREGA("Entrega Guía"),
+	SALIR("Salir Guía");
 	
 	private String titulo;
 	

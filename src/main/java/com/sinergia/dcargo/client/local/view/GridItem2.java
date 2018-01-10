@@ -19,7 +19,9 @@ import com.google.gwt.event.logical.shared.SelectionHandler;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.logging.client.DefaultLevel.Info;
 import com.google.gwt.safehtml.shared.SafeHtml;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IsWidget;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.sencha.gxt.cell.core.client.form.ComboBoxCell.TriggerAction;
 import com.sencha.gxt.core.client.ValueProvider;
@@ -103,6 +105,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 
 	public GridItem2() {
 		GWT.log(this.getClass().getSimpleName() + "()");
+		
 	}
 
 	@PostConstruct
@@ -113,7 +116,6 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 	@AfterInitialization
 	public void cargarDataUI() {
 		log.info("@AfterInitialization: " + this.getClass().getSimpleName());
-
 	}
 	
 	private static final PlaceProperties properties = GWT.create(PlaceProperties.class);
@@ -121,7 +123,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 
 		@Path("id")
 		ModelKeyProvider<Item> id();
-		
+		 
 		ValueProvider<Item, Integer> cantidad();
 
 		ValueProvider<Item, String> contenido();
@@ -147,6 +149,9 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		
 		unidades = adminParametros.getUnidades();
 		precios = adminParametros.getPrecios();
+		
+		//VerticalLayoutContainer verticalLayoutContainer = null;
+		VerticalPanel verticalLayoutContainer = null;
 		
 		if (panel == null) {
 			RowNumberer<Item> numberedColumn = new RowNumberer<>();
@@ -176,10 +181,13 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 
 			ColumnModel<Item> columns = new ColumnModel<>(l);
 			
-
-			
 			GWT.log("guiaSeleccionada.getItems(): " + guiaSeleccionada.getItems());
 			grid = new Grid<>(store, columns);
+			grid.setStyleName("grid");
+			grid.setStylePrimaryName("grid");
+			grid.setHeight(140);
+			grid.setWidth(750);
+			//grid.setWidth(900);
 			//grid.getView().setAutoExpandColumn(contenidoColumn);
 			numberedColumn.initPlugin(grid);
 			
@@ -308,8 +316,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			// column 5 is not editable
 
 			// EDITING //
-			//customizeGrid(grid);
-
+			
 			TextButton addButton = new TextButton("Nuevo Item");
 			addButton.addSelectHandler(e -> {
 				vistaGuiaAccion.fijarEstadoGuiaEspera();
@@ -357,27 +364,43 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 			toolBar.add(addButton);
 			toolBar.add(borrarButton);
 
-			VerticalLayoutContainer verticalLayoutContainer = new VerticalLayoutContainer();
-			verticalLayoutContainer.add(toolBar, new VerticalLayoutData(1, -1));
-			verticalLayoutContainer.add(grid, new VerticalLayoutData(1, 1));
+			verticalLayoutContainer = new VerticalPanel();
+			//verticalLayoutContainer.add(toolBar, new VerticalLayoutData(1, -1));
+			verticalLayoutContainer.add(toolBar);
+			//verticalLayoutContainer.add(grid, new VerticalLayoutData(1, 1));
+			verticalLayoutContainer.add(grid);
+			grid.setWidth(1000);
+			grid.setHeight(200);
+			grid.setBorders(true);
+			//verticalLayoutContainer.setBorderWidth(1);
+			//verticalLayoutContainer.setWidth("750px");
+			//verticalLayoutContainer.setWidth(900);
 
-			panel = new ContentPanel();
-			panel.setHeading("Abstract Grid Editing");
-			panel.add(verticalLayoutContainer);
+//			panel = new ContentPanel();
+//			panel.add(verticalLayoutContainer);
+//			panel.setWidth(750);
+			//panel.
 
-			panel.setButtonAlign(BoxLayoutPack.CENTER);
+			//panel.setButtonAlign(BoxLayoutPack.CENTER);
 
 		}
-		customize();
-		return panel;
+		//customize();
+		//return panel;
+		//verticalLayoutContainer.setVisible(false);
+		HorizontalPanel spGrid = new HorizontalPanel();
+		spGrid.add(verticalLayoutContainer);
+		spGrid.setBorderWidth(1);;
+		//spGrid.setWidth("100px");
+		
+		return spGrid;
 	}
 
-	protected void customize() {
-		panel.setHeading("Row Editable Grid");
-		panel.setHeaderVisible(false);
-		grid.setHeight(150);
-		// grid.setWidth("100%");
-	}
+//	protected void customize() {
+//		panel.setHeading("Row Editable Grid");
+//		panel.setHeaderVisible(false);
+//		grid.setHeight(140);
+//		// grid.setWidth("100%");
+//	}
 	
 	protected GridEditing<Item> createGridEditing(Grid<Item> editableGrid) {
 		GridRowEditing<Item> rowEditing = new GridRowEditing<>(editableGrid);
@@ -469,7 +492,7 @@ public class GridItem2 /*extends AbstractGridEditingExample*/ implements IsWidge
 		servicioItem.guardar(itemTemp, new LlamadaRemota<Void>("No se guardo Item", false){
 			@Override
 			public void onSuccess(Method method, Void response) {
-				servicioGuia.guardarTotal(guiaSeleccionada.getId(), totalTemp, new LlamadaRemota<Void>("No se pudo guardar Total", false){
+				servicioGuia.guardartotal(guiaSeleccionada.getId(), totalTemp, new LlamadaRemota<Void>("No se pudo guardar Total", false){
 					@Override
 					public void onSuccess(Method method, Void response) {
 						servicioGuia.guardarPesoTotal(guiaSeleccionada.getId(), pesoTotalTemp, new LlamadaRemota<Void>("No se pudo guardar peso Total", false){

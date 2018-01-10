@@ -21,7 +21,7 @@ public class VistaElegirConocimientoDialogBox extends DialogBox {
 	public VistaElegirConocimientoDialogBox(){
 		setGlassEnabled(true);
 		setAnimationEnabled(false);
-		setText("Elegir Guia");
+		setText("Elegir Guía");
 	}
 	
 	public void mostrar() {

@@ -136,11 +136,18 @@ public class Guia implements java.io.Serializable {
 	 * @generated
 	 */
 	private Character estado;
+	
+	private String nroNotaEntrega;
+	
 	/**
 	 * @generated
 	 */
 	@javax.persistence.Transient
 	private String estadoDescripcion;
+	
+	@javax.persistence.Transient
+	private String estadoPagoDescripcion;
+	
 	/**
 	 * @generated
 	 */
@@ -165,9 +172,19 @@ public class Guia implements java.io.Serializable {
 	private String nroFacturaEntrega;
 	
 	private Boolean entregaConsignatario;
+	
+	private String observaciones;
 
+	private Character estadoPago;
+	
 	@Transient
 	private boolean excluirGuiasExistentesEnConocimiento;
+	
+	@Transient
+	private Integer nroConocimiento;
+	
+	@Transient
+	private Integer nroComprobantePagoOrigen;
 	
 	/**
 	 * @generated
@@ -619,22 +636,16 @@ public class Guia implements java.io.Serializable {
 		this.fechaFin = fechaFin;
 	}
 
-	/**
-	 * @generated
-	 */
+
+
+	@Override
 	public String toString() {
-		return "Guia" + " id=" + id + " nroGuia=" + nroGuia + " totalPeso="
-				+ totalPeso + " totalCantidad=" + totalCantidad + " adjunto="
-				+ adjunto + " nroFactura=" + nroFactura + " fechaRegistro="
-				+ fechaRegistro + " totalMinimo=" + totalMinimo
-				+ " fechaEntrega=" + fechaEntrega + " ciEntrega=" + ciEntrega
-				+ " novedadEntrega=" + nombreClienteEntrega + " resumenContenido="
-				+ resumenContenido + " saldoDestino=" + saldoDestino
-				+ " pagoOrigen=" + pagoOrigen + " fecha=" + fecha
-				+ " totalGuia=" + totalGuia + " notaEntrega=" + notaEntrega
-				+ " nro=" + nro + " estado=" + estado + " estadoDescripcion="
-				+ estadoDescripcion + " fechaIni=" + fechaIni + " fechaFin="
-				+ fechaFin;
+		return "Guia [id=" + id + ", nroGuia=" + nroGuia + ", totalPeso=" + totalPeso + ", nroFactura=" + nroFactura
+				+ ", estado=" + estado + ", estadoDescripcion=" + estadoDescripcion + ", fechaIni=" + fechaIni
+				+ ", fechaFin=" + fechaFin + ", pagadoOrigen=" + pagadoOrigen + ", pagadoDestino=" + pagadoDestino
+				+ ", nroFacturaEntrega=" + nroFacturaEntrega + ", observaciones=" + observaciones + ", estadoPago="
+				+ estadoPago + ", excluirGuiasExistentesEnConocimiento=" + excluirGuiasExistentesEnConocimiento
+				+ ", nroConocimiento=" + nroConocimiento + "]";
 	}
 
 	public String getNroFacturaEntrega() {
@@ -692,5 +703,54 @@ public class Guia implements java.io.Serializable {
 	public void setExcluirGuiasExistentesEnConocimiento(boolean excluirGuiasExistentesEnConocimiento) {
 		this.excluirGuiasExistentesEnConocimiento = excluirGuiasExistentesEnConocimiento;
 	}
+
+	public String getObservaciones() {
+		return observaciones;
+	}
+
+	public void setObservaciones(String observaciones) {
+		this.observaciones = observaciones;
+	}
+
+	public Character getEstadoPago() {
+		return estadoPago;
+	}
+
+	public void setEstadoPago(Character estadoPago) {
+		this.estadoPago = estadoPago;
+	}
+
+	public Integer getNroConocimiento() {
+		return nroConocimiento;
+	}
+
+	public void setNroConocimiento(Integer nroConocimiento) {
+		this.nroConocimiento = nroConocimiento;
+	}
+
+	public String getEstadoPagoDescripcion() {
+		return estadoPagoDescripcion;
+	}
+
+	public void setEstadoPagoDescripcion(String estadoPagoDescripcion) {
+		this.estadoPagoDescripcion = estadoPagoDescripcion;
+	}
+
+	public String getNroNotaEntrega() {
+		return nroNotaEntrega;
+	}
+
+	public void setNroNotaEntrega(String nroNotaEntrega) {
+		this.nroNotaEntrega = nroNotaEntrega;
+	}
+
+	public Integer getNroComprobantePagoOrigen() {
+		return nroComprobantePagoOrigen;
+	}
+
+	public void setNroComprobantePagoOrigen(Integer nroComprobantePagoOrigen) {
+		this.nroComprobantePagoOrigen = nroComprobantePagoOrigen;
+	}
+	
 	
 }

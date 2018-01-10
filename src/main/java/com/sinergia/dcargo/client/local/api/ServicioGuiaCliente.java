@@ -102,8 +102,9 @@ public interface ServicioGuiaCliente extends RestService {
 	  
 	  @PUT
 	  @Consumes("application/json")
-	  @Path("/guardarTotal/{idGuia}/{total}")
-	  void guardarTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total")Double total, MethodCallback<Void> call);
+	  @Produces("application/json")
+	  @Path("/guardartotal/{idGuia}/{total}")
+	  void guardartotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total") Double total, MethodCallback<Void> call);
 	  
 	  @PUT
 	  @Consumes("application/json")
@@ -136,6 +137,11 @@ public interface ServicioGuiaCliente extends RestService {
 	  @Path("/guardarNotaEntrega/{idGuia}/{notaEntrega}")
 	  void guardarNotaEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("notaEntrega") String notaEntrega, MethodCallback<Void> call);
 	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/guardarNotaEntrega/{idGuia}/{nroNotaEntrega}")
+	  void guardarNroNotaEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("nroNotaEntrega") String nroNotaEntrega, MethodCallback<Void> call);
+	  
 //	  @PUT
 //	  @Consumes("application/json")
 //	  @Path("/guardarFechaEntrega/{idGuia}/{fechaEntrega}")
@@ -146,14 +152,20 @@ public interface ServicioGuiaCliente extends RestService {
 	  @Path("/guardarEntregaConsignatario/{idGuia}/{entregaConsignatario}")
 	  void guardarEntregaConsignatario(@QueryParam("idGuia") Long idGuia, @QueryParam("entregaConsignatario") Boolean entregaConsignatario, MethodCallback<Void> call);
 	  
+	  @PUT
+	  @Consumes("application/json")
+	  @Path("/guardarObservaciones/{idGuia}/{observaciones}")
+	  void guardarObservaciones(@QueryParam("idGuia") Long idGuia, @QueryParam("observaciones") String observaciones, MethodCallback<Void> call);
+	  
 	  @DELETE
 	  @Path("/{id:[0-9]+}")
 	  void borrar(@PathParam("id") Long id,  MethodCallback<Boolean> call);
 	  
 	  @PUT
 	  @Consumes("application/json")
+	  @Produces("application/json")
 	  @Path("/pagarOrigen/{idGuia}/{monto}/{glosa}")
-	  void pagarOrigen(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa, MethodCallback<Void> call);
+	  void pagarOrigen(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa, MethodCallback<Integer> call);
 	  
 	  @PUT
 	  @Consumes("application/json")
@@ -163,7 +175,7 @@ public interface ServicioGuiaCliente extends RestService {
 	  @PUT
 	  @Consumes("application/json")
 	  @Path("/pagarDestino/{idGuia}/{monto}/{glosa}")
-	  void pagarDestino(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa, MethodCallback<Void> call);
+	  void pagarDestino(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa, MethodCallback<Integer> call);
 	  
 	  @PUT
 	  @Consumes("application/json")

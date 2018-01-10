@@ -77,6 +77,9 @@ public class Movimiento implements java.io.Serializable {
 	 */
 	@javax.persistence.Transient
 	private TipoCuenta tipoCuenta;
+	
+	@javax.persistence.Transient
+	private Integer nroGuia;
 
 	/**
 	 * @generated

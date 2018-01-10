@@ -15,7 +15,7 @@ public class EngregaGuiaDialogBox extends DialogBox {
 	public EngregaGuiaDialogBox(){
 		setGlassEnabled(true);
 		setAnimationEnabled(false);
-		setText("Entrega de Guia");
+		setText("Entrega de Guía");
 	}
 	
 	public void mostrar() {

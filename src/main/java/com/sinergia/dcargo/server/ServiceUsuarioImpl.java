@@ -205,6 +205,15 @@ public class ServiceUsuarioImpl extends Dao<Usuario> implements ServicioUsuario 
 		return rolP;
 	}
 	
+	public Usuario buscarPorUsuario(String userName) {
+		Query query = em.createQuery("SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombreUsuario ", Usuario.class);
+		query.setParameter("nombreUsuario", userName);
+		@SuppressWarnings("unchecked")
+		List<Usuario> usuarios = query.getResultList();
+		return usuarios.get(0);
+	}
+	
+	
 //	public List<Aplicacion> getAplicacionesPermitidas(){
 //		String userName = sctx.getCallerPrincipal().getName();
 //		Query query = em.createQuery("SELECT u FROM Usuario u WHERE u.nombreUsuario = :nombreUsuario ", Usuario.class);

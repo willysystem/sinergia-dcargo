@@ -8,7 +8,7 @@ public enum ClienteAccion {
 	MODIFICAR("Modificar Cliente"),
 	//REPORTE("Reportes Guia"),
 	ELIMINAR("Eliminar Cliente"),
-	SALIR("Salir Guia");
+	SALIR("Salir Guía");
 	
 	private String titulo;
 	

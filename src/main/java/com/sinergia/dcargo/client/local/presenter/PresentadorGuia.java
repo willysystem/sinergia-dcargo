@@ -30,23 +30,12 @@ import com.sinergia.dcargo.client.shared.dominio.Oficina;
 @Singleton
 public class PresentadorGuia implements Presenter {
 
-	@Inject
-	public Display display;
-
-	@Inject
-	private Logger log;
-	
-	@Inject
-	private AdminParametros adminParametros;
-	
-	@Inject
-	private Cargador cargador;
-	
-	@Inject
-	private MensajeError mensajeError;
-	
-	@Inject
-	private ServicioGuiaCliente servicioGuia; // = GWT.create(ServicioGuiaCliente.class);
+	@Inject public Display display;
+	@Inject private Logger log;
+	@Inject private AdminParametros adminParametros;
+	@Inject private Cargador cargador;
+	@Inject private MensajeError mensajeError;
+	@Inject private ServicioGuiaCliente servicioGuia;
 
     List<Cliente> clientes = null;
 	List<Oficina> oficinas = null;
@@ -109,13 +98,14 @@ public class PresentadorGuia implements Presenter {
 			public void onClick(ClickEvent event) {
 				Guia guia = display.getParametrosBusqueda();
 				log.info("guia parametro búsqueda 2: "+ guia);
+				if(guia == null) return ;
 				PresentadorGuia.this.cargador.center();
 				servicioGuia.buscarGuias(guia, new MethodCallback<List<Guia>>() {
 					@Override
 					public void onFailure(Method method, Throwable exception) {
-						log.info("Error al traer Guias: " + exception.getMessage());
+						log.info("Error al traer Guías: " + exception.getMessage());
 						//cargador.hide();
-						mensajeError.mostrar("Error al traer Guias: ", exception);
+						mensajeError.mostrar("Error al traer Guías: ", exception);
 					}
 					@Override
 					public void onSuccess(Method method, List<Guia> response) {

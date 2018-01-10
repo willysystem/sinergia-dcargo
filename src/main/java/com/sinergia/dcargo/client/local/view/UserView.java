@@ -19,8 +19,10 @@ import com.google.gwt.i18n.client.DateTimeFormat.PredefinedFormat;
 import com.google.gwt.user.cellview.client.Column;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.DockPanel;
+import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.sinergia.dcargo.client.local.presenter.UserPresenter;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
@@ -46,6 +48,12 @@ public class UserView extends EditableCellView<Usuario> implements UserPresenter
 		
 		log.info("pre0 addColumnEditable:");
 		defaultUI();
+		
+		HorizontalPanel hpTitulo = new HorizontalPanel();
+		hpTitulo.setWidth("100%");
+		hpTitulo.add(new HTML("<center class='tituloModulo'>Usuarios</center>"));
+		hpTitulo.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+
 		
 		// Names
 		Column<Usuario, String> namesTextColumn = addColumn(new EditTextCell(), "Nombres", 
@@ -142,14 +150,22 @@ public class UserView extends EditableCellView<Usuario> implements UserPresenter
 			activo.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			grid.setWidth("1000px");
 			grid.setHeight("350px");
-			DockPanel dock = new DockPanel();
-			dock.add(grid, DockPanel.NORTH);
+			
 			
 			HorizontalPanel horizontalPanelPager = new HorizontalPanel();
 			horizontalPanelPager.setWidth("100%");
 			horizontalPanelPager.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 			horizontalPanelPager.add(simplePager);
-			dock.add(horizontalPanelPager, DockPanel.CENTER);
+			
+			VerticalPanel gridPanel = new VerticalPanel();
+			gridPanel.add(grid);
+			gridPanel.add(horizontalPanelPager);
+			
+			
+			DockPanel dock = new DockPanel();
+			dock.add(hpTitulo, DockPanel.NORTH);
+			
+			dock.add(gridPanel, DockPanel.CENTER);
 			
 			HorizontalPanel horizontalPanel = new HorizontalPanel();
 			horizontalPanel.setWidth("100%");

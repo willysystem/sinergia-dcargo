@@ -22,28 +22,20 @@ import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
 import com.sinergia.dcargo.client.local.api.ServicioUsuarioCliente;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.view.Cargador;
+import com.sinergia.dcargo.client.local.view.MovimientoAccion;
 import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
 
 @Singleton
-public class PresentadorMovimiento implements Presenter {
+public class PresentadorMovimiento implements Presenter /*PresenterMovimientoBuscar*/ {
 
-	@Inject
-	public Display display;
-
-	@Inject
-	private Logger log;
-	
-	@Inject
-	private ServicioMovimientoCliente servicioTransportistas;
+	@Inject public Display display;
+	@Inject private Logger log;
+	@Inject private ServicioMovimientoCliente servicioTransportistas;
+	@Inject private AdminParametros adminParametros;
+	@Inject private Cargador cargador;
 	
 	private ServicioUsuarioCliente servicioUsuario = GWT.create(ServicioUsuarioCliente.class);
-	
-	@Inject
-	private AdminParametros adminParametros;
-	
-	@Inject
-	private Cargador cargador;
 
 	public interface Display {
 
@@ -52,6 +44,7 @@ public class PresentadorMovimiento implements Presenter {
 		void cargarDataUI(List<Movimiento> movimientos);
 		Movimiento getParametrosBusqueda();
 		void llenarUsuarios(List<Usuario> usuarios);
+		void setMovimientoAccion(MovimientoAccion movimientoAccion);
 	}
 	
 	public PresentadorMovimiento() {
@@ -70,7 +63,7 @@ public class PresentadorMovimiento implements Presenter {
 
 	@Override
 	public void go(HasWidgets container) {
-		log.info(this.getClass().getSimpleName() + ".go()" );
+		log.info(this.getClass().getSimpleName() + ".go(): display: " + display );
 		display.viewIU();
 		bind();
 		servicioUsuario.getUsers(new LlamadaRemota<List<Usuario>>("No se puede obtener usuarios", true) {
@@ -82,6 +75,22 @@ public class PresentadorMovimiento implements Presenter {
 			}
 		});
 	}
+	
+//	@Override
+//	public void go(HasWidgets container, MovimientoAccion movimientoAccion) {
+//		log.info(this.getClass().getSimpleName() + ".go(): " + movimientoAccion.name() );
+//		display.setMovimientoAccion(movimientoAccion);
+//		display.viewIU();
+//		bind();
+//		servicioUsuario.getUsers(new LlamadaRemota<List<Usuario>>("No se puede obtener usuarios", true) {
+//			@Override
+//			public void onSuccess(Method method, List<Usuario> response) {
+//				adminParametros.setUsuarios(response);
+//				display.llenarUsuarios(response);
+//				
+//			}
+//		});
+//	}
 
 	public void bind() {
 		this.display.getBuscarButton().addClickHandler(new ClickHandler() {
@@ -114,5 +123,7 @@ public class PresentadorMovimiento implements Presenter {
 		i = 1;
 		display.cargarDataUI(clientes);
 	}
+
+
 	
 }

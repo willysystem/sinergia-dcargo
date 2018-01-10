@@ -27,7 +27,6 @@ import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
-import com.sinergia.dcargo.client.shared.dto.DateParam;
 import com.sinergia.dcargo.client.shared.dto.DeudasPorCobrarReporte;
 import com.sinergia.dcargo.client.shared.dto.DeudasReporte;
 import com.sinergia.dcargo.client.shared.dto.LiquidacionCargaReporte;

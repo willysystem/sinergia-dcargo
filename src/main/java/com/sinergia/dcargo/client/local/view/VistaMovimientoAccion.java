@@ -12,9 +12,13 @@ import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.slf4j.Logger;
 
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.i18n.client.NumberFormat;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.DoubleBox;
@@ -24,6 +28,7 @@ import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.TextArea;
+import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.gwt.user.datepicker.client.DateBox;
 import com.google.gwt.user.client.ui.HTML;
@@ -33,7 +38,9 @@ import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.LlamadaRemotaVacia;
 import com.sinergia.dcargo.client.local.api.ServicioCuentaCliente;
 import com.sinergia.dcargo.client.local.api.ServicioMovimientoCliente;
+import com.sinergia.dcargo.client.local.event.EventoHome;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
+import com.sinergia.dcargo.client.local.message.MensajeConfirmacion;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
@@ -45,39 +52,33 @@ import com.sinergia.dcargo.client.shared.dominio.Movimiento;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.TipoCuenta;
+import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
+import com.sinergia.dcargo.client.local.presenter.PresentadorMovimientoNuevo.Display;
 
 @Singleton
-public class VistaMovimientoAccion extends DialogBox {
+public class VistaMovimientoAccion extends DialogBox  implements Display {
 	
-	@Inject
-	private Logger log;
-	 
-//	@Inject private MensajeExito mensajeExito;
-	@Inject private MensajeAviso mensajeAviso;
-	@Inject private MensajeError mensajeError;
-	
-	@Inject private VistaElegirGuiaDialogBox vistaElegirGuiaDialogBox;
+	@Inject private AdminParametros                  adminParametros;
+	@Inject private Logger                           log;
+	@Inject private Cargador                         cargador;
+	@Inject private VistaElegirGuiaDialogBox         vistaElegirGuiaDialogBox;
 	@Inject private VistaElegirConocimientoDialogBox vistaElegirConocimientoDialogBox;
+	@Inject private ServicioMovimientoCliente        servicioMovimiento;
+	@Inject private ServicioCuentaCliente            servicioCuenta;
+	@Inject	private UtilDCargo                       utilDCargo;
+	@Inject private ImprimirPDF                      imprimirPDF;
+	@Inject private HandlerManager                   eventBus;
 	
+	@Inject private MensajeAviso        mensajeAviso;
+	@Inject private MensajeError        mensajeError;
+	@Inject private MensajeConfirmacion mensajeConfirmacion;
 	
-	@Inject private ServicioMovimientoCliente servicioMovimiento;
-	@Inject private ServicioCuentaCliente     servicioCuenta;
-	
-	@Inject
-	private AdminParametros adminParametros;
-	@Inject
-	private UtilDCargo utilDCargo;
-	
-	@Inject
-	private Cargador cargador;
-	
-	@Inject
-	private ImprimirPDF imprimirPDF;
+	@Inject protected MainContentPresenter.Display mainContentView;
 
 	private MovimientoAccion movimientoAccion;
 	private Movimiento movimientoSeleccionado;
-	
-	//private TipoCuenta tipoMovimiento;
+	private Boolean isDialog = null;
+	private DialogBox dialog = new DialogBox();
 	
 	private HTML    tipoMovimientoLabel      = new HTML("<b>Tipo Movimiento: </b>");
 	private ListBox tipoMovimientoListBox    = new ListBox();
@@ -124,9 +125,9 @@ public class VistaMovimientoAccion extends DialogBox {
 	private TextArea glosaTextArea   = new TextArea();
 	
 	private Button guardarBtn  = new Button("Guardar");
-	private Button imprimirBtn = new Button("Imprimir");
-	private Button cancelarBtn = new Button("Cancelar");
-	private Button salirBtn    = new Button("Salir");
+	//private Button imprimirBtn = new Button("Imprimir");
+	//private Button cancelarBtn = new Button("Cancelar");
+	private Button inicioBtn    = new Button("Inicio");
 	
 	private Widget fechaValue;
 	private Widget tipoMovimientoValue;
@@ -159,11 +160,24 @@ public class VistaMovimientoAccion extends DialogBox {
 	@SuppressWarnings("deprecation")
 	private void construirGUI() {
 		
-		setGlassEnabled(true);
-		setAnimationEnabled(false);
-		setText(movimientoAccion.getTitulo());
+		//cargaInicial();
+		
+		if(isDialog) {
+			dialog.setGlassEnabled(true);
+			dialog.setModal(true);
+			dialog.setAnimationEnabled(false);
+			dialog.setText(movimientoAccion.getTitulo());
+		}
+		
+		// Titulo
+		VerticalPanel tituloVP = new VerticalPanel();
+		if(movimientoAccion == MovimientoAccion.NUEVO_MOVIMIENTO) tituloVP.add(new HTML("<center class='tituloModulo'>Nuevo Movimiento</center>"));
+		//if(movimientoAccion == MovimientoAccion.NUEVO_EGRESO) tituloVP.add(new HTML("<center class='tituloModulo'>Nuevo Egreso</center>"));
+		tituloVP.setHeight("20px");
+		tituloVP.setWidth("100%");
 		
 		cargarDatosIniciales();
+		
 		
 		FlexTable layout = new FlexTable();
 		layout.setCellSpacing(6);
@@ -172,7 +186,7 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		limpiarCampos();
 		
-		if(movimientoAccion == MovimientoAccion.NUEVO || movimientoAccion == MovimientoAccion.MODIFICAR){
+		if(movimientoAccion == MovimientoAccion.NUEVO_MOVIMIENTO || movimientoAccion == MovimientoAccion.MODIFICAR) {
 			tipoMovimientoValue = tipoMovimientoListBox; 
 			fechaValue          = fechaTextBox;	
 			cuentaValue         = cuentaListBox;
@@ -231,7 +245,7 @@ public class VistaMovimientoAccion extends DialogBox {
 				log.info("    cuentaSelection: " + cuentaSelection);
 				cuentaListBox.setItemSelected(cuentaSelection, true);
 				
-				llegarSubCuentas(movimientoSeleccionado.getCuenta().getNroCuenta());
+				llenarSubCuentas(movimientoSeleccionado.getCuenta().getNroCuenta());
 				
 				nroGuiaOrConocimientoValue.setText(utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getNroGuiOrConocimiento()));
 				origenValue.setText(utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getOrigen()));
@@ -318,6 +332,18 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		layout.setWidget(8,1, cargador.getEstadoHTML());
 		
+		DecoratorPanel decPanel = new DecoratorPanel();
+		decPanel.setWidth("750px");
+	    decPanel.setWidget(layout);
+	    
+		
+		HorizontalPanel formularioPanel = new HorizontalPanel();
+		formularioPanel.setWidth("100%");
+		formularioPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		formularioPanel.add(decPanel);
+		
+			
+		
 		
 		// Acciones
 		HorizontalPanel horizontalPanel = new HorizontalPanel();
@@ -327,21 +353,21 @@ public class VistaMovimientoAccion extends DialogBox {
 		HorizontalPanel horizontalPanelButton = new HorizontalPanel();
 		horizontalPanelButton.setSpacing(5);
 		
-		if(movimientoAccion == MovimientoAccion.NUEVO ) {
+		if(movimientoAccion == MovimientoAccion.NUEVO_MOVIMIENTO) {
 			horizontalPanelButton.add(guardarBtn);
-			horizontalPanelButton.add(imprimirBtn);
-			horizontalPanelButton.add(salirBtn);
+//			horizontalPanelButton.add(imprimirBtn);
+			horizontalPanelButton.add(inicioBtn);
 			
 		}
 		if(movimientoAccion == MovimientoAccion.MODIFICAR){
 			horizontalPanelButton.add(guardarBtn);
-			horizontalPanelButton.add(imprimirBtn);
-			horizontalPanelButton.add(salirBtn);
+//			horizontalPanelButton.add(imprimirBtn);
+			horizontalPanelButton.add(inicioBtn);
 		}
 		
 		if(movimientoAccion == MovimientoAccion.CONSULTAR){
-			horizontalPanelButton.add(imprimirBtn);
-			horizontalPanelButton.add(salirBtn);
+//			horizontalPanelButton.add(imprimirBtn);
+			horizontalPanelButton.add(inicioBtn);
 		}
 		
 		horizontalPanel.add(horizontalPanelButton);
@@ -351,7 +377,8 @@ public class VistaMovimientoAccion extends DialogBox {
 		dock = new DockPanel();
 		dock.setWidth("100%");
 		dock.setHeight("100%");
-		dock.add(layout, DockPanel.CENTER);
+		dock.add(tituloVP, DockPanel.NORTH);
+		dock.add(formularioPanel, DockPanel.CENTER);
 		dock.add(horizontalPanel, DockPanel.SOUTH);
 //		dock.add(cargador.getEstadoHTML(), DockPanel.SOUTH);
 		
@@ -361,9 +388,14 @@ public class VistaMovimientoAccion extends DialogBox {
 		
 		setVisibleFormularioGuiaOrConocimiento(false);
 		
-		center();
-		
-		
+		if(isDialog) {
+			dialog.clear();
+			dialog.setWidget(dock);
+			dialog.center();
+		} else {
+			dock.setWidth("98%");
+			mainContentView.getCentralPanel().add(dock);
+		}
 	}
 	
 	private void cargarDatosIniciales() {
@@ -427,21 +459,24 @@ public class VistaMovimientoAccion extends DialogBox {
 				subCuentaListBox.clear();
 			}
 			subCuentaListBox.clear();
-			VistaMovimientoAccion.this.center();
+			//VistaMovimientoAccion.this.center();
 		});
 		
 		cuentaListBox.addChangeHandler(e -> {
-			llegarSubCuentas(null);
+			llenarSubCuentas(null);
 		});
 		
 		subCuentaListBox.addChangeHandler(e -> { 
+			log.info("0");
 			Long subId = Long.parseLong(subCuentaListBox.getSelectedValue());
+			log.info("1");
 			servicioMovimiento.guardarSubCuenta(movimientoSeleccionado.getId(), subId, movimientoSeleccionado.getTipoCuenta(), new LlamadaRemotaVacia<Void>("Error al guardar sub cuenta", true) {
 				@Override
 				public void onSuccess(Method method, Void response) {
-					
+					log.info("2 1");
 				}
 			});
+			log.info("2");
 		});
 		
 		fechaTextBox.addValueChangeHandler(e -> {
@@ -482,13 +517,27 @@ public class VistaMovimientoAccion extends DialogBox {
 				servicioMovimiento.cambiarEstado(movimientoSeleccionado.getId(), "V", new LlamadaRemota<Void>("No se pudo Guardar", false) {
 					@Override
 					public void onSuccess(Method method, Void response) {
-						if(tipoMovimientoListBox.getSelectedValue().equals(TipoCuenta.INGRESO.name()))
+						if(movimientoAccion.getTitulo() == movimientoAccion.getTitulo())
 							servicioMovimiento.generarNroComprobanteIngreso(movimientoSeleccionado.getId(), new LlamadaRemota<Integer>("No se puede generar numero de comprobandte de ingreso", true) {
 								@Override
 								public void onSuccess(Method method, Integer response) {
 									movimientoSeleccionado.setNroComprobante(response);
 									nroComprobanteValue.setText("" + response);
-									mensajeAviso.mostrar("Guardado Exitosamente");
+									
+									mensajeConfirmacion.mostrar("¿Desea imprimir el comprobante?", new ClickHandler() {
+										@Override
+										public void onClick(ClickEvent event) {
+											imprimirComprobante();
+											mensajeConfirmacion.hide();
+											eventBus.fireEvent(new EventoHome());
+										}
+									}, new ClickHandler() {
+										@Override
+										public void onClick(ClickEvent event) {
+											mensajeConfirmacion.hide();
+											eventBus.fireEvent(new EventoHome());
+										}
+									});
 								}}
 							);
 						else  
@@ -497,46 +546,33 @@ public class VistaMovimientoAccion extends DialogBox {
 								public void onSuccess(Method method, Integer response) {
 									movimientoSeleccionado.setNroComprobante(response);
 									nroComprobanteValue.setText("" + response);
-									mensajeAviso.mostrar("Guardado Exitosamente");
+									
+									mensajeConfirmacion.mostrar("¿Desea imprimir el comprobante?", new ClickHandler() {
+										@Override
+										public void onClick(ClickEvent event) {
+											imprimirComprobante();
+											mensajeConfirmacion.hide();
+											eventBus.fireEvent(new EventoHome());
+										}
+									}, new ClickHandler() {
+										@Override
+										public void onClick(ClickEvent event) {
+											mensajeConfirmacion.hide();
+											eventBus.fireEvent(new EventoHome());
+										}
+									});
 								}}
-							);						    
+							);								
 					}
 				});
 			}
 		});
 		
-		imprimirBtn.addClickHandler(e -> {
-			String ciudad    = utilDCargo.getCiudad();
-			String direccion = utilDCargo.getDireccion();
-			String telefono  = utilDCargo.getTelefono();
-			
-			String titulo                = "COMPROBANTE DE " + movimientoSeleccionado.getTipoCuenta();
-			String numeroComprobante     = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getNroComprobante());
-			String fecha                 = adminParametros.getDateParam().getFormattedValue();
-			String nroGuiaOrConocimiento = movimientoSeleccionado.getNroGuiOrConocimiento();
-			String origen                = "";
-			String items[][] = new String[1][2];
-//			if(movimientoSeleccionado.getCuenta() != null) {
-//				items[0][0] = "" + movimientoSeleccionado.getCuenta();
-//				if(movimientoSeleccionado.getCuenta().get)
-//			}
-			
-			items[0][1] = "";
-			
-			String glosa = movimientoSeleccionado.getGlosa();
-			String entregueConforme = "";
-			String recibiConforme = "";
-			
-			
-			imprimirPDF.reporteComprobante(
-					ciudad, direccion, telefono,
-					titulo, numeroComprobante, fecha, 
-					nroGuiaOrConocimiento, origen, 
-					items, glosa, 
-					entregueConforme, recibiConforme);
-		});
+//		imprimirBtn.addClickHandler(e -> {
+//			imprimirComprobante();
+//		});
 		
-		salirBtn.addClickHandler(e -> VistaMovimientoAccion.this.hide());
+		inicioBtn.addClickHandler(e -> eventBus.fireEvent(new EventoHome()));
 		
 		seleccionarGuiaOrConocimientoBtn.addClickHandler(e -> {
 			if(movimientoSeleccionado == null) {
@@ -620,8 +656,7 @@ public class VistaMovimientoAccion extends DialogBox {
 		});
 		
 	}
-	
-	
+		
 	private void limpiarCampos() {
 		nroComprobanteValue.setText(""); 
 		fechaLabelValue.setText("");     fechaTextBox.setValue(null);
@@ -642,12 +677,12 @@ public class VistaMovimientoAccion extends DialogBox {
 	
 	private boolean validarCampos() {
 		
-		boolean isTipoMovimiento = tipoMovimientoListBox.getSelectedValue().equals("0") ? false : true;
-		log.info("isTipoMovimiento: " + isTipoMovimiento);
+		//boolean isTipoMovimiento = tipoMovimientoListBox.getSelectedValue().equals("0") ? false : true;
+		//log.info("isTipoMovimiento: " + isTipoMovimiento);
 		//String tipoMovimientoListBox.getSelectedValue().e
-		if(!isTipoMovimiento) { 
-			mensajeAviso.mostrar("Debe elegir un Tipo Movimiento"); return false;
-		}
+		//if(!isTipoMovimiento) { 
+//			mensajeAviso.mostrar("Debe elegir un Tipo Movimiento"); return false;
+//		}
 		
 		boolean isCuenta = ( cuentaListBox.getSelectedValue() == null | cuentaListBox.getSelectedValue().equals("0")) ? false : true;
 		//cuentaListBox.getSelectedItemText().contains("1000")
@@ -683,12 +718,14 @@ public class VistaMovimientoAccion extends DialogBox {
 		return true;	
 	}
 	
-	private void llegarSubCuentas(Integer subCuentaSeleccion) {
-		String tipoMovimiento = tipoMovimientoListBox.getSelectedValue();
+	private void llenarSubCuentas(Integer subCuentaSeleccion) {
+		log.info(" llenarSubCuentas: subCuentaSeleccion :" + subCuentaSeleccion);
+		
+		String tipoMovimiento = tipoMovimientoListBox.getSelectedValue();//movimientoAccion.name();
 		
 		Long id = Long.parseLong(cuentaListBox.getSelectedValue());
 		
-		if(tipoMovimiento == TipoCuenta.INGRESO.name() && id != 0) {
+		if(tipoMovimiento.contains(TipoCuenta.INGRESO.name())  && id != 0) {
 			servicioCuenta.getSubCuentasIngreso(id, new LlamadaRemota<List<CuentaIngreso>>("", false) {
 				@Override
 				public void onSuccess(Method method, List<CuentaIngreso> response) {
@@ -708,11 +745,11 @@ public class VistaMovimientoAccion extends DialogBox {
 				}
 			});
 			
-//			if(cuentaListBox.getSelectedItemText().contains("1000")) whurtado. se modificó no existen guias por concepto de ingreso
-//				setVisibleFormularioGuiaOrConocimiento(true);
-//			else
-//				setVisibleFormularioGuiaOrConocimiento(false);
-		} else if (tipoMovimiento == TipoCuenta.EGRESO.name() && id != 0) {
+			if(cuentaListBox.getSelectedItemText().contains("1000")) //whurtado. se modificó no existen guias por concepto de ingreso
+				setVisibleFormularioGuiaOrConocimiento(true);
+			else
+				setVisibleFormularioGuiaOrConocimiento(false);
+		} else if (tipoMovimiento.contains(TipoCuenta.EGRESO.name()) && id != 0) {
 			servicioCuenta.getSubCuentasEgreso(id, new LlamadaRemota<List<CuentaEgreso>>("", false) {
 				@Override
 				public void onSuccess(Method method, List<CuentaEgreso> response) {
@@ -769,5 +806,100 @@ public class VistaMovimientoAccion extends DialogBox {
 		saldoOrigenLabel.setVisible(visible);
 		montoDestinoValue.setVisible(visible);
 		
+	}
+
+	public void setIsDialog(Boolean isDialog) {
+		this.isDialog = isDialog;
+	}
+	
+	public void cargaInicial() {
+		
+		String tipoMovimiento = movimientoAccion.name(); //tipoMovimientoListBox.getSelectedValue();
+		log.info("tipoMovimiento: " + tipoMovimiento);
+		limpiarCampos();
+		if(tipoMovimiento.contains(TipoCuenta.INGRESO.name())) {
+			log.info("INGRESO : " + new Date().getTime());
+			seleccionarGuiaOrConocimientoBtn.setTitle("Seleccionar Guia");
+			seleccionarGuiaOrConocimientoBtn.setText("Seleccionar Guia*");
+			servicioMovimiento.nuevoMovimientoIngreso( new LlamadaRemota<MovimientoIngreso>("", true) {
+				@Override
+				public void onSuccess(Method method, MovimientoIngreso response) {
+					movimientoSeleccionado = response;
+					movimientoSeleccionado.setTipoCuenta(TipoCuenta.INGRESO);
+					nroComprobanteValue.setText(movimientoSeleccionado.getNroComprobante() == null ? "" : movimientoSeleccionado.getNroComprobante() + "");
+					fechaTextBox.setValue(movimientoSeleccionado.getFechaRegistro());
+					List<CuentaIngreso> cuentas = adminParametros.getCuentasIngreso();
+					log.info("  - cuentas.size(): " + cuentas.size());
+					cuentaListBox.clear();
+					log.info(" clear 0");
+					cuentaListBox.addItem("", "0");
+					log.info(" clear ");
+					for (CuentaIngreso cuentaIngreso :cuentas) {
+						log.info("    cuentaIngreso.getNroCuenta(): " + cuentaIngreso.getNroCuenta());
+						cuentaListBox.addItem(cuentaIngreso.getNroCuenta() + " - " + cuentaIngreso.getDescripcion(), cuentaIngreso.getId() + "");
+						
+					}
+						
+				}
+			} );
+			nroGuiaOrConocimientoLabel.setHTML(NRO_GUIA_LABEL);
+		} else if (tipoMovimiento == TipoCuenta.EGRESO.name()) {
+			log.info("EGRESO");
+			seleccionarGuiaOrConocimientoBtn.setTitle("Seleccionar Conocimiento");
+			seleccionarGuiaOrConocimientoBtn.setText("Seleccionar Conocimiento*");
+			servicioMovimiento.nuevoMovimientoEgreso( new LlamadaRemota<MovimientoEgreso>("", true) {
+				@Override
+				public void onSuccess(Method method, MovimientoEgreso response) {
+					movimientoSeleccionado = response;
+					movimientoSeleccionado.setTipoCuenta(TipoCuenta.EGRESO);
+					nroComprobanteValue.setText(movimientoSeleccionado.getNroComprobante() == null ? "" : movimientoSeleccionado.getNroComprobante() + "");
+					fechaTextBox.setValue(movimientoSeleccionado.getFechaRegistro());
+					List<CuentaEgreso> cuentas = adminParametros.getCuentasEgreso();
+					log.info("  - cuentas.size(): " + cuentas.size());
+					cuentaListBox.clear();
+					cuentaListBox.addItem("", "0");
+					for (CuentaEgreso cuentaEgreso : cuentas) 
+						cuentaListBox.addItem(cuentaEgreso.getNroCuenta() + " - " + cuentaEgreso.getDescripcion(), cuentaEgreso.getId() + "");
+				}
+			} );
+			nroGuiaOrConocimientoLabel.setHTML(NRO_CONOCIMIENTO_LABEL);
+		} else {
+			cuentaListBox.clear();
+			subCuentaListBox.clear();
+		}
+		subCuentaListBox.clear();
+		//VistaMovimientoAccion.this.center();
+	}
+	
+
+	private void imprimirComprobante() {
+		String ciudad    = utilDCargo.getCiudad();
+		String direccion = utilDCargo.getDireccion();
+		String telefono  = utilDCargo.getTelefono();
+		
+		String titulo                = "COMPROBANTE DE " + movimientoSeleccionado.getTipoCuenta();
+		String numeroComprobante     = utilDCargo.validarNullParaMostrar(movimientoSeleccionado.getNroComprobante());
+		String fecha                 = adminParametros.getDateParam().getFormattedValue();
+		String nroGuiaOrConocimiento = movimientoSeleccionado.getNroGuiOrConocimiento();
+		String origen                = "";
+		String items[][] = new String[1][2];
+//		if(movimientoSeleccionado.getCuenta() != null) {
+//			items[0][0] = "" + movimientoSeleccionado.getCuenta();
+//			if(movimientoSeleccionado.getCuenta().get)
+//		}
+		
+		items[0][1] = "";
+		
+		String glosa = movimientoSeleccionado.getGlosa();
+		String entregueConforme = "";
+		String recibiConforme = "";
+		
+		
+		imprimirPDF.reporteComprobante(
+				ciudad, direccion, telefono,
+				titulo, numeroComprobante, fecha, 
+				nroGuiaOrConocimiento, origen, 
+				items, glosa, 
+				entregueConforme, recibiConforme);
 	}
 }

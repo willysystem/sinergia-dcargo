@@ -361,7 +361,7 @@ public class VistaTransportistaAccion extends DialogBox {
 		this.transportistaSeleccionado = transportista;
 		GWT.log("TransportistaAccion:" + transportistaAccion);
 		if(transportistaAccion == TransportistaAccion.NUEVO || transportistaAccion == TransportistaAccion.NUEVO_DESDE_CONOCIMIENTO) {
-			servicioTransportista.nuevoTransportista(new LlamadaRemota<Transportista>("No se pude crear nueva guia",true) {
+			servicioTransportista.nuevoTransportista(new LlamadaRemota<Transportista>("No se pude crear nueva guía",true) {
 				@Override
 				public void onSuccess(Method method, Transportista response) {
 					log.info("Transportista creado: " + response.getId());

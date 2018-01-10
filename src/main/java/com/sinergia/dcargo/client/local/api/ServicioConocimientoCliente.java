@@ -112,8 +112,15 @@ public interface ServicioConocimientoCliente extends RestService {
 	  
 	  @PUT
 	  @Consumes("application/json")
-	  @Path("/guardarAcuenta/{idConocimiento}/{flete}")
+	  @Produces("application/json")
+	  @Path("/guardarAcuenta/{idConocimiento}/{acuenta}")
 	  public void guardarAcuenta(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("acuenta") Double acuenta, MethodCallback<Void> call);
+	  
+//	  @PUT
+//	  @Consumes("application/json")
+//	  @Path("/guardarAcuenta/{idConocimiento}/{acuenta}")
+//	  public void guardarAcuenta(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("acuenta") Double acuenta, MethodCallback<Void> call);
+	  
 	  
 	  @PUT
 	  @Consumes("application/json")

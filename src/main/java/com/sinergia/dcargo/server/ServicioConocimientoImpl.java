@@ -24,11 +24,17 @@ import org.slf4j.Logger;
 import com.sinergia.dcargo.client.shared.ServicioCliente;
 import com.sinergia.dcargo.client.shared.ServicioConocimiento;
 import com.sinergia.dcargo.client.shared.ServicioGuia;
+import com.sinergia.dcargo.client.shared.ServicioMovimiento;
+import com.sinergia.dcargo.client.shared.ServicioUsuario;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
+import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
+import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.Transportista;
+import com.sinergia.dcargo.client.shared.dominio.Usuario;
 import com.sinergia.dcargo.client.shared.OficinaServicio;
 import com.sinergia.dcargo.client.shared.Resultado;
 import com.sinergia.dcargo.server.dao.Dao;
@@ -45,14 +51,11 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	@Resource
 	private SessionContext sctx;
 	
-	@EJB
-	private ServicioCliente serviceCliente;
-	
-	@EJB
-	private OficinaServicio oficinaServicio;
-	
-	@EJB
-	private ServicioGuia servicioGuia;
+	@EJB private ServicioCliente serviceCliente;
+	@EJB private OficinaServicio oficinaServicio;
+	@EJB private ServicioGuia servicioGuia;
+	@EJB private ServicioUsuario servicioUsuario;
+	@EJB private ServicioMovimiento servicioMovimiento;
 	
 	@Inject 
 	private Logger log;
@@ -61,12 +64,14 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	
 	public ServicioConocimientoImpl() {
 		super(Conocimiento.class);
+		estados.put('B', "Borrador");
 		//estados.put('P', "Pendiente");
 		estados.put('V', "Vigente");
-		estados.put('E', "Entregado");
+		//estados.put('E', "Entregado");
 		estados.put('A', "Anulado");
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public List<Conocimiento> buscarConocimiento(Conocimiento conocimiento) {
 		Integer nroConocimiento = conocimiento.getNroConocimiento();
@@ -76,16 +81,33 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		Date fechaFin    = conocimiento.getFechaFin();
 		
 		Transportista propietario  = conocimiento.getTransportistaPropietario();
-		Long idPropietario = propietario.getId() == null ? 0 : propietario.getId();
+		Long idPropietario = 0L;
+		if(propietario != null) {
+			idPropietario = propietario.getId() == null ? 0 : propietario.getId();
+		}
 		
 		Transportista conductor = conocimiento.getTransportistaConductor();
-		Long idConductor = conductor.getId() == null ? 0 : conductor.getId();
+		Long idConductor = 0L;
+		if(conductor != null) {
+			idConductor = conductor.getId() == null ? 0 : conductor.getId();
+		}
 
 		Oficina oficinaOrigen = conocimiento.getOficinaOrigen();
-		Long idOficinaOrigen = oficinaOrigen.getId() == null ? 0 : oficinaOrigen.getId(); 
+		Long idOficinaOrigen = 0L;
+		if(oficinaOrigen != null) {
+			idOficinaOrigen = oficinaOrigen.getId() == null ? 0 : oficinaOrigen.getId();
+		}
 		
 		Oficina oficinaDestino = conocimiento.getOficinaDestino();
-		Long idOficinaDestino = oficinaDestino.getId() == null ? 0 : oficinaDestino.getId();
+		Long idOficinaDestino = 0L;
+		if(oficinaDestino != null)
+			idOficinaDestino = oficinaDestino.getId() == null ? 0 : oficinaDestino.getId();
+		
+		Usuario usuario = conocimiento.getUsuario();
+		Long idUsuario = 0L;
+		if(usuario != null) {
+			idUsuario = usuario.getId() == null ? 0 : usuario.getId(); 
+		}
 		
 		Character estado = getEstado(conocimiento.getEstadoDescripcion());
 		
@@ -122,6 +144,10 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 		if(idOficinaDestino != 0) {
 			where = where + " c.oficinaDestino.id = :idOficinaDestino AND";
 			parametros.put("idOficinaDestino", idOficinaDestino);
+		}
+		if(idUsuario != 0) {
+			where = where + " c.usuario.id = :idUsuario AND";
+			parametros.put("idUsuario", idUsuario);
 		}
 		if(estado != null){
 			where = where + " c.estado = :estado AND";
@@ -342,8 +368,27 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 
 	@Override
 	public void guardarAcuenta(Long idConocimiento, Double acuenta) throws Exception {
+		
 		Conocimiento cP = buscarPorId(idConocimiento);
 		cP.setAcuenta(acuenta);
+		
+		//if(guardarCuenta.equals("Si")) {
+			String userName = sctx.getCallerPrincipal().getName();
+			Usuario user    = servicioUsuario.buscarPorUsuario(userName); 
+			Oficina oficina = user.getOffice();
+			Cuenta cuenta = oficina.getCuentaEgresoAcuenta();
+			String glosa = "";
+			
+			MovimientoEgreso miP = servicioMovimiento.nuevoMovimientoEgreso();
+			miP = em.find(MovimientoEgreso.class, miP.getId());
+			miP.setFechaRegistro(new Date());
+			miP.setMonto(acuenta);
+			miP.setCuenta(cuenta);
+			miP.setGlosa(glosa);
+			miP.setConocimiento(cP);
+			miP.setEstado("V".charAt(0));
+		//}
+		
 		merge(cP);
 	}
 

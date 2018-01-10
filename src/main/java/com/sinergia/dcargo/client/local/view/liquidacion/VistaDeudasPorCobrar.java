@@ -99,7 +99,7 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
-		hpTitulo.add(new HTML("<center style='font-weight:bold;font-size:16px'>Reporte Deudas por Cobrar</center>"));
+		hpTitulo.add(new HTML("<center class='tituloModulo'>Reporte Deudas por Cobrar</center>"));
 		hpTitulo.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		hpTitulo.setWidth("100%");
 		
@@ -345,7 +345,7 @@ public class VistaDeudasPorCobrar extends View<DeudasReporte> implements Present
 			items[k][6] = deudasPorCobrarReporte.getMontoTotalDeudas();
 			items[k][9] = deudasPorCobrarReporte.getMontoTotalAcuenta();
 			
-			String titulo1 = "Deudas por guias de carga al enviada de: "  + origen + " a: " + destino;
+			String titulo1 = "Deudas por guías de carga al enviada de: "  + origen + " a: " + destino;
 			String titulo2 = "Comprendidos entre el :" + fechaIni + " y el: " + fechaFi;
 			
 			imprimirPDF.reporteDeudasPorCobrar(ciudad, direccion, telefono, titulo1 , titulo2, items);

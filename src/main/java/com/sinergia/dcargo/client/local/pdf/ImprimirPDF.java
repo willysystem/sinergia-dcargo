@@ -24,7 +24,7 @@ public class ImprimirPDF {
 		doc.setFontSize(10);
 		doc.setTextColor(0, 0, 0);
 
-		doc.text(40, 20, "GUIA DE REMISIÓN DE CARGA");
+		doc.text(40, 20, "GUÍA DE REMISIÓN DE CARGA");
 
 		// Direccion y Telefono
 		var itemsAux = [""];
@@ -36,7 +36,7 @@ public class ImprimirPDF {
 		// 2. Infomacion
 		var informacionTitulos = [ "", "", "", "", "", "" ];
 		var informacion = [
-				[ "Fecha: ", fecha, "", "", "Número de Guia:", nroGuia ],
+				[ "Fecha: ", fecha, "", "", "Número de Guía:", nroGuia ],
 				[ "Remite:", remite, "Telefono:", telefonoRemite, "Desde:",
 						origen ],
 				[ "Consignatario:", consignatario, "Telefono:",
@@ -87,7 +87,7 @@ public class ImprimirPDF {
 		doc.myText(consignatarioEntrega, { align : "center" }, 0, doc.autoTable.previous.finalY + 67);
 		doc.myText(ciConsignatarioEntrega, { align : "center" }, 0, doc.autoTable.previous.finalY + 74);
 		doc.myText(fechaEntrega, { align : "center" }, 0, doc.autoTable.previous.finalY + 81);
-		doc.text(15, doc.autoTable.previous.finalY + 90, "Nota.: Esta guia no tiene validez fiscal");
+		doc.text(15, doc.autoTable.previous.finalY + 90, "Nota.: Esta guía no tiene validez fiscal");
 		
 		//doc.text(220, doc.autoTable.previous.finalY + 150, "Remiti Conforme");
 		//doc.text(220, doc.autoTable.previous.finalY + 180, remite);
@@ -111,10 +111,10 @@ public class ImprimirPDF {
 		doc.setFontSize(15);
 		doc.setTextColor(0, 0, 0);
 
-		doc.text(245, 70, "LISTA DE GUIAS");
+		doc.text(245, 70, "LISTA DE GUÍAS");
 
 		// 2. Table
-		var itemsTitulos = [ "Nro", "Guia", "Remite", "Consignatario",
+		var itemsTitulos = [ "Nro", "Guía", "Remite", "Consignatario",
 				"Origen", "Destino", "Registro", "Entrega", "Fact. Origen",
 				"Fact. Destino", "Estado" ];
 		doc.autoTable(itemsTitulos, items, {
@@ -175,7 +175,7 @@ public class ImprimirPDF {
 		});
 
 		// 3. Table
-		var itemsTitulos = [ "Nro", "Consignatario", "Nro. Guia", "Peso",
+		var itemsTitulos = [ "Nro", "Consignatario", "Nro. Guía", "Peso",
 				"Bultos", "Detalle", "Origen", "Saldo" ];
 		doc.autoTable(itemsTitulos, items, {
 			startY : 250
@@ -270,7 +270,7 @@ public class ImprimirPDF {
 		doc.text(355, 374, origen + ", " + fecha);
 		
 		// 2. Infomacion
-		var itemsTitulos = [ "Consignatario", "Nro. Guia", "Peso", "Bultos", "Detalle"];
+		var itemsTitulos = [ "Consignatario", "Nro. Guía", "Peso", "Bultos", "Detalle"];
 		doc.autoTable(itemsTitulos, items, { startY : 380 });
 
 //		doc.setFontType("bold");
@@ -372,7 +372,7 @@ public class ImprimirPDF {
 		              });
 		
 		// 2. Tabla
-		var itemsAux = ["Nro", "Fecha", "Nro Conocimiento", "Nro Guia", "Cobro Origen","Cobro Destino", "Flete Destino" ];
+		var itemsAux = ["Nro", "Fecha", "Nro Conocimiento", "Nro Guía", "Cobro Origen","Cobro Destino", "Flete Destino" ];
 		doc.autoTable(itemsAux, items, {startY: 145, theme: 'plain',  
 		              styles : { cellPadding : 0.5, fontSize : 8 }
 		              }); 
@@ -438,7 +438,7 @@ public class ImprimirPDF {
 		
 		// 2. Tabla
 		//var itemsAux = ["Nro", "Fecha", "Nro Conocimiento", "Nro Guia", "Origen", "Destino", "Deudas Cliente", "Deudas Monto", "Ingreso Fecha", "Ingreso Cbte.", "Ingreso Acuenta", "Ingrso Saldo" ];
-		var itemsAux = ["Nro", "Fecha", "Nro Conocimiento\nNro Guia", "Origen", "Destino", "Deudas Cliente", "Deudas Monto"];
+		var itemsAux = ["Nro", "Fecha", "Nro Conocimiento\nNro Guía", "Origen", "Destino", "Deudas Cliente", "Deudas Monto"];
 		doc.autoTable(itemsAux, items, {startY: 145, theme: 'plain',  
 		              styles : { cellPadding : 0.5, fontSize : 7 }
 		              }); 
@@ -467,19 +467,19 @@ public class ImprimirPDF {
 		doc.setFontType("bold");
 		doc.setFontSize(18);
 		doc.setTextColor(0, 0, 0);
-		doc.text(145, 70, "LIQUIDACION DE CARGA");
+		doc.text(145, 70, titulo1);
 		
-		doc.setFontSize(11);
-		doc.text(145, 90, titulo1);
-		doc.text(145, 105, titulo2);
+		//doc.setFontSize(11);
+		//doc.text(145, 90, titulo1);
+		//doc.text(145, 105, titulo2);
 		
-		// Direccion y Telefono
-		var itemsAux = [""];
-		var itemsDatosCuidad = [[cuidadOficina],[direccionOficina],[telefonoOficina]]; 
-		doc.autoTable(itemsAux, itemsDatosCuidad, {startY:30, theme: 'plain', margin: {left: 455}, 
-		              styles : { cellPadding : 0.5, fontSize : 6 }
-		              });
-		
+//		// Direccion y Telefono
+//		var itemsAux = [""];
+//		var itemsDatosCuidad = [[cuidadOficina],[direccionOficina],[telefonoOficina]]; 
+//		doc.autoTable(itemsAux, itemsDatosCuidad, {startY:30, theme: 'plain', margin: {left: 455}, 
+//		              styles : { cellPadding : 0.5, fontSize : 6 }
+//		              });
+//		
 //		// 2. Tabla
 //		var itemsAux = ["Nro", "Fecha", "Nro Conocimiento", "Nro Guia", "Cobro Origen","Cobro Destino", "Flete Destino" ];
 //		doc.autoTable(itemsAux, items, {startY: 145, theme: 'plain',  

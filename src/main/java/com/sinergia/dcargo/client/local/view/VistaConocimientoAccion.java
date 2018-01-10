@@ -1,6 +1,5 @@
 package com.sinergia.dcargo.client.local.view;
 
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -14,23 +13,23 @@ import org.fusesource.restygwt.client.MethodCallback;
 import org.jboss.errai.ioc.client.api.AfterInitialization;
 import org.slf4j.Logger;
 
+import com.google.gwt.cell.client.TextCell;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.editor.client.Editor.Path;
+import com.google.gwt.event.shared.HandlerManager;
 import com.google.gwt.safehtml.shared.SafeHtmlUtils;
 import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.DecoratorPanel;
 import com.google.gwt.user.client.ui.DialogBox;
 import com.google.gwt.user.client.ui.DockPanel;
 import com.google.gwt.user.client.ui.DoubleBox;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHorizontalAlignment;
-import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.IntegerBox;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.MultiWordSuggestOracle;
 import com.google.gwt.user.client.ui.SuggestBox;
-import com.google.gwt.user.client.ui.TabLayoutPanel;
 import com.google.gwt.user.client.ui.TextArea;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -40,10 +39,12 @@ import com.sinergia.dcargo.client.local.UtilDCargo;
 import com.sinergia.dcargo.client.local.api.LlamadaRemota;
 import com.sinergia.dcargo.client.local.api.ServicioConocimientoCliente;
 import com.sinergia.dcargo.client.local.api.ServicioGuiaCliente;
+import com.sinergia.dcargo.client.local.event.EventoHome;
 import com.sinergia.dcargo.client.local.message.MensajeAviso;
 import com.sinergia.dcargo.client.local.message.MensajeError;
 import com.sinergia.dcargo.client.local.message.MensajeExito;
 import com.sinergia.dcargo.client.local.pdf.ImprimirPDF;
+import com.sinergia.dcargo.client.local.presenter.MainContentPresenter;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
@@ -55,13 +56,23 @@ import com.sencha.gxt.data.shared.ModelKeyProvider;
 import com.sencha.gxt.data.shared.PropertyAccess;
 import com.sencha.gxt.dnd.core.client.GridDragSource;
 import com.sencha.gxt.dnd.core.client.GridDropTarget;
+import com.sencha.gxt.widget.core.client.button.IconButton;
+import com.sencha.gxt.widget.core.client.event.AddEvent;
+import com.sencha.gxt.widget.core.client.event.AddEvent.AddHandler;
+import com.sencha.gxt.widget.core.client.event.RemoveEvent;
+import com.sencha.gxt.widget.core.client.event.SelectEvent;
+import com.sencha.gxt.widget.core.client.event.SelectEvent.SelectHandler;
+import com.sencha.gxt.widget.core.client.event.RemoveEvent.RemoveHandler;
+import com.sencha.gxt.widget.core.client.form.DualListField;
+import com.sencha.gxt.widget.core.client.form.validator.EmptyValidator;
 import com.sencha.gxt.widget.core.client.grid.ColumnConfig;
 import com.sencha.gxt.widget.core.client.grid.ColumnModel;
 import com.sencha.gxt.widget.core.client.grid.Grid;
 import com.google.gwt.user.client.ui.HTML;
+import com.sinergia.dcargo.client.local.presenter.PresentadorConocimientoNuevo.Display;
 
 @Singleton
-public class VistaConocimientoAccion extends DialogBox implements Carga {
+public class VistaConocimientoAccion /*extends DialogBox*/ implements Carga, Display {
 
 	@Inject	private AdminParametros adminParametros;
 	@Inject private Logger          log;
@@ -71,17 +82,16 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	@Inject	private MensajeError    mensajeError;
 	@Inject	private ImprimirPDF     imprimirPDF;
 	@Inject private UtilDCargo      utilDCargo;
-	
-	@Inject
-	private ServicioGuiaCliente servicioGuia;
-	
-	@Inject
-	private ServicioConocimientoCliente servicioConocimiento;
-
-	@Inject
-	private VistaTransportistaAccion vistaTransportistaAccion;
+	@Inject private ServicioGuiaCliente servicioGuia;
+	@Inject private ServicioConocimientoCliente servicioConocimiento;
+	@Inject private VistaTransportistaAccion vistaTransportistaAccion;
+	@Inject protected MainContentPresenter.Display mainContentView;
+	@Inject private HandlerManager eventBus;
 	
 	private ConocimientoAccion conocimientoAccion;
+	private Conocimiento conocimientoSeleccionado;
+	private Boolean isDialog = null;
+	private DialogBox dialog = new DialogBox();
 	
 	private MultiWordSuggestOracle oficinaOracle       = new MultiWordSuggestOracle();
 	private MultiWordSuggestOracle transportistaOracle = new MultiWordSuggestOracle();
@@ -94,7 +104,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	
 	private HTML origenLabel = new HTML("<b>Origen*: </b>");
 	private SuggestBox origenSuggestBox = new SuggestBox(oficinaOracle);
-	//private Label origenLabelValue = new Label("");
+	private Label origenLabelValue = new Label("");
 	
 	private HTML destinoLabel = new HTML("<b>Destino*: </b>");
 	private SuggestBox destinoSuggestBox = new SuggestBox(oficinaOracle);
@@ -172,26 +182,31 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	private DoubleBox pagoDestinoDoubleBox = new DoubleBox();
 	private Label pagoDestinoLabelValue = new Label();
 	
-	private Button enviarBtn = new Button("Enviar");
+	private HTML  estadoLabel      = new HTML("<b>Estado:</b>");
+	private Label estadoLabelValue = new Label("");
+	
+	private Button guardarBtn = new Button("Guardar");
+	private Button guardarBorradorBtn = new Button("Guardar Borrador");
+	
 	private Button imprimirInternoBtn = new Button("Imprimir Interno");
 	private Button imprimirExternoBtn = new Button("Imprimir Externo");
-	private Button salirBtn = new Button("Salir");
+	private Button salirBtn  = new Button("Salir");
+	private Button inicioBtn = new Button("Inicio");
+	
 	private HTML estadoHTML  = new HTML();
 	
-	private TabLayoutPanel tabPanel;
+//	private TabLayoutPanel tabPanel;
 	
 	private Button buscarGuiasButton = new Button("Buscar Guias");
 	
 	DateBox fechaIniBusquedaGuia = new DateBox();
 	DateBox fechaFinBusquedaGuia = new DateBox();
 	
-	private Conocimiento conocimientoSeleccionado;
-	
-	
 	Widget propietarioValue   = null;
 	Widget conductorValue     = null;
 	Widget multaValue         = null;
 	Widget diasValue          = null;
+	Widget origenValue        = null;
 	Widget destinoValue       = null;
 	Widget observacionesValue = null;
 	Widget adjuntoValue       = null;
@@ -246,13 +261,12 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 	DockPanel dock = null;
 
 	private void construirGUI() {
-
-		setGlassEnabled(true);
-		setAnimationEnabled(false);
-		setText(conocimientoAccion.getTitulo());
 		
 		nroConocimientoValorLabel.setText(conocimientoSeleccionado.getNroConocimiento() == null ? "" : ""+conocimientoSeleccionado.getNroConocimiento());
-		
+		origenSuggestBox.setWidth("100px");
+		destinoSuggestBox.setWidth("100px");
+		propietarioSuggestBox.setWidth("150px");
+		conductorSuggestBox.setWidth("150px");
 		// config
 		prepararComponentes();
 		vecinoLabelValor.setWidth("150px");
@@ -267,48 +281,118 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		multaTextBox.setWidth("30px");
 		diasTextBox.setWidth("20px");
 		
+		//guardarBtn.setEnabled(false);
+		imprimirExternoBtn.setEnabled(false);
+		imprimirInternoBtn.setEnabled(false);
 		
+		
+		// Values
 		conocimientoSeleccionado.setFecha(adminParametros.getDateParam().getDate());
 		fechaRegistroValorLabel.setText(adminParametros.getDateParam().getFormattedValue());
+		estadoLabelValue.setText(conocimientoSeleccionado.getEstadoDescripcion());
 
-		// Formulario
-		VerticalPanel vpNorte = new VerticalPanel();
-		vpNorte.setHeight("20px");
-		vpNorte.setWidth("100%");
+		if(isDialog) {
+			dialog.setGlassEnabled(true);
+			//dialog.setModal(true);
+			dialog.setAnimationEnabled(false);
+			dialog.setText(conocimientoAccion.getTitulo());
+			
+		}
 		
-		HTML htmlCenter = new HTML("<pre>                                                          </pre>");
-		htmlCenter.setWidth("100%");
+		// Titulo
+		VerticalPanel vpTituloNorte = new VerticalPanel();
+		if(conocimientoAccion == ConocimientoAccion.NUEVO) vpTituloNorte.add(new HTML("<center class='tituloModulo'>Nuevo Conocimiento</center>"));
+		vpTituloNorte.setHeight("20px");
+		vpTituloNorte.setWidth("100%");
 		
+		// Datos Conocimiento
+		HorizontalPanel hpConociTransportPanel = new HorizontalPanel();
 		FlexTable layoutConstante = new FlexTable();
 		layoutConstante.setCellSpacing(0);
 		FlexCellFormatter cellFormatter1 = layoutConstante.getFlexCellFormatter();
-		layoutConstante.setWidget(0, 0, nroConocimientoLabel);      cellFormatter1.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-		layoutConstante.setWidget(0, 1, nroConocimientoValorLabel); cellFormatter1.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
-		layoutConstante.setWidget(0, 2, new HTML("<pre>   </pre>"));
-		layoutConstante.setWidget(0, 3, origenLabel);        cellFormatter1.setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_RIGHT);
-		layoutConstante.setWidget(0, 4, origenSuggestBox);   cellFormatter1.setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_LEFT);
-		layoutConstante.setWidget(0, 5, new HTML("<pre>   </pre>"));
-		layoutConstante.setWidget(0, 6, destinoLabel);        cellFormatter1.setHorizontalAlignment(0, 6, HasHorizontalAlignment.ALIGN_RIGHT);
-		layoutConstante.setWidget(0, 7, destinoValue);   cellFormatter1.setHorizontalAlignment(0, 7, HasHorizontalAlignment.ALIGN_LEFT);
-		layoutConstante.setWidget(0, 8, new HTML("<pre>  </pre>"));
-		//layoutConstante.setWidget(0, 2, htmlCenter);        cellFormatter1.setHorizontalAlignment(0, 2, HasHorizontalAlignment.ALIGN_CENTER);
-		layoutConstante.setWidget(0, 9, fechaRegistroLabel);        cellFormatter1.setHorizontalAlignment(0, 9, HasHorizontalAlignment.ALIGN_RIGHT);
-		layoutConstante.setWidget(0, 10, fechaRegistroValorLabel);   cellFormatter1.setHorizontalAlignment(0, 10, HasHorizontalAlignment.ALIGN_LEFT);
+		cellFormatter1.setColSpan(0, 0, 2);
+		cellFormatter1.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		layoutConstante.setWidget(0, 0, new HTML("<div class='tituloFormulario'>Datos Conocimiento</div>"));
+		layoutConstante.setWidget(1, 0, nroConocimientoLabel);      //cellFormatter1.setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+		layoutConstante.setWidget(1, 1, nroConocimientoValorLabel); //cellFormatter1.setHorizontalAlignment(1, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		layoutConstante.setWidget(2, 0, fechaRegistroLabel);        //cellFormatter1.setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+		layoutConstante.setWidget(2, 1, fechaRegistroValorLabel);   //cellFormatter1.setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		layoutConstante.setWidget(3, 0, origenLabel);               //cellFormatter1.setHorizontalAlignment(0, 3, HasHorizontalAlignment.ALIGN_RIGHT);
+		layoutConstante.setWidget(3, 1, origenValue);          //cellFormatter1.setHorizontalAlignment(0, 4, HasHorizontalAlignment.ALIGN_LEFT);
+		layoutConstante.setWidget(4, 0, destinoLabel);              //cellFormatter1.setHorizontalAlignment(0, 6, HasHorizontalAlignment.ALIGN_RIGHT);
+		layoutConstante.setWidget(4, 1, destinoValue);              //cellFormatter1.setHorizontalAlignment(0, 7, HasHorizontalAlignment.ALIGN_LEFT);
+		layoutConstante.setWidget(5, 0, estadoLabel);
+		layoutConstante.setWidget(5, 1, estadoLabelValue);
 		
-		vpNorte.add(layoutConstante);
+		//layoutConstante.setWidget(0, 8, new HTML("<pre>  </pre>"));
 		
-		tabPanel = new TabLayoutPanel(2.5, Unit.EM);
-		tabPanel.setAnimationDuration(1000);
-		tabPanel.getElement().getStyle().setMarginBottom(10.0, Unit.PX);
-		tabPanel.setWidth("800px");
-		tabPanel.setHeight("500px");
+		DecoratorPanel decPanelConocimiento = new DecoratorPanel();
+		decPanelConocimiento.setWidget(layoutConstante);
+		decPanelConocimiento.setStyleName("formularioAgrupado");
+		hpConociTransportPanel.add(decPanelConocimiento);
+		hpConociTransportPanel.add(new HTML("<pre>  </pre>"));
 		
-		VerticalPanel vpCentro1 = getCentro1();
-		tabPanel.add(vpCentro1, "Datos generales");
+		// Datos Transportista
+		FlexTable layoutTrans = new FlexTable();
+		layoutTrans.setCellSpacing(0);
+		FlexCellFormatter cellFormatterTrans = layoutTrans.getFlexCellFormatter();
+		cellFormatterTrans.setColSpan(0, 0, 2);
+		cellFormatterTrans.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		layoutTrans.setWidget(0, 0, new HTML("<div class='tituloFormulario'>Datos Transportista</div>"));
 		
-		VerticalPanel vpCentro2 = getCentro2();
-		tabPanel.add(vpCentro2, "Guias");
-		tabPanel.selectTab(0);
+		FlexTable layoutTransDatos1 = new FlexTable();
+		layoutTransDatos1.setWidget(0, 0, new FlexTableForm(new HTML("<b>Yo: </b>"), propietarioValue));
+		layoutTransDatos1.setWidget(1, 0, new FlexTableForm(new HTML("<pre>  </pre>"), conductorValue));
+		layoutTrans.setWidget(1, 0, layoutTransDatos1);
+		
+		FlexTable layoutTransDatos2 = new FlexTable();
+		layoutTransDatos2.setWidget(0, 0, new FlexTableForm(vecinoLabel, vecinoLabelValor));
+		layoutTransDatos2.setWidget(1, 0, new FlexTableForm(ciLabel, ciLabelValor));
+		layoutTransDatos2.setWidget(2, 0, new FlexTableForm(domicilioEnLabel, domicilioLabelValue));
+		layoutTransDatos2.setWidget(3, 0, new FlexTableForm(telefonoEnLabel, telefonoLabelValue));
+		layoutTransDatos2.setWidget(4, 0, new FlexTableForm(marcaLabel, marcaLabelValor));
+		layoutTransDatos2.setWidget(0, 1, new FlexTableForm(colorLabel, colorLabelValor));
+		layoutTransDatos2.setWidget(1, 1, new FlexTableForm(placaLabel, placaLabelValor));
+		layoutTransDatos2.setWidget(2, 1, new FlexTableForm(brevetLabel, brevetLabelValor));
+		layoutTransDatos2.setWidget(3, 1, new FlexTableForm(multaLabel, multaValue));
+		layoutTransDatos2.setWidget(4, 1, new FlexTableForm(diasLabel, diasValue));
+		layoutTrans.setWidget(1, 1, layoutTransDatos2);
+			
+		DecoratorPanel decPanelTransDato = new DecoratorPanel();
+		decPanelTransDato.setWidget(layoutTrans);
+		decPanelTransDato.setStyleName("formularioAgrupado");
+		hpConociTransportPanel.add(decPanelTransDato);
+		hpConociTransportPanel.add(new HTML("<pre>  </pre>"));
+		
+		// Costos
+//		FlexTable cuerpo32 = new FlexTable();
+//		cuerpo32.setCellSpacing(0);
+//		FlexCellFormatter cellFormatterCosto = cuerpo32.getFlexCellFormatter();
+//		cellFormatterCosto.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_CENTER);
+//		cuerpo32.setWidget(0, 0, new HTML("<div class='tituloFormulario'>Costos</div>"));
+//		cuerpo32.setWidget(0, 0, fleteLabel);           cellFormatterCosto.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+//		cuerpo32.setWidget(0, 1, fleteValue);       cellFormatterCosto.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
+//		cuerpo32.setWidget(1, 0, acuentaLabel);         cellFormatterCosto.setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+//		cuerpo32.setWidget(1, 1, acuentaValue);     cellFormatterCosto.setHorizontalAlignment(1, 1, HasHorizontalAlignment.ALIGN_LEFT);
+//		cuerpo32.setWidget(2, 0, pagoOrigenLabel);      cellFormatterCosto.setHorizontalAlignment(2, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+//		cuerpo32.setWidget(2, 1, pagoOrigenValue);  cellFormatterCosto.setHorizontalAlignment(2, 1, HasHorizontalAlignment.ALIGN_LEFT);
+//		cuerpo32.setWidget(3, 0, pagoDestinoLabel);     cellFormatterCosto.setHorizontalAlignment(3, 0, HasHorizontalAlignment.ALIGN_RIGHT);
+//		cuerpo32.setWidget(3, 1, pagoDestinoValue); cellFormatterCosto.setHorizontalAlignment(3, 1, HasHorizontalAlignment.ALIGN_LEFT);
+//		
+//		DecoratorPanel decPanelCosto = new DecoratorPanel();
+//		decPanelCosto.setWidget(cuerpo32);
+//		decPanelCosto.setStyleName("formularioAgrupado");
+//		hpConociTransportPanel.add(decPanelCosto);
+		
+		
+		// Contenedor general
+		VerticalPanel centerPanel = new VerticalPanel();
+		centerPanel.setWidth("100%");
+		centerPanel.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
+		centerPanel.add(hpConociTransportPanel);
+		centerPanel.add(getCentro2());
+		centerPanel.add(getCentro3());
+		
 		
 		// 3.1. 
 		VerticalPanel surPanel = new VerticalPanel();
@@ -330,15 +414,21 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		horizontalPanelButton.setSpacing(5);
 		
 		if(conocimientoAccion == ConocimientoAccion.NUEVO || conocimientoAccion == ConocimientoAccion.MODIFICAR) {
-			horizontalPanelButton.add(enviarBtn);
+			horizontalPanelButton.add(guardarBorradorBtn);
+			horizontalPanelButton.add(guardarBtn);
 			horizontalPanelButton.add(imprimirInternoBtn);
 			horizontalPanelButton.add(imprimirExternoBtn);
-			horizontalPanelButton.add(salirBtn);
+			if(conocimientoAccion == ConocimientoAccion.NUEVO) horizontalPanelButton.add(inicioBtn);
+			if(conocimientoAccion == ConocimientoAccion.MODIFICAR) horizontalPanelButton.add(salirBtn);
+			
+			buscarGuiasButton.setVisible(true);
 		} 
 		if(conocimientoAccion == ConocimientoAccion.CONSULTAR) {
 			horizontalPanelButton.add(imprimirInternoBtn);
 			horizontalPanelButton.add(imprimirExternoBtn);
 			horizontalPanelButton.add(salirBtn);
+			
+			buscarGuiasButton.setVisible(false);
 		}
 		
 		horizontalPanel.add(horizontalPanelButton);
@@ -351,15 +441,13 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		dock = new DockPanel();
 		dock.setWidth("100%");
 		dock.setHeight("100%");
-		dock.add(vpNorte, DockPanel.NORTH);
-		dock.add(tabPanel, DockPanel.CENTER);
+		dock.add(vpTituloNorte, DockPanel.NORTH);
+		dock.add(centerPanel, DockPanel.CENTER);
 		dock.add(surPanel, DockPanel.SOUTH);
 
-		setWidget(dock);
-		
 		cargarOracles();
 		datosIniciales();
-		center();
+		
 		
 		// Permisos de usuario
 		if(conocimientoAccion == ConocimientoAccion.MODIFICAR || conocimientoAccion == ConocimientoAccion.CONSULTAR) {
@@ -372,9 +460,20 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		if(adminParametros.getUsuario().getAdministrador()) origenSuggestBox.setEnabled(true);
 		else origenSuggestBox.setEnabled(false);
 		
+		if(isDialog) {
+			dialog.clear();
+			//dialog.add(dock);
+			dialog.setWidget(dock);
+			dialog.center();
+		} else {
+			dock.setWidth("98%");
+			mainContentView.getCentralPanel().add(dock);
+		}
+		
 	}
 	
 	public void mostrar(ConocimientoAccion conocimientoAccion, final Conocimiento conocimiento) {
+		
 		this.conocimientoSeleccionado = conocimiento;  
 		this.conocimientoAccion = conocimientoAccion;
 		GWT.log("guiaAccion: " + conocimientoAccion);
@@ -433,6 +532,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			conductorValue =    new VerticalPanelEx(conductorLabel,   conductorSuggestBox,   nuevoOficinaButtonTwo);
 			multaValue = multaTextBox;
 			diasValue = diasTextBox;
+			origenValue = origenSuggestBox;
 			destinoValue = destinoSuggestBox;
 			observacionesValue = observacionesTextArea;
 			adjuntoValue = adjuntoTextArea;
@@ -456,12 +556,6 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 				multaTextBox.setValue(conocimientoSeleccionado.getMulta());
 				diasTextBox.setValue(conocimientoSeleccionado.getDias());
 				
-				
-//				String origen = "";
-//				if(conocimientoSeleccionado.getOficinaOrigen() != null) 
-//					origen = conocimientoSeleccionado.getOficinaOrigen().getNombre();  
-//				origenSuggestBox.setValue(origen);
-				
 				String destino = "";
 				if(conocimientoSeleccionado.getOficinaDestino() != null) 
 					destino = conocimientoSeleccionado.getOficinaDestino().getNombre();  
@@ -480,6 +574,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			
 		} else if(conocimientoAccion == ConocimientoAccion.CONSULTAR) {
 			
+			
 			propietarioLabelValue.setText(conocimientoSeleccionado.getTransportistaPropietario()== null ? "" : conocimientoSeleccionado.getTransportistaPropietario().getNombre());
 			propietarioValue = propietarioLabelValue;
 			conductorLabelValue.setText(conocimientoSeleccionado.getTransportistaConductor() == null ? "" : conocimientoSeleccionado.getTransportistaConductor().getNombre());
@@ -489,6 +584,8 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			multaValue = multaLabelVale;
 			diasLabelValue.setText(conocimientoSeleccionado.getDias()+"");
 			diasValue = diasLabelValue;
+			origenLabelValue.setText(conocimientoSeleccionado.getOficinaOrigen().getNombre());
+			origenValue = origenLabelValue;
 			destinoLabelValue.setText(conocimientoSeleccionado.getOficinaDestino().getNombre());
 			destinoValue = destinoLabelValue;
 			observacionesLabelValue.setText(conocimientoSeleccionado.getObservacion());
@@ -509,52 +606,11 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		}
 	}
 	
-	private VerticalPanel getCentro1() {
+	private VerticalPanel getCentro3() {
 		
 		VerticalPanel vpCentro1 = new VerticalPanel();
 		vpCentro1.setHeight("20px");
-		//vpCentro1.setWidth("100%");
-		
-		HorizontalPanel layoutCuerpo1 = new HorizontalPanel();
-		//layoutCuerpo1.setWidth("1000px");
-		layoutCuerpo1.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		layoutCuerpo1.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		layoutCuerpo1.add(new FlexTableForm(new HTML("<b>Yo: </b>"), propietarioValue));
-		layoutCuerpo1.add(new HTML("<pre> </pre>"));
-		layoutCuerpo1.add(new FlexTableForm(new HTML(""), conductorValue));
-		layoutCuerpo1.add(new HTML("<pre> </pre>"));
-		layoutCuerpo1.add(new FlexTableForm(vecinoLabel, vecinoLabelValor));
-		layoutCuerpo1.add(new HTML("<pre> </pre>"));
-		layoutCuerpo1.add(new FlexTableForm(ciLabel, ciLabelValor));
-		vpCentro1.add(layoutCuerpo1);
-		
-		HorizontalPanel layoutCuerpo15 = new HorizontalPanel();
-		layoutCuerpo15.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_LEFT);
-		layoutCuerpo15.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		layoutCuerpo15.add(new FlexTableForm(domicilioEnLabel, domicilioLabelValue));
-		layoutCuerpo15.add(new HTML("<pre> </pre>"));
-		layoutCuerpo15.add(new FlexTableForm(telefonoEnLabel, telefonoLabelValue));
-		layoutCuerpo15.add(new HTML("<pre> </pre>"));
-		layoutCuerpo15.add(new FlexTableForm(marcaLabel, marcaLabelValor));
-		vpCentro1.add(layoutCuerpo15);
-		
-		HorizontalPanel layoutCuerpo16 = new HorizontalPanel();
-		layoutCuerpo16.add(new FlexTableForm(colorLabel, colorLabelValor));
-		layoutCuerpo16.add(new HTML("<pre> </pre>"));
-		layoutCuerpo16.add(new FlexTableForm(placaLabel, placaLabelValor));
-		layoutCuerpo16.add(new HTML("<pre> </pre>"));
-		layoutCuerpo16.add(new FlexTableForm(brevetLabel, brevetLabelValor));
-		vpCentro1.add(layoutCuerpo16);
-		
-		HorizontalPanel layoutCuerpo2 = new HorizontalPanel();
-		layoutCuerpo2.setVerticalAlignment(HasVerticalAlignment.ALIGN_MIDDLE);
-		layoutCuerpo2.add(new FlexTableForm(multaLabel, multaValue));
-		layoutCuerpo2.add(new HTML("<pre> </pre>"));
-		layoutCuerpo2.add(new FlexTableForm(diasLabel, diasValue));
-//		layoutCuerpo2.add(new HTML("<pre> </pre>"));
-//		layoutCuerpo2.add(new FlexTableForm(destinoLabel, destinoValue));
-		vpCentro1.add(layoutCuerpo2);
-		
+
 		HorizontalPanel cuerpo3 = new HorizontalPanel();
 		vpCentro1.add(cuerpo3);		
 		
@@ -598,11 +654,76 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		vp.add(filtro);
 		
 		Grid<Guia> gridOrigen = new Grid<>(storeOrigen, createColumnList());
-		gridOrigen.setHeight(200);
+		gridOrigen.setHeight(100);
+		gridOrigen.setBorders(true);
 		vp.add(gridOrigen);
 		
 		Grid<Guia> gridDestino = new Grid<>(storeDestino, createColumnList());
+		gridDestino.setHeight(100);
+		gridDestino.setBorders(true);
 		vp.add(gridDestino);
+		
+		DualListField<Guia, String> dualList = new DualListField<Guia, String>(storeOrigen, storeDestino, guiaPropiedad.remitente(), new TextCell());
+		dualList.addValidator(new EmptyValidator<List<Guia>>());
+		dualList.setWidth("1000px");
+		
+		DecoratorPanel decPanelGuias = new DecoratorPanel();
+		decPanelGuias.setWidget(dualList);
+		decPanelGuias.setStyleName("formularioAgrupado");
+		//vp.add(decPanelGuias);
+		
+		
+		dualList.getAllLeftButton().addSelectHandler(new SelectHandler() {
+			@Override
+			public void onSelect(SelectEvent event) {
+				IconButton iconButton = ((IconButton)event.getSource());
+				log.info("  getAllLeftButton: source: " + iconButton);
+				Object o = iconButton.getData("items");
+				log.info("  getAllLeftButton: source: " + iconButton);
+				log.info("  getAllLeftButton: o" + o);
+			}
+		});
+		
+		dualList.getAllLeftButton().addSelectHandler(e -> {
+			log.info("AllLeftButton: " + e.getSource().getClass());
+		});
+		dualList.getAllRightButton().addSelectHandler(e -> {
+			log.info("AllRightButton: " + e.getSource().getClass());
+		});
+		
+		dualList.getLeftButton().addSelectHandler(e -> {
+			log.info("getLeftButton(): " + e.getSource().getClass());
+		});
+		dualList.getRightButton().addSelectHandler(e -> {
+			log.info("getRightButton(): " + e.getSource().getClass());
+			
+		});
+		
+		
+//		dualList.getDropTargetToField().addDropHandler(new DndDropHandler() {
+//			@Override
+//			public void onDrop(DndDropEvent event) {
+//				log.info("onDrop");
+//			}
+//		});
+		
+		
+		dualList.addAddHandler(new AddHandler() {
+			@Override
+			public void onAdd(AddEvent event) {
+				log.info("onAdd");
+			}
+		});
+		dualList.addRemoveHandler(new RemoveHandler() {
+			@Override
+			public void onRemove(RemoveEvent event) {
+				log.info("onRemove");
+			}
+		});
+		
+		
+		
+		//dualList.add
 		
 		GridDragSource<Guia> dragSourceOrigen = new GridDragSource<>(gridOrigen);
 		dragSourceOrigen.setGroup("top");
@@ -660,11 +781,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		
 		FlexTable flexTable = new FlexTable();
 		flexTable.setCellSpacing(0);
-//		FlexCellFormatter cellFormatter = flexTable.getFlexCellFormatter();
-//		flexTable.setHTML(0, 0, "Fecha Inicio: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-//		flexTable.setWidget(0, 1, fechaIniBusquedaGuia);     cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
-//		flexTable.setHTML(0, 2, "Fecha Fin: "); cellFormatter.setHorizontalAlignment(0, 0, HasHorizontalAlignment.ALIGN_RIGHT);
-//		flexTable.setWidget(0, 3, fechaFinBusquedaGuia);     cellFormatter.setHorizontalAlignment(0, 1, HasHorizontalAlignment.ALIGN_LEFT);
+		
 		flexTable.setWidget(0, 4, buscarGuiasButton);
 		return flexTable;
 	}
@@ -703,10 +820,10 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 		fechaRegistroColumn.setSortable(true);
 		columns.add(fechaRegistroColumn);
 		
-		ColumnConfig<Guia, Date> fechaEntregaColumn = new ColumnConfig<>(guiaPropiedad.fechaEntrega());
-		fechaEntregaColumn.setHeader(SafeHtmlUtils.fromSafeConstant("Fecha Entrega"));
-		fechaEntregaColumn.setSortable(true);
-		columns.add(fechaEntregaColumn);
+//		ColumnConfig<Guia, Date> fechaEntregaColumn = new ColumnConfig<>(guiaPropiedad.fechaEntrega());
+//		fechaEntregaColumn.setHeader(SafeHtmlUtils.fromSafeConstant("Fecha Entrega"));
+//		fechaEntregaColumn.setSortable(true);
+//		columns.add(fechaEntregaColumn); 
 		
 		ColumnConfig<Guia, Date> estadoColumn = new ColumnConfig<>(guiaPropiedad.fechaEntrega());
 		estadoColumn.setHeader(SafeHtmlUtils.fromSafeConstant("Estado"));
@@ -862,6 +979,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			});
 		});
 		acuentaDoubleBox.addValueChangeHandler(e -> {
+			GWT.log("acuenta: entro");
 			Double acuenta = acuentaDoubleBox.getValue();
 			GWT.log("acuenta: " + acuenta);
 			// Guardar
@@ -900,7 +1018,18 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			guardarPagoDestino();
 		});
 		
-		enviarBtn.addClickHandler(e -> {
+		
+		guardarBorradorBtn.addClickHandler(e -> {
+			cargador.center();
+			servicioConocimiento.cambiarEstado(conocimientoSeleccionado.getId(), "B", new LlamadaRemota<Void>("No se pudo aceptar la Guia", true) {
+				@Override
+				public void onSuccess(Method method, Void response) {
+					VistaConocimientoAccion.this.cargador.hide();
+				}
+			});
+		});
+		
+		guardarBtn.addClickHandler(e -> {
 			if(validarConocimiento()){
 				cargador.center();
 				servicioConocimiento.cambiarEstado(conocimientoSeleccionado.getId(), "V", new LlamadaRemota<Void>("No se pudo aceptar la Guia", true) {
@@ -912,16 +1041,29 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 								conocimientoSeleccionado.setNroConocimiento(response);
 								conocimientoSeleccionado.setEstadoDescripcion("Vigente");
 								nroConocimientoValorLabel.setText(response+"");
-								mensajeExito.mostrar("Conocimiento existosamente Guardado: " + response);
-								VistaConocimientoAccion.this.cargador.hide();
+								guardarBtn.setEnabled(false);
+								imprimirInternoBtn.setEnabled(true);
+								imprimirExternoBtn.setEnabled(true);
+								
+								// Guardar movimiento egreso
+								Double acuenta = acuentaDoubleBox.getValue();
+								GWT.log("acuenta: " + acuenta);
+
+								fijarEstadoGuiaEspera();
+//								servicioConocimiento.guardarAcuenta(conocimientoSeleccionado.getId(), acuenta, new LlamadaRemota<Void>("No se puede guardar acuenta", false) {
+//									@Override
+//									public void onSuccess(Method method, Void response) {
+//										conocimientoSeleccionado.setAcuenta(acuenta);
+//										fijarEstadoGuiaCargado();
+//										mensajeExito.mostrar("Conocimiento existosamente Guardado: " + response);
+//										VistaConocimientoAccion.this.cargador.hide();
+//									}
+//								});
 							}
 						});
 					}
 				});
 			} 
-//			else {
-//				VistaConocimientoAccion.this.mensajeAviso.mostrar("Requiere llenar los campos obligatorios");
-//			}
 		});
 		
 		imprimirInternoBtn.addClickHandler(e -> {
@@ -1057,8 +1199,11 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 					   propietatarioNombre);
 			});
 		
+		inicioBtn.addClickHandler(e -> {
+			eventBus.fireEvent(new EventoHome());
+		});
 		salirBtn.addClickHandler(e -> {
-			hide();
+			dialog.hide();
 		});
 		
 		nuevoOficinaButtonOne.addClickHandler(e -> {
@@ -1095,7 +1240,7 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			servicioGuia.buscarGuias(guia, new LlamadaRemota<List<Guia>>("No se ejecuto correctamente la búsqueda de guias", true){
 				@Override
 				public void onSuccess(Method method, List<Guia> response) {
-					log.info("--> Búsqueda Guias: " + response);
+					log.info("--> Búsqueda Guías: " + response);
 					
 					List<Guia> guiasBorrar = new ArrayList<>();
 					
@@ -1114,14 +1259,6 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			});
 		});
 		
-//		pagoDestinoDoubleBox.addFocusHandler(e -> {
-//			Double flete       = fleteDoubleBox.getValue()      == null ? 0.0 : fleteDoubleBox.getValue();
-//			Double aCuenta     = acuentaDoubleBox.getValue()    == null ? 0.0 : acuentaDoubleBox.getValue();
-//			Double pagoOrigen  = pagoOrigenDoubleBox.getValue() == null ? 0.0 : pagoOrigenDoubleBox.getValue();
-//			Double pagoDestino = flete - aCuenta - pagoOrigen;
-//			pagoDestinoDoubleBox.setValue(pagoDestino);
-//			//guardarPagoDestino();
-//		});
 		
 	}
 	
@@ -1376,4 +1513,16 @@ public class VistaConocimientoAccion extends DialogBox implements Carga {
 			}
 		});
 	}
+	
+	public Boolean getIsDialog() {
+		return isDialog;
+	}
+	
+	public void setIsDialog(Boolean isDialog) {
+		this.isDialog = isDialog;
+	}
+
+
+
+
 }

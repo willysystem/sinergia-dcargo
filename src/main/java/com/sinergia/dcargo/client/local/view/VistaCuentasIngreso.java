@@ -2,6 +2,7 @@
 package com.sinergia.dcargo.client.local.view;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -234,8 +235,16 @@ public class VistaCuentasIngreso implements IVistaCuentas {
 		
 		storeCuentaIngreso = new TreeStore<>(cuentaPropierties.id());
 		
+		
 		ColumnConfig<CuentaIngresoTO, Integer> nroCuentaColumn  = new ColumnConfig<>(cuentaPropierties.nroCuenta(), 150, "Nro Cuenta");
 		ColumnConfig<CuentaIngresoTO, String> descripcionColumn = new ColumnConfig<>(cuentaPropierties.descripcion(), 150, "Descripción");
+		
+		nroCuentaColumn.setComparator(new Comparator<Integer>() {
+			@Override
+			public int compare(Integer o1, Integer o2) {
+				return o1<o2?0:1;
+			}
+		});
 		
 		List<ColumnConfig<CuentaIngresoTO, ?>> columns = new ArrayList<>();
 		columns.add(nroCuentaColumn);
@@ -243,10 +252,12 @@ public class VistaCuentasIngreso implements IVistaCuentas {
 		
 		ColumnModel<CuentaIngresoTO> cm = new ColumnModel<>(columns);
 		
+		
 		gridCuentaIngreso = new TreeGrid<>(storeCuentaIngreso, cm, nroCuentaColumn);
 		gridCuentaIngreso.getView().setAutoExpandColumn(descripcionColumn);
 		gridCuentaIngreso.setWidth(480);
 		gridCuentaIngreso.setHeight(400);
+		
 		gridCuentaIngreso.getSelectionModel().addSelectionChangedHandler(new SelectionChangedHandler<CuentaIngresoTO>() {
 			@Override
 			public void onSelectionChanged(SelectionChangedEvent<CuentaIngresoTO> event) {

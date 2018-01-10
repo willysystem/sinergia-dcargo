@@ -27,6 +27,8 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
+import org.fusesource.restygwt.client.MethodCallback;
+
 import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
 
@@ -115,11 +117,13 @@ public interface ServicioGuia {
   @Consumes("application/json")
   @Path("/cambiarEstado/{idGuia}/{estadoDescripcion}")
   void cambiarEstado(@QueryParam("idGuia") Long idGuia, @QueryParam("estadoDescripcion")String estadoDescripcion) throws Exception;
+ 
   
   @PUT
   @Consumes("application/json")
-  @Path("/guardarTotal/{idGuia}/{total}")
-  void guardarTotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total") Double total) throws Exception;
+  @Produces("application/json")
+  @Path("/guardartotal/{idGuia}/{total}")
+  void guardartotal(@QueryParam("idGuia") Long idGuia, @QueryParam("total") Double total) throws Exception;
   
   @PUT
   @Consumes("application/json")
@@ -151,6 +155,11 @@ public interface ServicioGuia {
   @Path("/guardarNotaEntrega/{idGuia}/{notaEntrega}")
   void guardarNotaEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("notaEntrega") String notaEntrega) throws Exception;
   
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarNotaEntrega/{idGuia}/{nroNotaEntrega}")
+  void guardarNroNotaEntrega(@QueryParam("idGuia") Long idGuia, @QueryParam("nroNotaEntrega") String nroNotaEntrega) throws Exception;
+  
 //  @PUT
 //  @Consumes("application/json")
 //  @Path("/guardarFechaEntrega/{idGuia}/{fechaEntrega}")
@@ -161,14 +170,20 @@ public interface ServicioGuia {
   @Path("/guardarEntregaConsignatario/{idGuia}/{entregaConsignatario}")
   void guardarEntregaConsignatario(@QueryParam("idGuia") Long idGuia, @QueryParam("entregaConsignatario") Boolean entregaConsignatario) throws Exception;
   
+  @PUT
+  @Consumes("application/json")
+  @Path("/guardarObservaciones/{idGuia}/{observaciones}")
+  void guardarObservaciones(@QueryParam("idGuia") Long idGuia, @QueryParam("observaciones") String observaciones) throws Exception;
+  
   @DELETE
   @Path("/{id:[0-9]+}")
   Boolean borrar(@PathParam("id") Long id);
 
   @PUT
   @Consumes("application/json")
+  @Produces("application/json")
   @Path("/pagarOrigen/{idGuia}/{monto}/{glosa}")
-  public void pagarOrigen(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa) throws Exception;
+  public Integer pagarOrigen(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa) throws Exception;
   
   @PUT
   @Consumes("application/json")
@@ -178,7 +193,7 @@ public interface ServicioGuia {
   @PUT
   @Consumes("application/json")
   @Path("/pagarDestino/{idGuia}/{monto}/{glosa}")
-  public void pagarDestino(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa) throws Exception;
+  public Integer pagarDestino(@QueryParam("idGuia") Long idGuia, @QueryParam("monto") Double monto, @QueryParam("glosa") String glosa) throws Exception;
   
   @PUT
   @Consumes("application/json")

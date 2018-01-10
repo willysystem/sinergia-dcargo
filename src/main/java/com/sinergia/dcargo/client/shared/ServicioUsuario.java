@@ -62,5 +62,7 @@ public interface ServicioUsuario {
   @DELETE
   @Path("/{id:[0-9]+}")
   void delete(@PathParam("id") Long id);
+  
+  public Usuario buscarPorUsuario(String userName);
 
 }

@@ -81,7 +81,7 @@ public class VistaTransportista extends View<Transportista> implements Presentad
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
-		hpTitulo.add(new HTML("<center style='font-weight:bold;font-size:16px'>Transportistas</center>"));
+		hpTitulo.add(new HTML("<center class='tituloModulo'>Transportistas</center>"));
 		hpTitulo.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		hpTitulo.setWidth("100%");
 		

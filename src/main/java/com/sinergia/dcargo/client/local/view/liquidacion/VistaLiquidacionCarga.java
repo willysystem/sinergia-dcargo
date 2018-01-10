@@ -92,7 +92,7 @@ public class VistaLiquidacionCarga extends View<LiquidacionReporte> implements P
 		
 		// Título
 		HorizontalPanel hpTitulo = new HorizontalPanel();
-		hpTitulo.add(new HTML("<center style='font-weight:bold;font-size:16px'>Reporte de Liquidacion de Carga</center>"));
+		hpTitulo.add(new HTML("<center class='tituloModulo'>Reporte de Liquidacion de Carga</center>"));
 		hpTitulo.setHorizontalAlignment(HasHorizontalAlignment.ALIGN_CENTER);
 		hpTitulo.setWidth("100%");
 		
