@@ -102,6 +102,7 @@ public class PresentadorMovimiento implements Presenter /*PresenterMovimientoBus
 				servicioTransportistas.buscarMovimientos(cliente, new MethodCallback<List<Movimiento>>() {
 				@Override
 				public void onSuccess(Method method, List<Movimiento> response) {
+					log.info("response: List<Movimiento>: " + response);
 					showClientesData(response);
 					cargador.hide();
 				}

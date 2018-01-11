@@ -5,7 +5,6 @@ import javax.inject.Singleton;
 
 import com.google.gwt.user.client.ui.DialogBox;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
-import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.local.presenter.PresentadorConocimiento.Display;
 
 @Singleton
@@ -21,7 +20,7 @@ public class VistaElegirConocimientoDialogBox extends DialogBox {
 	public VistaElegirConocimientoDialogBox(){
 		setGlassEnabled(true);
 		setAnimationEnabled(false);
-		setText("Elegir Guía");
+		setText("Elegir Conocimiento");
 	}
 	
 	public void mostrar() {

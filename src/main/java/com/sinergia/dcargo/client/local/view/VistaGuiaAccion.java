@@ -1050,6 +1050,9 @@ public class VistaGuiaAccion extends SimplePanel /*extends DialogBox*/ implement
 											log.error("estadoPago: " + estadoPago);
 										}
 										
+										mensajeAviso.mostrar("Guia remitida existosamente con nro: " + response);
+										
+										
 										// Imprimir Guia
 //										mensajeConfirmacion.mostrar("Guia remitida existosamente con nro: " + response + ", ¿Está listo para imprimir Guia?", new ClickHandler() {
 //											@Override
@@ -1098,7 +1101,7 @@ public class VistaGuiaAccion extends SimplePanel /*extends DialogBox*/ implement
 //													mensajeConfirmacion.hide();
 //												 }
 //												
-//											}
+											}
 //										}, new ClickHandler() {
 //											@Override
 //											public void onClick(ClickEvent event) {
@@ -1107,7 +1110,7 @@ public class VistaGuiaAccion extends SimplePanel /*extends DialogBox*/ implement
 //												log.info("cancelando impresion de guia");
 //											}
 //										});
-									}
+//									}
 								});
 								VistaGuiaAccion.this.cargador.hide();
 								eventBus.fireEvent(new EventoHome());

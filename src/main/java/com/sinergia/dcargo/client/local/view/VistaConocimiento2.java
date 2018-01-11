@@ -104,8 +104,7 @@ public class VistaConocimiento2 extends View<Conocimiento> implements Presentado
 	private Button salirBtn = new Button("Inicio");
 	
 	private Button seleccionBtn = new Button("Seleccion");
-	
-	private Button inicioSelecionBtn = new Button("Inicio");
+	private Button inicioSelecionBtn = new Button("Salir");
 	
 	private FlexTable layoutMain;
 	
@@ -400,6 +399,7 @@ public class VistaConocimiento2 extends View<Conocimiento> implements Presentado
 		buscarBtn.addClickHandler(new ClickHandler() {
 			@Override
 			public void onClick(ClickEvent event) {
+				log.info("busqueda de conocimientos ");
 				Conocimiento conocimiento = getParametrosBusqueda();
 				if(conocimiento == null) return;
 				
@@ -458,7 +458,7 @@ public class VistaConocimiento2 extends View<Conocimiento> implements Presentado
 		Oficina destino = null;
 		Date fechaDesde = null;
 		Date fechaHasta = null;
-		Character estado = null;
+		String estadoDescripcion = null;
 		if(comboBusquedaListBox.getSelectedValue().equals("1")) {
 			log.info("fechaIniDateBox.getValue(): " + fechaIniDateBox.getValue());
 			log.info("fechaFinDateBox.getValue(): " + fechaFinDateBox.getValue());
@@ -502,7 +502,7 @@ public class VistaConocimiento2 extends View<Conocimiento> implements Presentado
 			}
 		}
 		if(comboBusquedaListBox.getSelectedValue().equals("4")) {
-			estado = 'B';
+			estadoDescripcion = "Borrador";
 		}
 		
 		// Construyendo valores para la búsqueda
@@ -515,7 +515,7 @@ public class VistaConocimiento2 extends View<Conocimiento> implements Presentado
 		conocimiento.setTransportistaConductor(transportista);
 		//conocimiento.setTransportistaPropietario(transportista);
 		conocimiento.setUsuario(usuario);
-		conocimiento.setEstado(estado);
+		conocimiento.setEstadoDescripcion(estadoDescripcion);
 		
 //		Oficina origen = new Oficina();
 //		origen.setId(getIdFromNombreOficina(origenSuggestBox.getValue()));

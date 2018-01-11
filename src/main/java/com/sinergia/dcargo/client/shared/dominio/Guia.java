@@ -186,6 +186,9 @@ public class Guia implements java.io.Serializable {
 	@Transient
 	private Integer nroComprobantePagoOrigen;
 	
+	@javax.persistence.OneToMany(mappedBy = "guia")
+	private java.util.Set<MovimientoIngreso> movimientosIngreso = new java.util.HashSet<MovimientoIngreso>();
+	
 	/**
 	 * @generated
 	 */
@@ -750,6 +753,14 @@ public class Guia implements java.io.Serializable {
 
 	public void setNroComprobantePagoOrigen(Integer nroComprobantePagoOrigen) {
 		this.nroComprobantePagoOrigen = nroComprobantePagoOrigen;
+	}
+
+	public java.util.Set<MovimientoIngreso> getMovimientosIngreso() {
+		return movimientosIngreso;
+	}
+
+	public void setMovimientosIngreso(java.util.Set<MovimientoIngreso> movimientosIngreso) {
+		this.movimientosIngreso = movimientosIngreso;
 	}
 	
 	

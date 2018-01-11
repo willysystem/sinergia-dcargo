@@ -575,13 +575,14 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		String userName = sctx.getCallerPrincipal().getName();
 		Usuario user    = servicioUsuario.buscarPorUsuario(userName); 
 		Oficina oficina = user.getOffice();
-		Cuenta cuenta = oficina.getCuentaIngresoOrigen(); 
+		Cuenta cuenta = oficina.getCuentaIngreso(); 
 		
 		//Cuenta cuenta = servicioCuenta.getCuentaIngresoPorNroCuenta(1000);
 		Guia guia = buscarPorId(idGuia);
 		guia.setPagadoOrigen(true);
 		guia = merge(guia);
 		MovimientoIngreso miP = servicioMovimiento.nuevoMovimientoIngreso();
+		servicioMovimiento.generarNroComprobanteIngreso(miP.getId());
 		miP = em.find(MovimientoIngreso.class, miP.getId());
 		miP.setFechaRegistro(new Date());
 		miP.setMonto(monto);
@@ -614,7 +615,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		String userName = sctx.getCallerPrincipal().getName();
 		Usuario user    = servicioUsuario.buscarPorUsuario(userName); 
 		Oficina oficina = user.getOffice();
-		Cuenta cuenta = oficina.getCuentaIngresoDestino(); 
+		Cuenta cuenta = oficina.getCuentaIngreso(); 
 		
 		Guia guia = buscarPorId(idGuia);
 		guia.setPagadoDestino(true);
@@ -622,6 +623,7 @@ public class ServicioGuiaImpl extends Dao<Guia> implements ServicioGuia {
 		
 		
 		MovimientoIngreso miP = servicioMovimiento.nuevoMovimientoIngreso();
+		servicioMovimiento.generarNroComprobanteIngreso(miP.getId());
 		miP = em.find(MovimientoIngreso.class, miP.getId());
 		miP.setFechaRegistro(new Date());
 		miP.setMonto(monto);

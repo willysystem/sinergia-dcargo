@@ -166,6 +166,18 @@ public class VistaMovimiento extends View<Movimiento> implements PresentadorMovi
 		grid.setColumnWidth(tipoColmun, 30, Unit.PX);
 		grid.addColumn(tipoColmun, "Tipo");
 		
+		// Nro Comprobante
+		TextColumn<Movimiento> nroColmun = new TextColumn<Movimiento>() {
+			@Override
+			public String getValue(Movimiento entity) {
+				if(entity.getNroComprobante() != null)
+					return entity.getNroComprobante()+"";
+				return "";
+			}
+		};
+		grid.setColumnWidth(nroColmun, 20, Unit.PX);
+		grid.addColumn(nroColmun, "Comprobante");
+		
 		// Fecha
 		TextColumn<Movimiento> fechaColmun = new TextColumn<Movimiento>() {
 			@Override

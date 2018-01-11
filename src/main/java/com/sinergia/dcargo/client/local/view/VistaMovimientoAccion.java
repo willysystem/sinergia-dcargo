@@ -517,7 +517,9 @@ public class VistaMovimientoAccion extends DialogBox  implements Display {
 				servicioMovimiento.cambiarEstado(movimientoSeleccionado.getId(), "V", new LlamadaRemota<Void>("No se pudo Guardar", false) {
 					@Override
 					public void onSuccess(Method method, Void response) {
-						if(movimientoAccion.getTitulo() == movimientoAccion.getTitulo())
+						log.info("movimientoSeleccionado.getTipoCuenta(): " + movimientoSeleccionado.getTipoCuenta());
+						
+						if(TipoCuenta.INGRESO == movimientoSeleccionado.getTipoCuenta())
 							servicioMovimiento.generarNroComprobanteIngreso(movimientoSeleccionado.getId(), new LlamadaRemota<Integer>("No se puede generar numero de comprobandte de ingreso", true) {
 								@Override
 								public void onSuccess(Method method, Integer response) {

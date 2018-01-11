@@ -40,7 +40,7 @@ public interface ServicioConocimiento {
 
   @PUT 
   @Path("/buscarConocimiento")
-  @Produces("application/json")
+  @Consumes("application/json")
   public List<Conocimiento> buscarConocimiento(Conocimiento conocimiento);	
 	
   @GET 
@@ -127,8 +127,8 @@ public interface ServicioConocimiento {
   @PUT
   @Consumes("application/json")
   @Produces("application/json")
-  @Path("/guardarAcuenta/{idConocimiento}/{acuenta}")
-  public void guardarAcuenta(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("acuenta") Double acuenta) throws Exception;
+  @Path("/guardarAcuenta/{idConocimiento}/{acuenta}/{guardarAcuenta}")
+  public void guardarAcuenta(@QueryParam("idConocimiento") Long idConocimiento, @QueryParam("acuenta") Double acuenta, @QueryParam("guardarAcuenta") Boolean guardarAcuenta) throws Exception;
   
   @PUT
   @Consumes("application/json")

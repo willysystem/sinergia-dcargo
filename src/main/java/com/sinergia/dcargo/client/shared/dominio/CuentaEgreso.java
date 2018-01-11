@@ -1,5 +1,6 @@
 package com.sinergia.dcargo.client.shared.dominio;
 
+
 /**
  * @generated
  */
@@ -13,13 +14,8 @@ public class CuentaEgreso extends Cuenta implements java.io.Serializable {
 	/**
 	 * @generated
 	 */
-	@javax.persistence.ManyToOne
-	private Oficina oficina;
-	/**
-	 * @generated
-	 */
 	@javax.persistence.OneToOne
-	private Oficina oficinaEgresoaCuenta;
+	private Oficina oficina;
 	/**
 	 * @generated
 	 */
@@ -45,19 +41,5 @@ public class CuentaEgreso extends Cuenta implements java.io.Serializable {
 	 */
 	public void setOficina(Oficina oficina) {
 		this.oficina = oficina;
-	}
-
-	/**
-	 * @generated
-	 */
-	public Oficina getOficinaEgresoaCuenta() {
-		return this.oficinaEgresoaCuenta;
-	}
-
-	/**
-	 * @generated
-	 */
-	public void setOficinaEgresoaCuenta(Oficina oficinaEgresoaCuenta) {
-		this.oficinaEgresoaCuenta = oficinaEgresoaCuenta;
 	}
 }

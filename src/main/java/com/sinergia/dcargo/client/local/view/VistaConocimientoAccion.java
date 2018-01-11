@@ -282,9 +282,23 @@ public class VistaConocimientoAccion /*extends DialogBox*/ implements Carga, Dis
 		diasTextBox.setWidth("20px");
 		
 		//guardarBtn.setEnabled(false);
-		imprimirExternoBtn.setEnabled(false);
-		imprimirInternoBtn.setEnabled(false);
-		
+		if(conocimientoSeleccionado == null) {
+			imprimirExternoBtn.setEnabled(false);
+			imprimirInternoBtn.setEnabled(false);
+		} else {
+			if(conocimientoSeleccionado.getEstadoDescripcion() == null || conocimientoSeleccionado.getEstadoDescripcion().equals("")) {
+				imprimirExternoBtn.setEnabled(false);
+				imprimirInternoBtn.setEnabled(false);
+			} else {
+				if(conocimientoSeleccionado.getEstadoDescripcion().charAt(0) == 'V') {
+					imprimirExternoBtn.setEnabled(true);
+					imprimirInternoBtn.setEnabled(true);
+				} else {
+					imprimirExternoBtn.setEnabled(false);
+					imprimirInternoBtn.setEnabled(false);
+				}
+			}
+		}
 		
 		// Values
 		conocimientoSeleccionado.setFecha(adminParametros.getDateParam().getDate());
@@ -984,7 +998,7 @@ public class VistaConocimientoAccion /*extends DialogBox*/ implements Carga, Dis
 			GWT.log("acuenta: " + acuenta);
 			// Guardar
 			fijarEstadoGuiaEspera();
-			servicioConocimiento.guardarAcuenta(conocimientoSeleccionado.getId(), acuenta, new LlamadaRemota<Void>("No se puede guardar acuenta", false) {
+			servicioConocimiento.guardarAcuenta(conocimientoSeleccionado.getId(), acuenta, false, new LlamadaRemota<Void>("No se puede guardar acuenta", false) {
 				@Override
 				public void onSuccess(Method method, Void response) {
 					conocimientoSeleccionado.setAcuenta(acuenta);
@@ -1050,15 +1064,15 @@ public class VistaConocimientoAccion /*extends DialogBox*/ implements Carga, Dis
 								GWT.log("acuenta: " + acuenta);
 
 								fijarEstadoGuiaEspera();
-//								servicioConocimiento.guardarAcuenta(conocimientoSeleccionado.getId(), acuenta, new LlamadaRemota<Void>("No se puede guardar acuenta", false) {
-//									@Override
-//									public void onSuccess(Method method, Void response) {
-//										conocimientoSeleccionado.setAcuenta(acuenta);
-//										fijarEstadoGuiaCargado();
-//										mensajeExito.mostrar("Conocimiento existosamente Guardado: " + response);
-//										VistaConocimientoAccion.this.cargador.hide();
-//									}
-//								});
+								servicioConocimiento.guardarAcuenta(conocimientoSeleccionado.getId(), acuenta, true, new LlamadaRemota<Void>("No se puede guardar acuenta", false) {
+									@Override
+									public void onSuccess(Method method, Void response) {
+										conocimientoSeleccionado.setAcuenta(acuenta);
+										fijarEstadoGuiaCargado();
+										mensajeExito.mostrar("Conocimiento existosamente Guardado: " + nroConocimientoValorLabel.getText());
+										VistaConocimientoAccion.this.cargador.hide();
+									}
+								});
 							}
 						});
 					}

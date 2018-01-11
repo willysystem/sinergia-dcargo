@@ -14,11 +14,13 @@ import java.util.Map.Entry;
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TemporalType;
 
+import com.sinergia.dcargo.client.local.UtilDCargo;
 import com.sinergia.dcargo.client.shared.ServicioMovimiento;
 import com.sinergia.dcargo.client.shared.dominio.Conocimiento;
 import com.sinergia.dcargo.client.shared.dominio.Cuenta;
@@ -31,6 +33,7 @@ import com.sinergia.dcargo.client.shared.dto.DeudasPorCobrarReporte;
 import com.sinergia.dcargo.client.shared.dto.DeudasReporte;
 import com.sinergia.dcargo.client.shared.dto.LiquidacionCargaReporte;
 import com.sinergia.dcargo.client.shared.dto.LiquidacionReporte;
+import com.sinergia.dcargo.server.util.UtilDCargoServer;
 
 /**
  * @author willy
@@ -43,6 +46,8 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	
 	@Resource
 	private SessionContext sctx;
+	
+	@Inject UtilDCargoServer utilDCargo;
 	
 	
 	final private Hashtable<Character, String> estados = new Hashtable<>();
@@ -240,6 +245,20 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	public void cambiarEstado(Long idMovimiento, String estado) throws Exception {
 		Movimiento movP = em.find(Movimiento.class, idMovimiento);
 		movP.setEstado(estado.charAt(0));
+		
+//		if(movP.getEstado() == 'V') {
+//			if(movP instanceof MovimientoIngreso) {
+//				Guia guia = ((MovimientoIngreso)movP).getGuia();
+//				
+//			} 
+//			if(movP instanceof MovimientoEgreso) {
+//				Conocimiento cono = ((MovimientoEgreso)movP).getConocimiento();
+//				
+//			} 
+//			
+//			movP.setOrigen(movP.get);
+//		}
+		
 		em.merge(movP);
 	}
 	
@@ -247,7 +266,8 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	public void guardarGuia(Long idMovimiento, Long idGuia) throws Exception {
 		MovimientoIngreso movP = em.find(MovimientoIngreso.class, idMovimiento);
 		Guia guia = em.find(Guia.class, idGuia);
-		//movP.setGuia(guia);
+		movP.setGuia(guia);
+		//em.merge(movP);
 		em.merge(guia);
 		
 	}
@@ -285,8 +305,13 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			
 			MovimientoIngreso movIngreso = ((MovimientoIngreso)mov);
 			Guia guia = null;
-			if(movIngreso.getGuiaPagoOrigen() != null) guia = movIngreso.getGuiaPagoOrigen(); 
-			else guia = movIngreso.getGuiaPagoDestino();        
+			if(movIngreso.getGuiaPagoOrigen() != null) 
+				guia = movIngreso.getGuiaPagoOrigen(); 
+			if(movIngreso.getGuiaPagoDestino() != null)
+				guia = movIngreso.getGuiaPagoDestino();
+			if(movIngreso.getGuia() != null)
+				guia = movIngreso.getGuia();
+			
 			
 			if(guia == null) {
 				movTO.setOrigen("");
@@ -314,27 +339,25 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 			
 			MovimientoEgreso movEgreso = (MovimientoEgreso)mov; 
 			
-			if(movEgreso.getConocimiento() == null) {
-				movTO.setOrigen("");
-				movTO.setDestino("");
-			} else {
-				if(movEgreso.getConocimiento().getOficinaOrigen() == null) {
-					movTO.setOrigen("");             			
-				} else if(movEgreso.getConocimiento().getOficinaDestino() == null) {
-					movTO.setDestino("");
-				} else {
-					movTO.setOrigen(movEgreso.getConocimiento().getOficinaOrigen().getNombre());
-					movTO.setDestino(movEgreso.getConocimiento().getOficinaDestino().getNombre());
-				}
+			if(movEgreso.getConocimiento() != null) {
+				movTO.setOrigen(utilDCargo.validarNullParaMostrar(movEgreso.getConocimiento().getOficinaOrigen().getNombre()));
+				movTO.setDestino(utilDCargo.validarNullParaMostrar(movEgreso.getConocimiento().getOficinaDestino().getNombre()));
 			}
 			
-			if(((MovimientoEgreso)mov).getConocimiento() != null) {
+			if(movEgreso.getConocimientoAcuenta() != null) {
+				movTO.setOrigen(utilDCargo.validarNullParaMostrar(movEgreso.getConocimientoAcuenta().getOficinaOrigen().getNombre()));
+				movTO.setDestino(utilDCargo.validarNullParaMostrar(movEgreso.getConocimientoAcuenta().getOficinaDestino().getNombre()));
+			}
+			
+			if(movEgreso.getConocimiento() != null) {
 				movTO.setPagoOrigen(movEgreso.getConocimiento().getPagoOrigen());
 			    movTO.setPagoDestino(movEgreso.getConocimiento().getPagoDestino());
 			}
 		    
 			if(((MovimientoEgreso) mov).getConocimiento() != null) 
 				movTO.setNroGuiOrConocimiento(((MovimientoEgreso) mov).getConocimiento().getNroConocimiento()+"");
+			if(((MovimientoEgreso) mov).getConocimientoAcuenta() != null) 
+				movTO.setNroGuiOrConocimiento(((MovimientoEgreso) mov).getConocimientoAcuenta().getNroConocimiento()+"");
 		}
 		
 		if(mov.getCuenta() != null) {
@@ -351,8 +374,6 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 	        	movTO.setNroCuentaPadre(mov.getCuenta().getCuenta().getNroCuenta());
 		        movTO.setDescripcionPadre(mov.getCuenta().getCuenta().getDescripcion());
 	        }
-	        
-	         
 		}
 		
 		
@@ -368,6 +389,7 @@ public class ServicioMovimientoImpl implements ServicioMovimiento {
 		return movP;
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public LiquidacionCargaReporte reporteLiquidacionCarga(LiquidacionReporte liquidacionReporte) throws Exception {
 		

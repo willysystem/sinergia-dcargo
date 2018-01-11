@@ -18,6 +18,7 @@
     <exclude name = "com.sinergia.dcargo.client.local.AppController$5" />
     <exclude name = "com.sinergia.dcargo.client.local.AdminParametros" />
     <exclude name = "com.sinergia.dcargo.client.local.UtilDCargo" />
+    
 <!--     <exclude name = "com.sinergia.dcargo.client.local.GetSetAttributeGenerator" /> -->
     
     

@@ -123,6 +123,9 @@ public class Conocimiento implements java.io.Serializable {
 	@javax.persistence.ManyToOne
 	private Transportista transportistaConductor;
 
+	@javax.persistence.OneToOne
+	private MovimientoEgreso movimientoEgresoAcuenta;
+	
 	/**
 	 * @generated
 	 */
@@ -571,4 +574,15 @@ public class Conocimiento implements java.io.Serializable {
 		getMovimientosEgreso().remove(movimientosEgreso);
 		movimientosEgreso.setConocimiento(null);
 	}
+
+	public MovimientoEgreso getMovimientoEgresoAcuenta() {
+		return movimientoEgresoAcuenta;
+	}
+
+	public void setMovimientoEgresoAcuenta(MovimientoEgreso movimientoEgresoAcuenta) {
+		this.movimientoEgresoAcuenta = movimientoEgresoAcuenta;
+	}
+	
+	
+	
 }

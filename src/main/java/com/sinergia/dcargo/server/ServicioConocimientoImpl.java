@@ -31,7 +31,6 @@ import com.sinergia.dcargo.client.shared.dominio.Cuenta;
 import com.sinergia.dcargo.client.shared.dominio.EstadoGuia;
 import com.sinergia.dcargo.client.shared.dominio.Guia;
 import com.sinergia.dcargo.client.shared.dominio.MovimientoEgreso;
-import com.sinergia.dcargo.client.shared.dominio.MovimientoIngreso;
 import com.sinergia.dcargo.client.shared.dominio.Oficina;
 import com.sinergia.dcargo.client.shared.dominio.Transportista;
 import com.sinergia.dcargo.client.shared.dominio.Usuario;
@@ -367,27 +366,31 @@ public class ServicioConocimientoImpl extends Dao<Conocimiento> implements Servi
 	}
 
 	@Override
-	public void guardarAcuenta(Long idConocimiento, Double acuenta) throws Exception {
+	public void guardarAcuenta(Long idConocimiento, Double acuenta, Boolean guardarAcuenta) throws Exception {
 		
 		Conocimiento cP = buscarPorId(idConocimiento);
 		cP.setAcuenta(acuenta);
 		
-		//if(guardarCuenta.equals("Si")) {
+		if(guardarAcuenta) {
 			String userName = sctx.getCallerPrincipal().getName();
 			Usuario user    = servicioUsuario.buscarPorUsuario(userName); 
 			Oficina oficina = user.getOffice();
-			Cuenta cuenta = oficina.getCuentaEgresoAcuenta();
+			Cuenta cuenta = oficina.getCuentasEgreso();
 			String glosa = "";
 			
 			MovimientoEgreso miP = servicioMovimiento.nuevoMovimientoEgreso();
+			servicioMovimiento.generarNroComprobanteEgreso(miP.getId());
 			miP = em.find(MovimientoEgreso.class, miP.getId());
 			miP.setFechaRegistro(new Date());
 			miP.setMonto(acuenta);
 			miP.setCuenta(cuenta);
 			miP.setGlosa(glosa);
-			miP.setConocimiento(cP);
+			miP.setConocimientoAcuenta(cP);
+			cP.setMovimientoEgresoAcuenta(miP);
 			miP.setEstado("V".charAt(0));
-		//}
+			em.merge(cP);
+			em.merge(miP);
+		}
 		
 		merge(cP);
 	}
